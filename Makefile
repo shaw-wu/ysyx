@@ -1,6 +1,27 @@
 STUID = ysyx_202301202
 STUNAME = 吴孝洲
 
+exs = $(wildcard ex?)
+objects = $(patsubst %.c,%.o,$(wildcard *.c))
+#CFLAGS=-Wall -g
+
+.PHONY: all,clean
+all: ex1 ex3 ex4 ex8
+
+ex1:ex1.o
+	gcc -o ex1 ex1.o
+ex3:ex3.o
+	gcc -o ex3 ex3.o
+ex4:ex4.o
+	gcc -o ex4 ex4.o
+ex8:ex8.o
+	gcc -o ex8 ex8.o
+
+$(objects) : %.o: %.c
+	$(CC) -c -Wall -g $< -o $@
+
+clean :
+	-rm $(exs) $(objects)
 # DO NOT modify the following code!!!
 
 TRACER = tracer-ysyx
