@@ -8,5 +8,5 @@ all:
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "Write this Makefile by your self."
-	make -C $(SUB_DIR)
+	make -C $(SUB_DIR) htl
 include ../Makefile
