@@ -1,4 +1,4 @@
-VPATH = ../test_our
+VPATH = ../test_our/
 objects_1 = sim_main.cpp topp.v
 OBJ = $(wildcard objects_*)
 all:
