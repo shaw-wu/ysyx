@@ -1,27 +1,51 @@
 STUID = ysyx_202301202
 STUNAME = 吴孝洲
 
-exs = $(wildcard ex?)
+edits = $(wildcard edit*)
 objects = $(patsubst %.c,%.o,$(wildcard *.c))
 #CFLAGS=-Wall -g
 
 .PHONY: all,clean
-all: ex1 ex3 ex4 ex8
+all: edit1 edit3 edit4 edit8 edit9 edit10 edit11 edit12 edit13 edit14 edit16-1 edit16-2 edit17-1 edit17-2 edit18 edit32-1
 
-ex1:ex1.o
-	gcc -o ex1 ex1.o
-ex3:ex3.o
-	gcc -o ex3 ex3.o
-ex4:ex4.o
-	gcc -o ex4 ex4.o
-ex8:ex8.o
-	gcc -o ex8 ex8.o
+edit1:ex1.o
+	gcc -o edit1 ex1.o
+edit3:ex3.o
+	gcc -o edit3 ex3.o
+edit4:ex4.o
+	gcc -o edit4 ex4.o
+edit8:ex8.o
+	gcc -o edit8 ex8.o
+edit9:ex9.o
+	gcc -o edit9 ex9.o
+edit10:ex10.o
+	gcc -o edit10 ex10.o
+edit11:ex11.o
+	gcc -o edit11 ex11.o
+edit12:ex12.o
+	gcc -o edit12 ex12.o
+edit13:ex13.o
+	gcc -o edit13 ex13.o
+edit14:ex14.o
+	gcc -o edit14 ex14.o
+edit16-1:ex16-1.o
+	gcc -o edit16-1 ex16-1.o
+edit16-2:ex16-2.o
+	gcc -o edit16-2 ex16-2.o
+edit17-1:ex17-1.o
+	gcc -o edit17-1 ex17-1.o
+edit17-2:ex17-2.o
+	gcc -o edit17-2 ex17-2.o
+edit18:ex18.o
+	gcc -o edit18 ex18.o
+edit32-1:ex32-1.o
+	gcc -o edit32-1 ex32-1.o
 
 $(objects) : %.o: %.c
-	$(CC) -c -Wall -g $< -o $@
+	$(CC) -c -g $< -o $@
 
 clean :
-	-rm $(exs) $(objects)
+	-rm $(edits) $(objects)
 # DO NOT modify the following code!!!
 
 TRACER = tracer-ysyx
