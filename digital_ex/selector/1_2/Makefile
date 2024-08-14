@@ -1,5 +1,5 @@
-TOP_NAME = topp
-NXDC_FILE = $(shell pwd)/constr/top.nxdc
+TOP_NAME = mux21b
+NXDC_FILE = $(shell pwd)/constr/mux21b.nxdc
 INC_PATH ?=
 
 VERILATOR = verilator
