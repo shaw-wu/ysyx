@@ -4,7 +4,7 @@
 //#include <nvboard.h>
 
 VerilatedContext* contextp = NULL; // 声明上下文变量
-VerilatedVcdc* tfp = NULL;         // 声明波形变量
+VerilatedVcdC* tfp = NULL;         // 声明波形变量
 
 static Vmux21b* top;               // 声明模块变量
 //static TOP_NAME dut;
@@ -17,7 +17,7 @@ void step_and_dump_wave(){
 }
 void sim_init(){
 	contextp = new VerilatedContext;  // 初始化
-	tfp = new VerilatedVcdc;
+	tfp = new VerilatedVcdC;
 	top = new Vmux21b;                 // 实例化模块
 	contextp->traceEverOn(true);      // 打开波形跟踪
 	top->trace(tfp, 0);               // 链接跟踪变量tfp与实例化模块top

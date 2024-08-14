@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 	contextp->traceEverOn(true);
 	top->trace(tfp, 0);
 	tfp->open("wave.vcd");
-	*/
+ 	*/
 //	while (!contextp->gotFinish()) {
 	while (1) {
 		/*int a = rand() & 1;
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 		tfp->dump(contextp->time());
 		contextp->timeInc(1);
 
-		assert(top->f == (a ^ b));*/
+ 		assert(top->f == (a ^ b));*/
 		//single_cycle();
 		dut.eval();
 		nvboard_update();
