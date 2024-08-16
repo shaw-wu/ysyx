@@ -6,7 +6,7 @@ module decode(x, en, y);
 	always @(x or en) begin
 		if (en) begin
 			case (x)
-			  3'b000 : y = 7'b1000000;
+			  3'b000 : y = 7'b0000000;
 			  3'b001 : y = 7'b1111001;
 			  3'b010 : y = 7'b0100100;
 			  3'b011 : y = 7'b0110000;
