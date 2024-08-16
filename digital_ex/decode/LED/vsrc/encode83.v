@@ -24,5 +24,5 @@ module encode83(x, en, y, HEXseg);
 		else y = 4'b0000;
 	end
 
-  decode i0(y[2:0], 1,HEXseg);
+  bcd7seg seg0(y[3:0], HEXseg[6:0]);
 endmodule
