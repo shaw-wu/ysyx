@@ -7,7 +7,7 @@ module bcd7seg(b, h0, h1);
 	initial begin
 		decc = 0;
 		base = 1;
-		for (i=0; i<=3; i++) begin
+		for (i=0; i<=3; i=i+1) begin
 			decc = b[i] * base;
 			base *= 2;
 		end

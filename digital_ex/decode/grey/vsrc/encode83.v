@@ -10,7 +10,8 @@ module grey(x, en, y, HEXseg0, HEXseg1);
 	always @(x or en) begin
 		if (en) begin
 			y[3] = x[3];
-			for (i=2; i>=0; i-=1) y[i] = y[i+1] | x[i];
+			for (i=2; i>=0; i=i-1) 
+				y[i] = y[i+1] | x[i];
 			y[4] = 1;			
 	  end
 		else y[4] = 0;
