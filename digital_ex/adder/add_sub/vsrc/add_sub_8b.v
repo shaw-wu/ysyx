@@ -2,11 +2,9 @@ module complement (a, a_c);
 	input [7:0] a;
 	output [7:0] a_c;
 
-	wire [6:0] t_no_a;
-	wire [6:0] tmp_a;
-	assign tmp_a = a[6:0];
-	assign t_no_a = {7{a[7]}} ^ tmp_a;
-	assign a_c = {a[7],t_no_a}; 
+	wire [7:0] t_no_a;
+	assign t_no_a = {a[7], {7{a[7]}} ^ a[6:0]};
+	assign a_c = t_no_a + 1; 
 endmodule
 
 module add_sub_8b (a, b, s_or_a, carry, zero, overflow, result);
