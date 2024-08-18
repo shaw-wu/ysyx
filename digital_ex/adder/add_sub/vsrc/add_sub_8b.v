@@ -17,12 +17,14 @@ module add_sub_8b (a, b, s_or_a, carry, zero, overflow, result);
 	wire [7:0] a_c;
 	wire [7:0] b_c; 
 	wire [7:0] t_no_Cin;
+	wire [7:0] t_result;
 	complement i0(a[7:0], a_c[7:0]);
 	complement i1(b[7:0], b_c[7:0]);
+	complement i2(t_result[7:0], result[7:0]);
 	assign t_no_Cin = {8{s_or_a}} ^ b_c;
-	assign {carry, result} = a_c + t_no_Cin + {7'b0000000,s_or_a};
+	assign {carry, t_result} = a_c + t_no_Cin + {7'b0000000,s_or_a};
 	assign overflow = (a_c[7] == b_c[7]) && (a_c[7] != result[7]);
-  assign zero = ~(| result);
+  assign zero = ~(| t_result);
 
 endmodule
 
