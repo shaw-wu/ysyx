@@ -3,7 +3,9 @@ module complement (a, a_c);
 	output [7:0] a_c;
 
 	wire [6:0] t_no_a;
-	assign t_no_a = {7{a[7]}} ^ a[6:0];
+	wire [6:0] tmp_a;
+	assign tmp_a = a[6:0];
+	assign t_no_a = {7{a[7]}} ^ tmp_a;
 	assign a_c = {a[7],t_no_a}; 
 endmodule
 
