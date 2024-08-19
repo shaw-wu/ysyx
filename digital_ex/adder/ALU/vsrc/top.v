@@ -85,35 +85,16 @@ module top(a, b, o, s, out, carry, zero, overflow);
 	xor_4b i5 (a[3:0], b[3:0], s_xor[3:0]);
   assign out_c = a[3] ^ carry_s;
 	assign out_e = zero_s;
-
-	always_latch
-	begin
-		case(o)
-			3'b000 : begin
-				s = t_a;
-				carry = carry_a;
-				zero = zero_a; 
-				overflow = overflow_a;
-			end
-			3'b001 : begin
-				s = t_s;
-				carry = carry_s;
-				zero = zero_s;
-				overflow = overflow_s;
-			end
-			3'b010 : s = s_not;
-			3'b011 : s = s_and;
-			3'b100 : s = s_or;
-			3'b101 : s = s_xor;
-			3'b110 : out = out_c;
-			3'b111 : out = out_e;
-			default : begin
-				s = 4'b1111;
-				carry = 1;
-				zero = 1;
-				overflow = 1;
-				out = 1;
-			end
-		endcase
-	end
+  
+	assign carry = ~(o[2] | o[1]) & ((carry_a | o[0]) & (carry_s | ~o[0]));
+	assign zero = ~(o[2] | o[1]) & ((zero_a | o[0]) & (zero_s | ~o[0]));
+	assign overflow = ~(o[2] | o[1]) & ((overflow_a | o[0]) & (overflow_s | ~o[0]));
+  assign out = (o[2] & o[1]) & ((out_c | o[0]) & (out_e | ~o[0]));
+  assign s = 	({4{~o[2] & ~o[1] & ~o[0]}} & t_a) + 
+		({4{~o[2] & ~o[1] &  o[0]}} & t_s) +
+    ({4{~o[2] &  o[1] & ~o[0]}} & s_not) +
+    ({4{~o[2] &  o[1] &  o[0]}} & s_and) +
+    ({4{ o[2] & ~o[1] & ~o[0]}} & s_or) +
+    ({4{ o[2] & ~o[1] &  o[0]}} & s_xor);
+  
 endmodule
