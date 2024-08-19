@@ -1,12 +1,3 @@
-module complement (a, a_c);
-	input [3:0] a;
-	output [3:0] a_c;
-
-	wire [3:0] t_no_a;
-	assign t_no_a = {a[3], {3{a[3]}} ^ a[2:0]};
-	assign a_c = t_no_a + {3'b000,a[3]}; 
-endmodule
-
 module add_sub_4b (a, b, s_or_a, carry, zero, overflow, result);
 	input [3:0] a;
   input [3:0] b;
@@ -14,17 +5,11 @@ module add_sub_4b (a, b, s_or_a, carry, zero, overflow, result);
   output [3:0] result;
 	output carry,zero,overflow;
 
-	wire [3:0] a_c;
-	wire [3:0] b_c; 
 	wire [3:0] t_no_Cin;
-	wire [3:0] t_result;
-	complement i0(a[3:0], a_c[3:0]);
-	complement i1(b[3:0], b_c[3:0]);
-	complement i2(t_result[3:0], result[3:0]);
-	assign t_no_Cin = {4{s_or_a}} ^ b_c;
-	assign {carry, t_result} = a_c + t_no_Cin + {3'b000,s_or_a};
-	assign overflow = (a_c[3] == t_no_Cin[3]) && (a_c[3] != t_result[3]);
-  assign zero = ~(| t_result);
+	assign t_no_Cin = {4{s_or_a}} ^ b;
+	assign {carry, result} = a + t_no_Cin + {3'b000,s_or_a};
+	assign overflow = (a[3] == t_no_Cin[3]) && (a[3] != result[3]);
+  assign zero = ~(| result);
 
 endmodule
 
