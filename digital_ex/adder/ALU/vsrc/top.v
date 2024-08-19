@@ -68,7 +68,7 @@ module top(a, b, o, s, out, carry, zero, overflow);
 	and_4b i3 (a[3:0], b[3:0], s_and[3:0]);
 	or_4b i4 (a[3:0], b[3:0], s_or[3:0]);
 	xor_4b i5 (a[3:0], b[3:0], s_xor[3:0]);
-  assign out_c = a[3] ^ carry_s;
+  assign out_c = a[3] ^ overflow_s;
 	assign out_e = zero_s;
   
 	assign carry = ~(o[2] | o[1]) & ((carry_a | o[0]) & (carry_s | ~o[0]));
