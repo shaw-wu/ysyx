@@ -23,7 +23,7 @@ module add_sub_4b (a, b, s_or_a, carry, zero, overflow, result);
 	complement i2(t_result[3:0], result[3:0]);
 	assign t_no_Cin = {4{s_or_a}} ^ b_c;
 	assign {carry, t_result} = a_c + t_no_Cin + {3'b000,s_or_a};
-	assign overflow = (a_c[3] == b_c[3]) && (a_c[3] != result[3]);
+	assign overflow = (a_c[3] == t_no_Cin[3]) && (a_c[3] != t_result[3]);
   assign zero = ~(| t_result);
 
 endmodule
