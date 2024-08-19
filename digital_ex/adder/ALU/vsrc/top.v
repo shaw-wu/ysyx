@@ -63,7 +63,7 @@ module top(a, b, o, s, out, carry, zero, overflow);
 	wire out_c;
 	wire out_e;
   add_sub_4b i0 (a[3:0], b[3:0], 0, carry_a, zero_a, overflow_a, t_a[3:0]);  
-  add_sub_4b i1 (a[3:0], b[3:0], 0, carry_s, zero_s, overflow_s, t_s[3:0]); 
+  add_sub_4b i1 (a[3:0], b[3:0], 1, carry_s, zero_s, overflow_s, t_s[3:0]); 
   not_4b i2 (a[3:0], s_not[3:0]);
 	and_4b i3 (a[3:0], b[3:0], s_and[3:0]);
 	or_4b i4 (a[3:0], b[3:0], s_or[3:0]);
