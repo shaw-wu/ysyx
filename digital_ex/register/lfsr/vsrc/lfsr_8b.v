@@ -10,6 +10,6 @@ module lfsr_8b(in, clk, s, Q);
 	always @(clk) begin
 			q = (in & {8{s}}) + (Q & {8{~s}});
 			g = q[4] ^ q[3] ^ q[2] ^ q[0];
-			Q = {g, Q[7:1]};
+			Q = {g, q[7:1]};
 		end
 endmodule
