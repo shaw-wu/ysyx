@@ -6,7 +6,7 @@ module lfsr_8b(in, clk, s, Q);
 
 	reg g;
 
-	always @(negedge s or  posedge clk) begin
+	always @(posedge s or  posedge clk) begin
 			if (s) Q = in;
 			else begin
 			  g = Q[4] ^ Q[3] ^ Q[2] ^ Q[0];
