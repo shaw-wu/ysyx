@@ -27,7 +27,7 @@ module decode(x, en, y);
 		end
 		else y = 7'b1111111;
 	end
-endmodule
+endmodule;
 
 module lfsr_8b(in, clk, s, Q, hex0, hex1);
 	input [7:0] in;
@@ -38,12 +38,8 @@ module lfsr_8b(in, clk, s, Q, hex0, hex1);
 	output reg [6:0] hex1;
 
 	reg g;
-	decode i0(.x  (Q[3:0]),
-					  .en (1),
-						.y  (hex0));
-	decode i1(.x  (Q[7:4]),
-					  .en (1),
-						.y  (hex1));
+	decode i0(Q[3:0], 1, hex0[6:0]);
+	decode i1(Q[7:4], 1, hex1[6:0]);
 
 	always @(posedge s or  posedge clk) begin
 			if (s) Q = in;
@@ -52,4 +48,4 @@ module lfsr_8b(in, clk, s, Q, hex0, hex1);
 				Q = {g, Q[7:1]};
 			end
 		end
-endmodule
+endmodule;
