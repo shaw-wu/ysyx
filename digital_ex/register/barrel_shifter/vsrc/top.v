@@ -261,6 +261,6 @@ module top(din, a_l, l_r, shamt, dout);
 	wire [7:0] dout_0;
 	wire [7:0] dout_1;
 	level_0 i0(din   , a_l, l_r, shamt[0], dout_0);
-	level_0 i1(dout_0, a_l, l_r, shamt[1], dout_1);
-	level_0 i2(dout_1, a_l, l_r, shamt[2], dout  );
+	level_1 i1(dout_0, a_l, l_r, shamt[1], dout_1);
+	level_2 i2(dout_1, a_l, l_r, shamt[2], dout  );
 endmodule;
