@@ -34,14 +34,14 @@ module lfsr_8b(in, clk, s, Q, hex0, hex1);
 	input clk;
 	input s;
 	output reg [7:0] Q;
-	output reg [6:0] hex0;
-	output reg [6:0] hex1;
+	output [6:0] hex0;
+	output [6:0] hex1;
 
 	reg g;
-	decode i0(.x  (in[3:0]),
+	decode i0(.x  (Q[3:0]),
 					  .en (1),
 						.y  (hex0));
-	decode i1(.x  (in[7:4]),
+	decode i1(.x  (Q[7:4]),
 					  .en (1),
 						.y  (hex1));
 
