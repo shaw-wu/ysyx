@@ -29,17 +29,19 @@ module decode(x, en, y);
 	end
 endmodule;
 
-module lfsr_8b(in, clk, s, Q, hex0, hex1);
+module lfsr_8b(in, clk, s, Q, hex0, hex1, hex2);
 	input [7:0] in;
 	input clk;
 	input s;
 	output reg [7:0] Q;
 	output reg [6:0] hex0;
 	output reg [6:0] hex1;
+	output reg [6:0] hex2;
 
 	reg g;
-	decode i0(Q[3:0], 1, hex0[6:0]);
-	decode i1(Q[7:4], 1, hex1[6:0]);
+	decode i0(Q[3:0]    , 1, hex0[6:0]);
+	decode i1(Q[7:4]    , 1, hex1[6:0]);
+	assign hex2 = 7'b0001001;
 
 	always @(posedge s or  posedge clk) begin
 			if (s) Q = in;
