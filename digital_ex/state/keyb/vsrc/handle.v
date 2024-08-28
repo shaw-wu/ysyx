@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 module handle
 (
-	//input ps2_clk, ps2_data,
+	input ps2_clk, ps2_data,
 	output [6:0] hex0,hex1,hex2,hex3
 );
 parameter [31:0] clk_period = 10;
-wire ps2_clk, ps2_data;
+//wire ps2_clk, ps2_data;
 reg clk;
 
 initial begin
@@ -22,7 +22,7 @@ initial begin
 end
 
 ps2_keyboard i1(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
-ps2_keyboard_model model(ps2_clk,ps2_data);
+//ps2_keyboard_model model(ps2_clk,ps2_data);
 kbd7seg i2(data,hex0,hex1,hex2,hex3);
 
 always @(posedge clk) begin
@@ -31,9 +31,9 @@ always @(posedge clk) begin
 	nextdata_n <= ~(clrn & ready);
 end
 
-initial begin
-	model.kbd_sendcode(8'h1C);
-	model.kbd_sendcode(8'h1B);
-end
+//initial begin
+//	model.kbd_sendcode(8'h1C);
+//	model.kbd_sendcode(8'h1B);
+//end
 
 endmodule
