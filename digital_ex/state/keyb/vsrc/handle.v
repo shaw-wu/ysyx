@@ -18,6 +18,8 @@ reg [7:0] data;
 initial begin
 	overflow = 1;
 	ready = 1;
+	nextdata_n = 0;
+	clrn = 1;
 end
 
 ps2_keyboard s1(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
