@@ -47,7 +47,7 @@ end
 reg [7:0] ascii_code;
 always @(*) begin
 	integer i;
-	ascii_code = 8'b1111_1111;
+	ascii_code = 8'b0000_0000;
 	for (i=0; i<36; i=i+1) begin
 		if(data == lut[(16*i+8)+:8])
 			ascii_code = lut[16*i+:8];
