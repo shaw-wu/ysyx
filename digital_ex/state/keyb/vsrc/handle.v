@@ -64,7 +64,7 @@ kbd7seg s2
 );
 
 always @(posedge clk) begin
-	clrn = ~overflow;
+	clrn <= ~overflow;
 	if(overflow == 1) nextdata_n <= 1;
 	else nextdata_n <= 0;
 end
