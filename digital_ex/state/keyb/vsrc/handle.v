@@ -5,9 +5,8 @@ module handle
 	output [6:0] hex0,hex1,hex2,hex3
 );
 parameter [31:0] clk_period = 10;
-//wire ps2_clk, ps2_data;
 reg clk;
-
+// 时钟定义
 initial begin
 	clk = 0;
 	forever
@@ -22,18 +21,11 @@ initial begin
 end
 
 ps2_keyboard i1(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
-//ps2_keyboard_model model(ps2_clk,ps2_data);
 kbd7seg i2(data,hex0,hex1,hex2,hex3);
 
 always @(posedge clk) begin
-	#100
 	clrn = ~overflow;
-	nextdata_n <= ~(clrn & ready);
+	if(overflow == 1) nextdata_n <= 1;
+	else nextdata_n <= 0;
 end
-
-//initial begin
-//	model.kbd_sendcode(8'h1C);
-//	model.kbd_sendcode(8'h1B);
-//end
-
 endmodule

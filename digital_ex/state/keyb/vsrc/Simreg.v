@@ -6,9 +6,10 @@ module Simreg#(parameter WIDTH)
 	output reg [WIDTH-1:0] clrn_dout,
 	output reg [WIDTH-1:0] next_dout,
 	input wen
-)
+);
 
 always @(posedge clk) begin
 	if (wen) begin clrn_dout <= din; next_dout <= dout;
 end
-endmodule
+end
+endmodule;
