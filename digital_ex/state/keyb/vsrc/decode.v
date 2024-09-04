@@ -51,6 +51,7 @@ always @(*) begin
 	for (i=0; i<36; i=i+1) begin
 		if(data == lut[(16*i+8)+:8])
 			ascii_code = lut[16*i+:8];
+		break;
 	end
 end
 decode i1 (ascii_code[7:4], 1, hex3);
