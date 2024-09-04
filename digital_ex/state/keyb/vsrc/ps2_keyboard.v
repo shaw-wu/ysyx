@@ -10,18 +10,15 @@ module ps2_keyboard(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overf
 	reg [2:0] w_ptr,r_ptr;
 	reg [3:0] count;
 
-	reg ps2_clk_sync1;
-	reg ps2_clk_sync0;
-
+	reg [2:0] ps2_clk_sync;
 	//高频同步时钟clk与低频异步时钟ps2_clk对齐
 	always @(posedge clk) begin
-		ps2_clk_sync0 <= ps2_clk;
-		ps2_clk_sync1 <= ps2_clk_sync0;
+		ps2_clk_sync <=  {ps2_clk_sync[1:0],ps2_clk}; 
 	end
 
 	//检测时钟下降沿
-	wire sampling = ps2_clk_sync1 & ~ps2_clk_sync0;
-	
+	wire sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1];
+
 	always @(posedge clk) begin
 		//reset
 		if (clrn == 0) begin
