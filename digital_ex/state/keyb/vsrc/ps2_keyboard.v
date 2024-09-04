@@ -17,6 +17,7 @@ module ps2_keyboard(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overf
 	always @(posedge clk) begin
 		ps2_clk_sync0 <= ps2_clk;
 		ps2_clk_sync1 <= ps2_clk_sync0;
+		$display("synv0: %h, sync1: %h, ps2_clk: %h, clk: %h",ps2_clk_sync0,ps2_clk_sync1,ps2_clk,clk);
 	end
 
 	//检测时钟下降沿
