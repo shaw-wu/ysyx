@@ -17,7 +17,7 @@ reg [7:0] data;
 
 ps2_keyboard s1(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
 kbd7seg s2
-( .data(data),.hex0(hex0),.hex1(hex1),.hex2(hex2),.hex3(hex3),
+( .clk(clk), .data(data),.hex0(hex0),.hex1(hex1),.hex2(hex2),.hex3(hex3),
 	.lut({ 8'b00010101,4'd7,4'd1,  //q 71
     8'b00011101,4'd7,4'd7 ,  //w 77
 		8'b00100100,4'd6,4'd5 ,  //e 65
