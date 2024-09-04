@@ -5,7 +5,7 @@ module handle
 	output [6:0] hex0,hex1,hex2,hex3,
 	output reg led1,led2
 );
-parameter period_clk = 20;
+parameter [31:0] period_clk = 10;
 reg clk;
 initial begin
 	clk = 0;
