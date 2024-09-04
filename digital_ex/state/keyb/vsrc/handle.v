@@ -3,7 +3,7 @@ module handle
 (
 	input ps2_clk, ps2_data, clrn,
 	output [6:0] hex0,hex1,hex2,hex3,
-	output reg led1,led2
+	output reg led1,led2,led3
 );
 parameter [31:0] period_clk = 10;
 reg clk;
@@ -12,14 +12,13 @@ initial begin
 	forever
 		#(period_clk/2)clk = ~clk;
 end	
-always @(posedge ps2_clk) begin
-	led1 = ~led1;
-end
 
 reg nextdata_n,ready,overflow;
 reg [7:0] data_reg;
 reg [7:0] data;
-
+assign led1 = ready;
+assign led2 = overflow;
+assign led3 = nextdata_n;
 ps2_keyboard s1(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
 kbd7seg s2
 ( .clk(clk), .data(data_reg),.hex0(hex0),.hex1(hex1),.hex2(hex2),.hex3(hex3),
