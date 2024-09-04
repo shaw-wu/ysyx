@@ -68,7 +68,4 @@ decode i1 (ascii_code[7:4], 1, hex3);
 decode i2 (ascii_code[3:0], 1, hex2);
 decode i3 (data[7:4]      , 1, hex1);
 decode i4 (data[3:0]      , 1, hex0);
-always @(posedge clk) begin
-	$display("ascii_code: %h,data %h",ascii_code, data);
-end
 endmodule
