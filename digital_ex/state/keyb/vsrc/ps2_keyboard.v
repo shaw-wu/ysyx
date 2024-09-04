@@ -18,6 +18,12 @@ module ps2_keyboard(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overf
 
 	//检测时钟下降沿
 	wire sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1];
+	always@(sampling) begin
+		$display("1");
+	end
+	always@(ps2_clk_sync[0]) begin
+		$display("2");
+	end
 
 	always @(posedge clk) begin
 		//reset
