@@ -3,7 +3,7 @@ module handle
 (
 	input ps2_clk, ps2_data, clrn,
 	output [6:0] hex0,hex1,hex2,hex3,
-	output reg led
+	output reg led1,led2
 );
 parameter period_clk = 20;
 reg clk;
@@ -13,8 +13,12 @@ initial begin
 		#(period_clk/2)clk = ~clk;
 end	
 always @(posedge ps2_clk) begin
-	led = ~led;
+	led1 = ~led1;
 end
+always @(posedge clk) begin
+	led2 = ~led2;
+end
+
 reg nextdata_n,ready,overflow;
 reg [7:0] data_reg;
 reg [7:0] data;
