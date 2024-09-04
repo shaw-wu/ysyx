@@ -2,8 +2,7 @@
 module handle
 (
 	input ps2_clk, ps2_data, clrn,
-	output [6:0] hex0,hex1,hex2,hex3,
-	output VGA_CLK
+	output [6:0] hex0,hex1,hex2,hex3
 );
 parameter period_clk = 60;
 reg clk;
