@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
 	while(1){
 		dut.eval();
 		nvboard_update();
+		step_and_dump_wave();
 	}
 	nvboard_quit();
 	delete top;
