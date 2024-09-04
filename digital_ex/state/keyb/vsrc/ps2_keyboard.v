@@ -1,10 +1,9 @@
-module ps2_keyboard(led,clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
+module ps2_keyboard(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
 	input clk,clrn,ps2_clk,ps2_data;
 	input nextdata_n;
 	output [7:0] data;
 	output reg ready;
 	output reg overflow;
-	output reg led;
 
 	reg [9:0] buffer;
 	reg [7:0] fifo[7:0];
@@ -19,10 +18,7 @@ module ps2_keyboard(led,clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, o
 
 	//检测时钟下降沿
 	wire sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1];
-	always@(posedge sampling) begin
-		led = ~led;
-	end
-
+	
 	always @(posedge clk) begin
 		//reset
 		if (clrn == 0) begin
@@ -32,7 +28,7 @@ module ps2_keyboard(led,clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, o
 			ready <= 0;
 		end
 		else begin
-			if (ready&(~nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
+			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
 				$display("2");
 					r_ptr <= r_ptr + 3'b1;
 			    if (w_ptr == r_ptr + 1) begin 

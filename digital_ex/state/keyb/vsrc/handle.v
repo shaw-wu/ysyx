@@ -20,7 +20,7 @@ reg nextdata_n,ready,overflow;
 reg [7:0] data_reg;
 reg [7:0] data;
 
-ps2_keyboard s1(led2, clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
+ps2_keyboard s1(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overflow);
 kbd7seg s2
 ( .clk(clk), .data(data_reg),.hex0(hex0),.hex1(hex1),.hex2(hex2),.hex3(hex3),
 	.lut({ 8'b00010101,4'd7,4'd1,  //q 71
