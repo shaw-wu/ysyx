@@ -58,6 +58,7 @@ kbd7seg s2
 );
 
 always @(posedge clk) begin
+		$display("data: %h,data_reg: %h", data, data_reg);
 	if(ready == 1) begin
 		nextdata_n <= 1;
 		data_reg <= data;
