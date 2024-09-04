@@ -3,7 +3,7 @@ NXDC_FILE = $(shell pwd)/constr/handle.nxdc
 INC_PATH ?=
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += --cc --build --trace --timing
+VERILATOR_CFLAGS += --cc --build --trace --timing --exe
 #-MMD --build --cc 
 									#-03 --x-assign fast --x-initial --noassert
 
