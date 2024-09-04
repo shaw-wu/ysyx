@@ -32,12 +32,14 @@ module ps2_keyboard(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overf
 		end
 		else begin
 			if (ready&(~nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
+				$display("2");
 					r_ptr <= r_ptr + 3'b1;
 			    if (w_ptr == r_ptr + 1) begin 
 						ready <= 1'b0;
 					end
 			end
 			if (sampling) begin //读取数据
+				$display("1");
 				if (count == 4'd10) begin //缓冲区buffer已满  
 					if((buffer[0] == 0) && ps2_data && (^buffer[9:1])) begin //start==0,stop==1,odd(奇校验) 
 						fifo[w_ptr] <= buffer[8:1];
