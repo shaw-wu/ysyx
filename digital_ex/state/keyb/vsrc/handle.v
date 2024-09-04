@@ -4,7 +4,7 @@ module handle
 	input ps2_clk, ps2_data, clrn,
 	output [6:0] hex0,hex1,hex2,hex3
 );
-parameter period_clk = 60;
+parameter period_clk = 20;
 reg clk;
 initial begin
 	clk = 0;
