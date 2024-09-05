@@ -7,8 +7,8 @@ VerilatedContext* contextp = NULL; // 声明上下文变量
 VerilatedVcdC* tfp = NULL;         // 声明波形变量
 
 static Vkeyboard_sim* top;               // 声明模块变量
-//static TOP_NAME dut;
-//void nvboard_bind_all_pins(TOP_NAME* top);
+static TOP_NAME dut;
+void nvboard_bind_all_pins(TOP_NAME* top);
 
 void step_and_dump_wave(){
 	top->eval();                     // 更新电路状态
@@ -20,8 +20,8 @@ void sim_init(int argc, char** argv ){
 	tfp = new VerilatedVcdC;
 	contextp->commandArgs(argc, argv);
 	top = new Vkeyboard_sim;                 // 实例化模块
-	//nvboard_bind_all_pins(&dut);
-	//nvboard_init();
+	nvboard_bind_all_pins(&dut);
+	nvboard_init();
 	contextp->traceEverOn(true);      // 打开波形跟踪
 	top->trace(tfp, 0);               // 链接跟踪变量tfp与实例化模块top
 	tfp->open("dump.vcd");            // 创建文件
@@ -34,11 +34,11 @@ void sim_exit(){
 int main(int argc, char** argv) {
 	sim_init(argc, argv);
 	while(1){
-		//dut.eval();
-		//nvboard_update();
+		dut.eval();
+		nvboard_update();
 		step_and_dump_wave();
 	}
-	//nvboard_quit();
+	nvboard_quit();
 	delete top;
 	delete contextp;
 	return 0;
