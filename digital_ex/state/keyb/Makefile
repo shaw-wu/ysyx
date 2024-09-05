@@ -1,5 +1,5 @@
-TOP_NAME = handle
-NXDC_FILE = $(shell pwd)/constr/handle.nxdc
+TOP_NAME = keyboard_sim
+NXDC_FILE = $(shell pwd)/constr/keyboard_sim.nxdc
 INC_PATH ?=
 
 VERILATOR = verilator
@@ -28,7 +28,7 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOP_NAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
-		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+		--Mdir $(OBJ_DIR) -o $(abspath $(BIN))
 
 all: default
 
