@@ -30,7 +30,8 @@ module ps2_keyboard(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overf
 		else begin
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
 					r_ptr <= r_ptr + 3'b1;
-					$display("code : %h ",fifo[r_ptr]);
+					$display("receive : %x ",buffer[8:1]);
+					$display("ps2_clk : %h, clk : %h",ps2_clk,clk);
 			    if (w_ptr == r_ptr + 1) begin 
 						ready <= 1'b0;
 					end
