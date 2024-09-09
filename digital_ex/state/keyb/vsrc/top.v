@@ -12,8 +12,11 @@ initial begin
 	clk = 0;
 	forever begin
 		#(clk_period/2) clk = ~clk;
-		$display("clk : %h",clk);
 	end
+end
+
+always @(posedge clk) begin
+	$display("clk : %h",clk);
 end
 
 reg [7:0] data;
