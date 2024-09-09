@@ -8,6 +8,10 @@ output reg ready,overflow,nextdata_n;
 
 reg [7:0] data;
 
+always @(posedge clk) begin
+	$display("clk : %h",clk);
+end
+
 ps2_keyboard s1 (
 	.clk(clk),
 	.clrn(clrn),
