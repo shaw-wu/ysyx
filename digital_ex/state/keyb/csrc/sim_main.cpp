@@ -25,9 +25,9 @@ static void single_cycle() {
 
 // 复位
 static void reset(int n) {
-	dut.clrn = 1;
-	while (n -- > 0) single_cycle();
 	dut.clrn = 0;
+	while (n -- > 0) single_cycle();
+	dut.clrn = 1;
 }
 
 ///初始化仿真
