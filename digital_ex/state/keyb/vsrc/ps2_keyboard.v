@@ -22,6 +22,7 @@ module ps2_keyboard(clk, clrn, ps2_clk, ps2_data, data, ready, nextdata_n, overf
 	always @(posedge clk) begin
 		//reset
 		if (clrn == 0) begin
+			$display("clrn : %h",clrn);
 			count <= 0;
 			w_ptr <= 0; r_ptr <= 0;
 		  overflow <= 0;
