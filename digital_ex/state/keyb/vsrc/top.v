@@ -11,6 +11,7 @@ reg clk = 1'b1;
 always @(*) begin
 	while (1) begin
 		#(clk_period/2) clk = ~clk;
+		$display("clk : %h",clk);
 	end
 end
 
