@@ -1,23 +1,10 @@
 `timescale 1ns / 1ps
-module top(clrn,ps2_clk,ps2_data,hex0,hex1,hex2,hex3,ready,overflow,nextdata_n);
+module top(clk,clrn,ps2_clk,ps2_data,hex0,hex1,hex2,hex3,ready,overflow,nextdata_n);
+input clk;
 input clrn;
 input ps2_clk,ps2_data;
 output [6:0] hex0,hex1,hex2,hex3;
 output reg ready,overflow,nextdata_n;
-
-parameter [31:0] clk_period = 10;
-reg clk = 1'b1;
-
-initial begin
-	clk = 0;
-	forever begin
-		#(clk_period/2) clk = ~clk;
-	end
-end
-
-always @(posedge clk) begin
-	$display("clk : %h",clk);
-end
 
 reg [7:0] data;
 
