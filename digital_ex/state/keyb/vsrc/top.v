@@ -8,8 +8,9 @@ output reg ready,overflow,nextdata_n;
 parameter [31:0] clk_period = 20;
 reg clk = 1'b1;
 
-always @(*) begin
-	while (1) begin
+initial begin
+	clk = 0;
+	forever begin
 		#(clk_period/2) clk = ~clk;
 		$display("clk : %h",clk);
 	end
