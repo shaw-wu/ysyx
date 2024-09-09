@@ -1,5 +1,5 @@
-TOP_NAME = keyboard_sim
-NXDC_FILE = $(shell pwd)/constr/keyboard_sim.nxdc
+TOP_NAME = top
+NXDC_FILE = $(shell pwd)/constr/top.nxdc
 INC_PATH ?=
 
 VERILATOR = verilator

@@ -1,4 +1,4 @@
-#include "Vkeyboard_sim.h"
+#include "Vtop.h"
 #include "verilated.h"
 #include <verilated_vcd_c.h>
 #include <nvboard.h>
@@ -6,7 +6,7 @@
 VerilatedContext* contextp = NULL; // 声明上下文变量
 VerilatedVcdC* tfp = NULL;         // 声明波形变量
 
-static Vkeyboard_sim* top;               // 声明模块变量
+static Vtop* top;               // 声明模块变量
 static TOP_NAME dut;
 void nvboard_bind_all_pins(TOP_NAME* top);
 
@@ -19,12 +19,12 @@ void sim_init(int argc, char** argv ){
 	contextp = new VerilatedContext;  // 初始化
 	tfp = new VerilatedVcdC;
 	contextp->commandArgs(argc, argv);
-	top = new Vkeyboard_sim;                 // 实例化模块
+	top = new Vtop;                 // 实例化模块
 	nvboard_bind_all_pins(&dut);
 	nvboard_init();
-	contextp->traceEverOn(true);      // 打开波形跟踪
-	top->trace(tfp, 0);               // 链接跟踪变量tfp与实例化模块top
-	tfp->open("dump.vcd");            // 创建文件
+//	contextp->traceEverOn(true);      // 打开波形跟踪
+//	top->trace(tfp, 0);               // 链接跟踪变量tfp与实例化模块top
+//	tfp->open("dump.vcd");            // 创建文件
 }
 void sim_exit(){
 	step_and_dump_wave();   //
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
 	while(1){
 		dut.eval();
 		nvboard_update();
-		step_and_dump_wave();
+	//	step_and_dump_wave();
 	}
 	nvboard_quit();
 	delete top;

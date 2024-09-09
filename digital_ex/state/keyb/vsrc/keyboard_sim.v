@@ -84,6 +84,7 @@ initial begin
 	#20 nextdata_n = 1'b0; #20 nextdata_n = 1'b1;
 	model.kbd_sendcode(8'hF0);
 	#20 nextdata_n = 1'b0; #20 nextdata_n = 1'b1;
+
 	model.kbd_sendcode(8'h1C);
 	#20 nextdata_n = 1'b0; #20 nextdata_n = 1'b1;
 	model.kbd_sendcode(8'h1B);
