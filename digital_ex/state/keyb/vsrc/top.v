@@ -5,7 +5,7 @@ input ps2_clk,ps2_data;
 output [6:0] hex0,hex1,hex2,hex3;
 output reg ready,overflow,nextdata_n;
 
-parameter [31:0] clk_period = 20;
+parameter [31:0] clk_period = 10;
 reg clk = 1'b1;
 
 initial begin
