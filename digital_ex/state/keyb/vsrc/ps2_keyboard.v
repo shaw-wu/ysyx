@@ -43,6 +43,7 @@ module ps2_keyboard(
 			    if (w_ptr == r_ptr + 1) begin 
 						ready <= 1'b0;
 					end
+					$display("w_ptr : %d, r_ptr : %d",w_ptr,r_ptr);
 			end
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
@@ -55,6 +56,7 @@ module ps2_keyboard(
 							ready <= 1'b1;
 							overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
 						  break_code <= 0;
+							$display("w_ptr : %d, r_ptr : %d",w_ptr,r_ptr);
 						end
 					end
 					count <= 0;
@@ -65,7 +67,6 @@ module ps2_keyboard(
 				end
 			end
 		end
-		$display("w_ptr : %d, r_ptr : %d",w_ptr,r_ptr);
 	end
 	assign data = fifo[r_ptr]; //总是从fifo中读取数据
 
