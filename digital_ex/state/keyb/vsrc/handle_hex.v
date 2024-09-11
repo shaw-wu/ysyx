@@ -6,7 +6,7 @@ module handle_hex(
 );
 
 always @(posedge clk) begin
-	if (cond) begin
+	if (!cond) begin
 		hex_out <= hex_in;
 	end else begin
 		hex_out <= 7'b111_1111;
