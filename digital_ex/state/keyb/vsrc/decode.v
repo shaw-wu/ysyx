@@ -50,7 +50,7 @@ end
 reg [7:0] ascii_code;
 always @(*) begin
 	integer i;
-		$display("data : %h",data);
+		$display("data_seg : %h",data);
 	ascii_code = 8'b0000_0000;
 	for (i=0; i<36; i=i+1) begin
 		if(data == lut_array[i][15:8])begin
