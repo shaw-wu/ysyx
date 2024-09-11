@@ -5,7 +5,6 @@ module decode(x, en, y);
 
 	always @(x or en) begin
 		if(en) begin
-			$display("x : %h",x);
 			case(x)
 				4'b0000 : y = 7'b1000000;
 				4'b0001 : y = 7'b1111001;
@@ -25,6 +24,7 @@ module decode(x, en, y);
 				4'b1111 : y = 7'b0001110;
 				default : y = 7'b1111111;
 			endcase
+			$display("y : %h",y);
 		end
 		else y = 7'b1111111;
 	end
