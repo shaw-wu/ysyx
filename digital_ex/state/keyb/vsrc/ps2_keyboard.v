@@ -44,6 +44,7 @@ module ps2_keyboard(
 			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
+					$display("break_code : %h",break_code);
 			end
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
@@ -53,6 +54,7 @@ module ps2_keyboard(
 						end else begin
 							break_code <= 0;
 						end
+						$display("break_code : %h",break_code);
 							fifo[w_ptr] <= buffer[8:1];
 							w_ptr <= w_ptr + 3'b1;
 							ready <= 1'b1;
@@ -66,7 +68,6 @@ module ps2_keyboard(
 				end
 			end
 		end
-		$display("break_code : %h",break_code);
 	end
 	assign data = fifo[r_ptr]; //总是从fifo中读取数据
 
