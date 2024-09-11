@@ -51,12 +51,12 @@ module ps2_keyboard(
 						if (buffer[8:1] == 8'hF0) begin
 							break_code <= 1;
 						end else begin
+							break_code <= 0;
+						end
 							fifo[w_ptr] <= buffer[8:1];
 							w_ptr <= w_ptr + 3'b1;
 							ready <= 1'b1;
 							overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
-						  break_code <= 0;
-						end
 					end
 					count <= 0;
 				end
