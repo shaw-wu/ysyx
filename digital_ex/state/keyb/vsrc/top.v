@@ -23,7 +23,6 @@ ps2_keyboard kbd (
 );
 
 kbd7seg seg (
-	.clk(clk),
 	.data(data),
 	.lut({ 8'b00010101,4'd7,4'd1 ,
          8'b00011101,4'd7,4'd7 ,  
