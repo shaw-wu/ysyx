@@ -46,6 +46,7 @@ always @(posedge clk) begin
 	for (i=0; i<36; i=i+1) begin
 		if(data == lut[i*16-1-:8])begin
 			ascii_code = lut[(i-1)*16+:8];
+			$display("ascii_code : %h",ascii_code);
 		  break;
 	  end
 	end
