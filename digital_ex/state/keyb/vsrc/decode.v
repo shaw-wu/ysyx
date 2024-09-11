@@ -32,7 +32,6 @@ endmodule;
 module kbd7seg
 ( input [7:0] data,
 	input [16*36-1:0] lut,
-	input [3:0] count,
 	output reg [6:0] hex0,
 	output reg [6:0] hex1,
 	output reg [6:0] hex2,
@@ -40,10 +39,6 @@ module kbd7seg
 );
 
 reg [15:0] lut_array [0:35];
-reg [6:0] hex0Temp;
-reg [6:0] hex1Temp;
-reg [6:0] hex2Temp;
-reg [6:0] hex3Temp;
 
 always @(*) begin
 	integer i;
@@ -64,23 +59,9 @@ always @(*) begin
 	end
 end
 
-always @(*) begin
-	if (count == 0) begin
-		hex0 = 7'b111_1111;
-		hex1 = 7'b111_1111;
-		hex2 = 7'b111_1111;
-		hex3 = 7'b111_1111;
-	end else begin
-		hex0 = hex0Temp;
-		hex1 = hex1Temp;
-		hex2 = hex2Temp;
-		hex3 = hex3Temp;
-	end
-end
-
-decode i1 (ascii_code[7:4], 1, hex3Temp);
-decode i2 (ascii_code[3:0], 1, hex2Temp);
-decode i3 (data[7:4]      , 1, hex1Temp);
-decode i4 (data[3:0]      , 1, hex0Temp);
+decode i1 (ascii_code[7:4], 1, hex3);
+decode i2 (ascii_code[3:0], 1, hex2);
+decode i3 (data[7:4]      , 1, hex1);
+decode i4 (data[3:0]      , 1, hex0);
 
 endmodule
