@@ -70,7 +70,12 @@ kbd7seg seg (
 	.hex2(hex2In),
 	.hex3(hex3In)
 );
-
+always @(sampling) begin
+	$display("hex0In : %h, hex0 : %h",hex0In,hex0);
+	$display("hex1In : %h, hex1 : %h",hex1In,hex1);
+	$display("hex2In : %h, hex2 : %h",hex2In,hex2);
+	$display("hex3In : %h, hex3 : %h",hex3In,hex3);
+end
 handle_hex hdl_h0(
 	.clk(clk),
 	.cond(sampling),
