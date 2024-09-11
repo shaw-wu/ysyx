@@ -44,7 +44,6 @@ module ps2_keyboard(
 			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
-					$display("break_code : %h",break_code);
 			end
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
