@@ -24,6 +24,7 @@ module decode(x, en, y);
 				4'b1111 : y = 7'b0001110;
 				default : y = 7'b1111111;
 			endcase
+			$display("x : %h, y : %h",x,y);
 		end
 		else y = 7'b1111111;
 	end
