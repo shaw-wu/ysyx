@@ -8,13 +8,13 @@ module ps2_keyboard(
 	output reg ready,
 	output reg overflow,
 	output reg sampling,
-	output reg break_code,
-	output reg [3:0] count
+	output reg break_code
 );
 
 	reg [9:0] buffer;
 	reg [7:0] fifo[7:0];
 	reg [2:0] w_ptr,r_ptr;
+	reg [3:0] count;
 
 	reg [2:0] ps2_clk_sync;
 	//高频同步时钟clk与低频异步时钟ps2_clk对齐
