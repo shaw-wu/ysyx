@@ -72,6 +72,7 @@ module ps2_keyboard(
 				end
 			end
 		end
+		$display("work : %h",work);
 	end
 	assign data = fifo[r_ptr]; //总是从fifo中读取数据
 
