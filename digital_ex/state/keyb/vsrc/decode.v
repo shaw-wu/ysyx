@@ -39,27 +39,13 @@ module kbd7seg
 	output reg [6:0] hex3
 );
 
-reg [15:0] lut_array [0:35];
-always @(posedge clk) begin
-	integer i;
-	for(i=0; i<36; i=i+1)begin
-		lut_array[i] = lut[16*i+:16];
-	end
-end
-
-initial begin
-	hex0 = 7'b1111_111;
-	hex1 = 7'b1111_111;
-	hex2 = 7'b1111_111;
-	hex3 = 7'b1111_111;
-end
 reg [7:0] ascii_code;
 always @(posedge clk) begin
 	integer i;
 	ascii_code = 8'b0000_0000;
 	for (i=0; i<36; i=i+1) begin
-		if(data == lut_array[i][15:8])begin
-			ascii_code = lut_array[i][7:0];
+		if(data == lut[i*16-1-:8])begin
+			ascii_code = lut[(i-1)*16+:8];
 		  break;
 	  end
 	end
