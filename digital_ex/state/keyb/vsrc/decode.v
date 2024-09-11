@@ -30,7 +30,8 @@ module decode(x, en, y);
 endmodule;
 
 module kbd7seg
-( input [7:0] data,
+( input clk,
+	input [7:0] data,
 	input [16*36-1:0] lut,
 	output reg [6:0] hex0,
 	output reg [6:0] hex1,
@@ -40,7 +41,7 @@ module kbd7seg
 
 reg [15:0] lut_array [0:35];
 
-always @(*) begin
+always @(posedge clk) begin
 	integer i;
 	for(i=0; i<36; i=i+1)begin
 		lut_array[i] = lut[16*i+:16];
@@ -48,7 +49,7 @@ always @(*) begin
 end
 
 reg [7:0] ascii_code;
-always @(*) begin
+always @(posedge clk) begin
 	integer i;
 	ascii_code = 8'b0000_0000;
 	for (i=0; i<36; i=i+1) begin
