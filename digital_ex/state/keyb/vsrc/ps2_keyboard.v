@@ -70,6 +70,7 @@ module ps2_keyboard(
 				end
 			end
 		end
+		$display("sampling : %h",sampling);
 	end
 	assign data = fifo[r_ptr]; //总是从fifo中读取数据
 
