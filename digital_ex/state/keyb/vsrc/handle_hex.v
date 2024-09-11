@@ -5,6 +5,7 @@ module handle_hex(
 );
 
 always @(*) begin
+	//$display("hex_in : %h,hex_out : %h",hex_in,hex_out);
 	if (cond) begin
 		hex_out = hex_in;
 	end else begin
