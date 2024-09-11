@@ -24,35 +24,63 @@ module decode(x, en, y);
 				4'b1111 : y = 7'b0001110;
 				default : y = 7'b1111111;
 			endcase
-			$display("y : %h",y);
 		end
 		else y = 7'b1111111;
 	end
 endmodule;
 
 module kbd7seg
-( input clk,
-	input [7:0] data,
+( input [7:0] data,
 	input [16*36-1:0] lut,
+	input break_code,
 	output reg [6:0] hex0,
 	output reg [6:0] hex1,
 	output reg [6:0] hex2,
 	output reg [6:0] hex3
 );
 
+reg [15:0] lut_array [0:35];
+reg [6:0] hex0Temp;
+reg [6:0] hex1Temp;
+reg [6:0] hex2Temp;
+reg [6:0] hex3Temp;
+
+always @(*) begin
+	integer i;
+	for(i=0; i<36; i=i+1)begin
+		lut_array[i] = lut[16*i+:16];
+	end
+end
+
 reg [7:0] ascii_code;
-always @(posedge clk) begin
+always @(*) begin
 	integer i;
 	ascii_code = 8'b0000_0000;
 	for (i=0; i<36; i=i+1) begin
-		if(data == lut[i*16-1-:8])begin
-			ascii_code = lut[(i-1)*16+:8];
-		  break;
-	  end
+		if(data == lut_array[i][15:8])begin
+			ascii_code = lut_array[i][7:0];
+			break;
+		end
 	end
 end
-decode i1 (ascii_code[7:4], 1, hex3);
-decode i2 (ascii_code[3:0], 1, hex2);
-decode i3 (data[7:4]      , 1, hex1);
-decode i4 (data[3:0]      , 1, hex0);
+
+always @(*) begin
+	if (break_code) begin
+		hex0 = 7'b111_1111;
+		hex1 = 7'b111_1111;
+		hex2 = 7'b111_1111;
+		hex3 = 7'b111_1111;
+	end else begin
+		hex0 = hex0Temp;
+		hex1 = hex1Temp;
+		hex2 = hex2Temp;
+		hex3 = hex3Temp;
+	end
+end
+
+decode i1 (ascii_code[7:4], 1, hex3Temp);
+decode i2 (ascii_code[3:0], 1, hex2Temp);
+decode i3 (data[7:4]      , 1, hex1Temp);
+decode i4 (data[3:0]      , 1, hex0Temp);
+
 endmodule
