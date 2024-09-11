@@ -54,9 +54,9 @@ always @(*) begin
 	for (i=0; i<36; i=i+1) begin
 		if(data == lut_array[i][15:8])begin
 			ascii_code = lut_array[i][7:0];
-			$display("ascii_code : %h",ascii_code);
 			break;
 		end
+		$display("ascii_code : %h, data : %h",ascii_code,data);
 	end
 end
 
