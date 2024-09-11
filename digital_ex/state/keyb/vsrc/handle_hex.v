@@ -8,7 +8,6 @@ module handle_hex(
 always @(posedge clk) begin
 	if (cond) begin
 		hex_out <= hex_in;
-	  $display("hex_out : %h",hex_out);
 	end else begin
 		hex_out <= 7'b111_1111;
 	end
