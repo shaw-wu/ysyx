@@ -22,7 +22,7 @@ ps2_keyboard inst(
 	.data(data),
 	.ready(ready),
 	.nextdata_n(nextdata_n),
-	.overflow(overflow)
+	.overflow(overflow),
 );
 
 kbd7seg seg(
