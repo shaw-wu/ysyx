@@ -11,7 +11,8 @@ reg [1:0] delay_count;  // 计数器,记录延时的时钟周期数
 typedef enum reg [1:0] {
 	IDLE   = 2'b00,  // 空闲状态
 	DELAY0 = 2'b01,  // 延迟状态1
-	DELAY1 = 2'b10   // 延迟状态2
+	DELAY1 = 2'b10,  // 延迟状态2
+  DELAY2 = 2'b11  // 延迟状态3
 } state_t;
 
 reg [1:0] state, next_state;  // 状态寄存器
@@ -25,7 +26,7 @@ always @(posedge clk or negedge rst_n) begin
 	end else begin
 		state <= next_state;
 		// 延时,一个周期计数器更新一次 
-		if (next_state == DELAY0 || next_state == DELAY1) begin
+		if (next_state == DELAY0 || next_state == DELAY1 || next_state == DELAY2) begin
 			delay_count <= delay_count + 1;
 		end else begin
 			delay_count <= 0;
@@ -54,9 +55,17 @@ always @(*) begin
 
 		DELAY1 : begin
 			if (delay_count == 2) begin
-				next_state = IDLE;
+				next_state = DELAY2;
 			end else begin
 				next_state = DELAY1;
+			end
+		end
+
+		DELAY2 : begin
+			if (delay_count == 3) begin
+				next_state = IDLE;
+			end else begin
+				next_state = DELAY2;
 			end
 		end
 
@@ -68,11 +77,11 @@ end
 always @(*) begin
 	case (state)
 		IDLE   : pulse_out = 1'b1;
-		DELAY0 : pulse_out = 1'b0;
-		DELAY1 : pulse_out = 1'b1;
+		DELAY0 : pulse_out = 1'b1;
+		DELAY1 : pulse_out = 1'b0;
+		DELAY2 : pulse_out = 1'b1;
 		default: pulse_out = 1'b1;
 	endcase
 end
 
 endmodule
-
