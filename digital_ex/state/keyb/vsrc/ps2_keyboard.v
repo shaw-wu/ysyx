@@ -8,13 +8,13 @@ module ps2_keyboard(
 	output reg ready,
 	output reg overflow,
 	output reg sampling,
-	output reg break_code
+	output reg break_code,
+	output reg [3:0] count
 );
 
 	reg [9:0] buffer;
 	reg [7:0] fifo[7:0];
 	reg [2:0] w_ptr,r_ptr;
-	reg [3:0] count;
 
 	reg [2:0] ps2_clk_sync;
 	//高频同步时钟clk与低频异步时钟ps2_clk对齐
@@ -51,10 +51,10 @@ module ps2_keyboard(
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
 					if((buffer[0] == 0) && ps2_data && (^buffer[9:1])) begin //start==0,stop==1,odd(奇校验) 
-						if ((buffer[8:1] != 8'hF0) && (fifo[r_ptr] != 8'hF0)) begin
-							break_code <= 0;
-						end else begin
+						if (buffer[8:1] == 8'hF0) begin
 							break_code <= 1;
+						end else begin
+							break_code <= 0;
 						end
 						$display("break_code : %h",break_code);
 							fifo[w_ptr] <= buffer[8:1];

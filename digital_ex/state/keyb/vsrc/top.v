@@ -8,6 +8,7 @@ output reg ready,overflow,nextdata_n,sampling;
 
 reg [7:0] data;
 reg break_code;
+reg [3:0] count;
 //always @(posedge clk) begin
 //	$display("clk : %h",clk);
 //end
@@ -22,11 +23,12 @@ ps2_keyboard kbd (
 	.nextdata_n(nextdata_n),
 	.overflow(overflow),
 	.sampling(sampling),
-	.break_code(break_code)
+	.break_code(break_code),
+	.count(count)
 );
 
 kbd7seg seg (
-	.break_code(break_code),
+	.count(count),
 	.data(data),
 	.lut({ 8'b00010101,4'd7,4'd1 ,
          8'b00011101,4'd7,4'd7 ,  

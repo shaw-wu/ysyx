@@ -32,7 +32,7 @@ endmodule;
 module kbd7seg
 ( input [7:0] data,
 	input [16*36-1:0] lut,
-	input break_code,
+	input [3:0] count,
 	output reg [6:0] hex0,
 	output reg [6:0] hex1,
 	output reg [6:0] hex2,
@@ -65,7 +65,7 @@ always @(*) begin
 end
 
 always @(*) begin
-	if (break_code) begin
+	if (count == 0) begin
 		hex0 = 7'b111_1111;
 		hex1 = 7'b111_1111;
 		hex2 = 7'b111_1111;
