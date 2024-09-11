@@ -49,6 +49,7 @@ module ps2_keyboard(
 			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
+					$display("work : %h",work);
 			end
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
@@ -72,7 +73,6 @@ module ps2_keyboard(
 				end
 			end
 		end
-		$display("work : %h",work);
 	end
 	assign data = fifo[r_ptr]; //总是从fifo中读取数据
 
