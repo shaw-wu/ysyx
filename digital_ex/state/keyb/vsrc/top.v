@@ -71,25 +71,25 @@ kbd7seg seg (
 	.hex3(hex3In)
 );
 handle_hex hdl_h0(
-	.clk(clk),
+//	.clk(clk),
 	.cond(sampling),
 	.hex_in(hex0In),
 	.hex_out(hex0)
 );
 handle_hex hdl_h1(
-	.clk(clk),
+	//.clk(clk),
 	.cond(sampling),
 	.hex_in(hex1In),
 	.hex_out(hex1)
 );
 handle_hex hdl_h2(
-	.clk(clk),
+	//.clk(clk),
 	.cond(sampling),
 	.hex_in(hex2In),
 	.hex_out(hex2)
 );
 handle_hex hdl_h3(
-	.clk(clk),
+	//.clk(clk),
 	.cond(sampling),
 	.hex_in(hex3In),
 	.hex_out(hex3)
