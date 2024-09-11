@@ -8,7 +8,7 @@ output reg ready,overflow,nextdata_n,sampling;
 
 reg [7:0] data;
 reg [6:0] hex0In,hex1In,hex2In,hex3In;
-reg break_code,work;
+reg break_code;
 //always @(posedge clk) begin
 //	$display("clk : %h",clk);
 //end
@@ -23,8 +23,7 @@ ps2_keyboard kbd (
 	.nextdata_n(nextdata_n),
 	.overflow(overflow),
 	.sampling(sampling),
-	.break_code(break_code),
-	.work(work)
+	.break_code(break_code)
 );
 
 kbd7seg seg (
@@ -74,25 +73,25 @@ kbd7seg seg (
 
 handle_hex hdl_h0(
 	.clk(clk),
-	.cond(work),
+	.cond(sampling),
 	.hex_in(hex0In),
 	.hex_out(hex0)
 );
 handle_hex hdl_h1(
 	.clk(clk),
-	.cond(work),
+	.cond(sampling),
 	.hex_in(hex1In),
 	.hex_out(hex1)
 );
 handle_hex hdl_h2(
 	.clk(clk),
-	.cond(work),
+	.cond(sampling),
 	.hex_in(hex2In),
 	.hex_out(hex2)
 );
 handle_hex hdl_h3(
 	.clk(clk),
-	.cond(work),
+	.cond(sampling),
 	.hex_in(hex3In),
 	.hex_out(hex3)
 );

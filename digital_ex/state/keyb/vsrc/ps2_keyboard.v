@@ -8,8 +8,7 @@ module ps2_keyboard(
 	output reg ready,
 	output reg overflow,
 	output reg sampling,
-	output reg break_code,
-	output reg work
+	output reg break_code
 );
 
 	reg [9:0] buffer;
@@ -25,7 +24,6 @@ module ps2_keyboard(
 
 	//检测时钟下降沿
 	assign sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1];
-	assign work = ~((~ps2_clk_sync[2]) & (~ps2_clk_sync[1]) & (~ps2_clk_sync[0]));
 
 	always @(posedge clk) begin
 		//reset
@@ -49,7 +47,6 @@ module ps2_keyboard(
 			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
-					$display("work : %h",work);
 			end
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
