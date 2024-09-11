@@ -5,6 +5,7 @@ module decode(x, en, y);
 
 	always @(x or en) begin
 		if(en) begin
+			$display("x : %h",x);
 			case(x)
 				4'b0000 : y = 7'b1000000;
 				4'b0001 : y = 7'b1111001;
@@ -33,10 +34,10 @@ module kbd7seg
 ( input clk,
 	input [7:0] data,
 	input [16*36-1:0] lut,
-	output reg [6:0] hex0Out,
-	output reg [6:0] hex1Out,
-	output reg [6:0] hex2Out,
-	output reg [6:0] hex3Out
+	output reg [6:0] hex0,
+	output reg [6:0] hex1,
+	output reg [6:0] hex2,
+	output reg [6:0] hex3
 );
 
 reg [7:0] ascii_code;
@@ -46,13 +47,12 @@ always @(posedge clk) begin
 	for (i=0; i<36; i=i+1) begin
 		if(data == lut[i*16-1-:8])begin
 			ascii_code = lut[(i-1)*16+:8];
-			$display("ascii_code : %h",ascii_code);
 		  break;
 	  end
 	end
 end
-decode i1 (ascii_code[7:4], 1, hex3Out);
-decode i2 (ascii_code[3:0], 1, hex2Out);
-decode i3 (data[7:4]      , 1, hex1Out);
-decode i4 (data[3:0]      , 1, hex0Out);
+decode i1 (ascii_code[7:4], 1, hex3);
+decode i2 (ascii_code[3:0], 1, hex2);
+decode i3 (data[7:4]      , 1, hex1);
+decode i4 (data[3:0]      , 1, hex0);
 endmodule
