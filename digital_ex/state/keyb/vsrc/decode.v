@@ -51,9 +51,9 @@ end
 reg [7:0] ascii_code;
 always @(posedge clk) begin
 	integer i;
+		$display("data : %h",data);
 	ascii_code = 8'b0000_0000;
 	for (i=0; i<36; i=i+1) begin
-		$display("data : %h",data);
 		if(data == lut_array[i][15:8])begin
 			ascii_code = lut_array[i][7:0];
 		$display("ascii_code : %h, data : %h",ascii_code,data);
