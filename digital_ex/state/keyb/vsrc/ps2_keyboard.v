@@ -7,7 +7,8 @@ module ps2_keyboard(
 	output [7:0] data,
 	output reg ready,
 	output reg overflow,
-	output reg sampling
+	output reg sampling,
+	output reg break_code
 );
 
 	reg [9:0] buffer;
@@ -32,6 +33,7 @@ module ps2_keyboard(
 			w_ptr <= 0; r_ptr <= 0;
 		  overflow <= 0;
 			ready <= 0;
+			break_code <= 0;
 		end
 		else begin
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
@@ -45,10 +47,15 @@ module ps2_keyboard(
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
 					if((buffer[0] == 0) && ps2_data && (^buffer[9:1])) begin //start==0,stop==1,odd(奇校验) 
-						fifo[w_ptr] <= buffer[8:1];
-						w_ptr <= w_ptr + 3'b1;
-						ready <= 1'b1;
-						overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
+						if (buffer[8:1] == 8'hF0) begin
+							break_code <= 1;
+						end else begin
+							fifo[w_ptr] <= buffer[8:1];
+							w_ptr <= w_ptr + 3'b1;
+							ready <= 1'b1;
+							overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
+						  break_code <= 0;
+						end
 					end
 					count <= 0;
 				end
