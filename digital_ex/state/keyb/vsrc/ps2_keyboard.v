@@ -38,6 +38,9 @@ module ps2_keyboard(
 			break_code <= 0;
 		end
 		else begin
+			if (r_ptr != (w_ptr + 3'b1)) begin
+				overflow <= 0;
+			end
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
 					r_ptr <= r_ptr + 3'b1;
 					$display("receive : %x ",buffer[8:1]);
