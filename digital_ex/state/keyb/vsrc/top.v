@@ -8,7 +8,7 @@ output reg ready,overflow,nextdata_n,sampling;
 
 reg [7:0] data;
 reg [6:0] hex0In,hex1In,hex2In,hex3In;
-reg break_code;
+reg break_code,work;
 //always @(posedge clk) begin
 //	$display("clk : %h",clk);
 //end
@@ -23,7 +23,8 @@ ps2_keyboard kbd (
 	.nextdata_n(nextdata_n),
 	.overflow(overflow),
 	.sampling(sampling),
-	.break_code(break_code)
+	.break_code(break_code),
+	.work(work)
 );
 
 kbd7seg seg (
@@ -65,37 +66,37 @@ kbd7seg seg (
          8'b00111110,4'd3,4'd8 ,  
          8'b01000110,4'd3,4'd9 ,  
          8'b01000101,4'd3,4'd0 }), 
-	.hex0(hex0),
-	.hex1(hex1),
-	.hex2(hex2),
-	.hex3(hex3)
+	.hex0(hex0In),
+	.hex1(hex1In),
+	.hex2(hex2In),
+	.hex3(hex3In)
 );
-/*
+
 handle_hex hdl_h0(
 	.clk(clk),
-	.cond(break_code),
+	.cond(work),
 	.hex_in(hex0In),
 	.hex_out(hex0)
 );
 handle_hex hdl_h1(
 	.clk(clk),
-	.cond(break_code),
+	.cond(work),
 	.hex_in(hex1In),
 	.hex_out(hex1)
 );
 handle_hex hdl_h2(
 	.clk(clk),
-	.cond(break_code),
+	.cond(work),
 	.hex_in(hex2In),
 	.hex_out(hex2)
 );
 handle_hex hdl_h3(
 	.clk(clk),
-	.cond(break_code),
+	.cond(work),
 	.hex_in(hex3In),
 	.hex_out(hex3)
 );
-*/
+
 handle hdl (
 	.clk(clk),
 	.ready(ready),

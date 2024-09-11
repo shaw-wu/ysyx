@@ -8,7 +8,8 @@ module ps2_keyboard(
 	output reg ready,
 	output reg overflow,
 	output reg sampling,
-	output reg break_code
+	output reg break_code,
+	output reg work
 );
 
 	reg [9:0] buffer;
@@ -24,7 +25,8 @@ module ps2_keyboard(
 
 	//检测时钟下降沿
 	assign sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1];
-	
+	assign work = ~((~ps2_clk_sync[2]) & (~ps2_clk_sync[1]) & (~ps2_clk_sync[0]));
+
 	always @(posedge clk) begin
 		//reset
 		if (clrn == 0) begin
