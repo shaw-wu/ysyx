@@ -65,17 +65,11 @@ kbd7seg seg (
          8'b00111110,4'd3,4'd8 ,  
          8'b01000110,4'd3,4'd9 ,  
          8'b01000101,4'd3,4'd0 }), 
-	.hex0(hex0In),
-	.hex1(hex1In),
-	.hex2(hex2In),
-	.hex3(hex3In)
+	.hex0Out(hex0In),
+	.hex1Out(hex1In),
+	.hex2Out(hex2In),
+	.hex3Out(hex3In)
 );
-always @(sampling) begin
-	$display("hex0In : %h, hex0 : %h",hex0In,hex0);
-	$display("hex1In : %h, hex1 : %h",hex1In,hex1);
-	$display("hex2In : %h, hex2 : %h",hex2In,hex2);
-	$display("hex3In : %h, hex3 : %h",hex3In,hex3);
-end
 handle_hex hdl_h0(
 	.clk(clk),
 	.cond(sampling),

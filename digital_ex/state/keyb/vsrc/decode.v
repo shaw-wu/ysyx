@@ -33,10 +33,10 @@ module kbd7seg
 ( input clk,
 	input [7:0] data,
 	input [16*36-1:0] lut,
-	output reg [6:0] hex0,
-	output reg [6:0] hex1,
-	output reg [6:0] hex2,
-	output reg [6:0] hex3
+	output reg [6:0] hex0Out,
+	output reg [6:0] hex1Out,
+	output reg [6:0] hex2Out,
+	output reg [6:0] hex3Out
 );
 
 reg [7:0] ascii_code;
@@ -51,8 +51,8 @@ always @(posedge clk) begin
 	  end
 	end
 end
-decode i1 (ascii_code[7:4], 1, hex3);
-decode i2 (ascii_code[3:0], 1, hex2);
-decode i3 (data[7:4]      , 1, hex1);
-decode i4 (data[3:0]      , 1, hex0);
+decode i1 (ascii_code[7:4], 1, hex3Out);
+decode i2 (ascii_code[3:0], 1, hex2Out);
+decode i3 (data[7:4]      , 1, hex1Out);
+decode i4 (data[3:0]      , 1, hex0Out);
 endmodule
