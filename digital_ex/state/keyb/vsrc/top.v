@@ -65,12 +65,12 @@ kbd7seg seg (
          8'b00111110,4'd3,4'd8 ,  
          8'b01000110,4'd3,4'd9 ,  
          8'b01000101,4'd3,4'd0 }), 
-	.hex0(hex0In),
-	.hex1(hex1In),
-	.hex2(hex2In),
-	.hex3(hex3In)
+	.hex0(hex0),
+	.hex1(hex1),
+	.hex2(hex2),
+	.hex3(hex3)
 );
-
+/*
 handle_hex hdl_h0(
 	.clk(clk),
 	.cond(break_code),
@@ -95,7 +95,7 @@ handle_hex hdl_h3(
 	.hex_in(hex3In),
 	.hex_out(hex3)
 );
-
+*/
 handle hdl (
 	.clk(clk),
 	.ready(ready),
