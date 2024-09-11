@@ -40,7 +40,7 @@ module ps2_keyboard(
 					r_ptr <= r_ptr + 3'b1;
 					$display("receive : %x ",buffer[8:1]);
 					$display("ps2_clk : %h, clk : %h",ps2_clk,clk);
-			    if (w_ptr == r_ptr + 1) begin 
+			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
 					$display("w_ptr : %d, r_ptr : %d",w_ptr,r_ptr);
