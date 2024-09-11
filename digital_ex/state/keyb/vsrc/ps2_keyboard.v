@@ -65,6 +65,7 @@ module ps2_keyboard(
 				end
 			end
 		end
+		$display("w_ptr : %d, r_ptr : %d",w_ptr,r_ptr);
 	end
 	assign data = fifo[r_ptr]; //总是从fifo中读取数据
 
