@@ -53,6 +53,7 @@ module ps2_keyboard(
 							w_ptr <= w_ptr + 3'b1;
 							ready <= 1'b1;
 							overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
+					$display("receive : %x ",data);
 					end
 					count <= 0;
 				end
