@@ -50,11 +50,6 @@ module ps2_keyboard(
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
 					if((buffer[0] == 0) && ps2_data && (^buffer[9:1])) begin //start==0,stop==1,odd(奇校验) 
-						if (buffer[8:1] == 8'hF0) begin
-							break_code <= 1;
-						end else begin
-							break_code <= 0;
-						end
 							fifo[w_ptr] <= buffer[8:1];
 							w_ptr <= w_ptr + 3'b1;
 							ready <= 1'b1;
@@ -67,6 +62,11 @@ module ps2_keyboard(
 					count <= count + 4'b1;
 				end
 			end
+		end
+		if (fifo[r_ptr] == 8'hF0 || fifo[r_ptr-1] == 8'hF0 || fifo[r_ptr-2] == 8'hF0) begin
+			break_code <= 1;
+		end else begin
+			break_code <= 0;
 		end
 	end
 	assign data = fifo[r_ptr];
