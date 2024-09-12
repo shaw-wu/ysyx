@@ -23,6 +23,7 @@ reg [7:0] count;
 
 always @(posedge break_code) begin
 		count <= count + 1;
+		$display("count : %h",count);
 end
 
 
