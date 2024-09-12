@@ -32,7 +32,7 @@ module ps2_keyboard(
 			w_ptr <= 0; r_ptr <= 0;
 		  overflow <= 0;
 			ready <= 0;
-			break_code <= 1;
+			break_code <= 0;
 		end
 		else begin
 			if (r_ptr != (w_ptr + 3'b1)) begin
@@ -60,7 +60,7 @@ module ps2_keyboard(
 				end
 			end
 		end
-		if (fifo[r_ptr-2] == 8'hF0) begin
+		if (fifo[r_ptr-2] == 8'hF0 || r_ptr == 0) begin
 			break_code <= 1;
 		end else begin
 			break_code <= 0;
