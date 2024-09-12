@@ -9,7 +9,7 @@ module handle(
 );
 
 always @(posedge clk) begin
-	if (sampling) begin
+	if (ready) begin
 		dataTemp = data;
 		$display("dataTemp : %h, data : %h",dataTemp,data);
 	end
