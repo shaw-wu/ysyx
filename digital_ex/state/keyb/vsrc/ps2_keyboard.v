@@ -67,5 +67,5 @@ module ps2_keyboard(
 		end
 		//$display("data : %h",fifo[r_ptr]);
 	end
-	assign data = fifo[r_ptr];
+	assign data = fifo[r_ptr-1];
 endmodule
