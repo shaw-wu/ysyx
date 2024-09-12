@@ -21,7 +21,9 @@ reg [6:0] hex0In,hex1In,hex2In,hex3In;
 reg [4:0] count;
 
 always @(posedge clk) begin
-	count <= count + {4'b0000,break_code};
+	if (break_code) begin
+		count <= count + 1;
+	end
 end
 
 ps2_keyboard kbd (
