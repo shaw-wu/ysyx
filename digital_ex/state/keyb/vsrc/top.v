@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 module top(clk,clrn,ps2_clk,ps2_data,hex0,hex1,hex2,hex3,ready,overflow,nextdata_n,sampling);
 input clk;
 input clrn;
@@ -7,6 +6,7 @@ output [6:0] hex0,hex1,hex2,hex3;
 output reg ready,overflow,nextdata_n,sampling;
 
 reg [7:0] data;
+reg [7:0] dataTemp;
 reg break_code;
 reg [6:0] hex0In,hex1In,hex2In,hex3In;
 
@@ -25,7 +25,7 @@ ps2_keyboard kbd (
 
 kbd7seg seg (
 	.clk(clk),
-	.data(data),
+	.data(dataTemp),
 	.lut({ 8'b00010101,4'd7,4'd1 ,
          8'b00011101,4'd7,4'd7 ,  
          8'b00100100,4'd6,4'd5 ,  
@@ -97,7 +97,9 @@ handle hdl (
 	.clk(clk),
 	.ready(ready),
 	.nextdata_n(nextdata_n),
-	.rst_n(clrn)
+	.rst_n(clrn),
+	.data(dataTemp),
+	.dataTemp(data)
 );
 
 endmodule;
