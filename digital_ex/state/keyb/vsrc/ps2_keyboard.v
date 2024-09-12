@@ -53,7 +53,6 @@ module ps2_keyboard(
 							w_ptr <= w_ptr + 3'b1;
 							ready <= 1'b1;
 							overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
-					    $display("data_samp : %h",fifo[r_ptr]);
 					end
 					count <= 0;
 				end
@@ -68,7 +67,7 @@ module ps2_keyboard(
 		end else begin
 			break_code <= 0;
 		end
-		$display("data : %h",fifo[r_ptr]);
+		//$display("data : %h",fifo[r_ptr]);
 	end
 	assign data = fifo[r_ptr];
 endmodule

@@ -7,8 +7,10 @@ module handle(
 	output reg nextdata_n
 );
 
-always @(posedge clk, ready) begin
-	dataTemp = data;
+always @(posedge clk) begin
+	if (ready) begin 
+		dataTemp = data;
+ 	end
 end
 delayed_assignment delay (
 		.clk(clk),
