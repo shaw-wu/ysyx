@@ -11,7 +11,7 @@ module handle(
 always @(posedge clk) begin
 	if (ready) begin
 		dataTemp = data;
-		$display("dataTemp : %h, data : %h",dataTemp,data);
+		//$display("dataTemp : %h, data : %h",dataTemp,data);
 	end
 end
 delayed_assignment delay (
