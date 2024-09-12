@@ -62,8 +62,10 @@ module ps2_keyboard(
 		end
 		if (fifo[r_ptr-2] == 8'hF0) begin
 			break_code <= 1;
+			$display("fifo[r_ptr-2] : %h",fifo[r_ptr-2]);
 		end else begin
 			break_code <= 0;
+			$display("fifo[r_ptr-2] : %h",fifo[r_ptr-2]);
 		end
 	end
 	assign data = fifo[r_ptr-1];
