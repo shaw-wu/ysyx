@@ -8,9 +8,9 @@ module handle_hex(
 always @(posedge clk) begin
 	if (!cond) begin
 		hex_out = hex_in;
-	//$display("hex_in : %h,hex_out : %h",hex_in,hex_out);
 	end else begin
 		hex_out = 7'b111_1111;
+		$display("break_code : %d",cond);
 	end
 end
 endmodule
