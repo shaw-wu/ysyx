@@ -18,7 +18,7 @@ module top(
 reg [7:0] data;
 reg break_code;
 reg [6:0] hex0In,hex1In,hex2In,hex3In;
-reg [4:0] count;
+reg [7:0] count;
 
 always @(posedge clk) begin
 	if (break_code) begin
