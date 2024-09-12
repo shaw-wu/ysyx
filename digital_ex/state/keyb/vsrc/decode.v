@@ -54,7 +54,7 @@ end
 reg [7:0] ascii_code;
 always @(posedge clk) begin
 	integer i;
-	if (data!=0) begin $display("data_seg1 : %h",data);end
+	//if (data!=0) begin $display("data_seg1 : %h",data);end
 	for(i=0; i<36; i=i+1)begin
 		lut_array[i] = lut[16*i+:16];
 	end
