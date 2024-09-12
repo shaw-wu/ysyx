@@ -39,7 +39,11 @@ module ps2_keyboard(
 				overflow <= 0;
 			end
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
-					r_ptr <= r_ptr + 3'b1;
+				  if(r_ptr != 7) begin
+						r_ptr <= r_ptr + 3'b1;
+					end else begin
+						r_ptr <= 0;
+					end
 			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
@@ -48,7 +52,11 @@ module ps2_keyboard(
 				if (count == 4'd10) begin //缓冲区buffer已满  
 					if((buffer[0] == 0) && ps2_data && (^buffer[9:1])) begin //start==0,stop==1,odd(奇校验) 
 							fifo[w_ptr] <= buffer[8:1];
-							w_ptr <= w_ptr + 3'b1;
+							if(w_ptr != 7) begin
+								w_ptr <= w_ptr + 3'b1;
+							end else begin
+								w_ptr <= 0;
+							end
 							ready <= 1'b1;
 							overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
 					end
