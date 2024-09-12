@@ -69,4 +69,5 @@ module ps2_keyboard(
 			end
 		end
 	end
+	assign data = fifo[r_ptr];
 endmodule
