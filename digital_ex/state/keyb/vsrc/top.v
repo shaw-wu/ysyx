@@ -6,7 +6,6 @@ output [6:0] hex0,hex1,hex2,hex3;
 output reg ready,overflow,nextdata_n,sampling;
 
 reg [7:0] data;
-reg [7:0] dataTemp;
 reg break_code;
 reg [6:0] hex0In,hex1In,hex2In,hex3In;
 
@@ -96,11 +95,8 @@ handle_hex hdl_h3(
 handle hdl (
 	.clk(clk),
 	.ready(ready),
-	.sampling(sampling),
 	.nextdata_n(nextdata_n),
-	.rst_n(clrn),
-	.data(dataTemp),
-	.dataTemp(data)
+	.rst_n(clrn)
 );
 
 endmodule;

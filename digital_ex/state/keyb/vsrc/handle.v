@@ -1,10 +1,7 @@
 module handle(
 	input clk, 
 	input ready, 
-	input sampling,
 	input rst_n,
-	input [7:0] data,
-	output reg [7:0] dataTemp,
 	output reg nextdata_n
 );
 delayed_assignment delay (
