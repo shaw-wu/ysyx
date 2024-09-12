@@ -60,7 +60,7 @@ module ps2_keyboard(
 				end
 			end
 		end
-		if (fifo[r_ptr-2] == 8'hF0) begin
+		if (fifo[r_ptr-2] == 8'hF0 || fifo[r_ptr-1] == 8'hF0) begin
 			break_code <= 1;
 			//$display("fifo[r_ptr-1:r_ptr-3] : %h %h %h",fifo[r_ptr-1],fifo[r_ptr-2],fifo[r_ptr-3]);
 		end else begin
