@@ -7,10 +7,9 @@ module handle(
 	output reg nextdata_n
 );
 
-always @(posedge clk) begin
-	if (ready) begin 
+always @(posedge clk,ready) begin
 		dataTemp = data;
- 	end
+		$display("dataTemp : %h, data : %h",dataTemp,data);
 end
 delayed_assignment delay (
 		.clk(clk),
