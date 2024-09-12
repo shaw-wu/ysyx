@@ -14,7 +14,6 @@ module ps2_keyboard(
 	reg [9:0] buffer;
 	reg [7:0] fifo[7:0];
 	reg [2:0] w_ptr,r_ptr;
-	reg Wsw,Rsw;
 	reg [3:0] count;
 
 	reg [2:0] ps2_clk_sync;
@@ -26,18 +25,6 @@ module ps2_keyboard(
 	//检测时钟下降沿
 	assign sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1];
 
-	loop_counter w (
-		.clk(clk),
-		.switch(Wsw),
-		.obj(w_ptr),
-		.res(w_ptr)
-	);
-	loop_counter r (
-		.clk(clk),
-		.switch(Rsw),
-		.obj(r_ptr),
-		.res(r_ptr)
-	);
 	always @(posedge clk) begin
 		//reset
 		if (clrn == 0) begin
@@ -52,7 +39,7 @@ module ps2_keyboard(
 				overflow <= 0;
 			end
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
-					Rsw <= ~Rsw;
+					r_ptr <= r_ptr + 3'b1;
 			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
@@ -61,7 +48,7 @@ module ps2_keyboard(
 				if (count == 4'd10) begin //缓冲区buffer已满  
 					if((buffer[0] == 0) && ps2_data && (^buffer[9:1])) begin //start==0,stop==1,odd(奇校验) 
 							fifo[w_ptr] <= buffer[8:1];
-							Wsw <= ~Wsw;
+							w_ptr <= w_ptr + 3'b1;
 							ready <= 1'b1;
 							overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
 					end
@@ -78,7 +65,6 @@ module ps2_keyboard(
 		end else begin
 			break_code <= 0;
 		end
-		$display("fifo : %h",fifo[r_ptr]);
 	end
 	assign data = fifo[r_ptr-1];
 endmodule
