@@ -12,7 +12,7 @@ module ps2_keyboard(
 );
 
 	reg [9:0] buffer;
-	reg [7:0] fifo[7:0];
+	reg [7:0] fifo[4:0];
 	reg [2:0] w_ptr,r_ptr;
 	reg [3:0] count;
 

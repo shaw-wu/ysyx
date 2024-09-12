@@ -57,7 +57,7 @@ always @(posedge clk) begin
 	for (i=0; i<36; i=i+1) begin
 		if(data == lut_array[i][15:8])begin
 			ascii_code = lut_array[i][7:0];
-		$display("ascii_code : %h, data : %h",ascii_code,data);
+		//$display("ascii_code : %h, data : %h",ascii_code,data);
 			break;
 		end
 	end
