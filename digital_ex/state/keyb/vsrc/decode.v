@@ -45,7 +45,7 @@ reg [15:0] lut_array [0:35];
 
 always @(posedge clk) begin
 	integer i;
-	if (data!=0) begin $display("data : %h",data);end
+	if (data!=0) begin $display("data_seg1 : %h",data);end
 	for(i=0; i<36; i=i+1)begin
 		lut_array[i] = lut[16*i+:16];
 	end
@@ -54,6 +54,7 @@ end
 reg [7:0] ascii_code;
 always @(posedge clk) begin
 	integer i;
+	if (data!=0) begin $display("data_seg2 : %h",data);end
 	ascii_code = 8'b0000_0000;
 	for (i=0; i<36; i=i+1) begin
 		if(data == lut_array[i][15:8])begin
