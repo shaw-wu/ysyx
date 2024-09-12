@@ -39,24 +39,17 @@ module ps2_keyboard(
 				overflow <= 0;
 			end
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
-				  if(r_ptr != 7) begin
-						r_ptr <= r_ptr + 3'b1;
-					end else begin
-						r_ptr <= 0;
-					end
+					r_ptr <= r_ptr + 3'b1;
 			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
+					$display("fifo : %h %h %h %h %h %h %h %h",fifo[7],fifo[6],fifo[5],fifo[4],fifo[3],fifo[2],fifo[1],fifo[0]);
 			end
 			if (sampling) begin //读取数据
 				if (count == 4'd10) begin //缓冲区buffer已满  
 					if((buffer[0] == 0) && ps2_data && (^buffer[9:1])) begin //start==0,stop==1,odd(奇校验) 
 							fifo[w_ptr] <= buffer[8:1];
-							if(w_ptr != 7) begin
-								w_ptr <= w_ptr + 3'b1;
-							end else begin
-								w_ptr <= 0;
-							end
+							w_ptr <= w_ptr + 3'b1;
 							ready <= 1'b1;
 							overflow <= overflow | (r_ptr == (w_ptr + 3'b1));// 溢出 读指针在写指针后
 					end
@@ -68,7 +61,7 @@ module ps2_keyboard(
 				end
 			end
 		end
-		if (fifo[r_ptr-2] == 8'hF0) begin
+		if (fifo[r_ptr-2] == 8'hF0 || fifo[r_ptr-1] == 8'hF0) begin
 			break_code <= 1;
 		end else begin
 			break_code <= 0;
