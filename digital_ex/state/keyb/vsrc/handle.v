@@ -9,7 +9,7 @@ module handle(
 );
 
 always @(posedge clk) begin
-	if (ready) begin
+	if (data != 0) begin
 		dataTemp = data;
 		//$display("dataTemp : %h, data : %h",dataTemp,data);
 	end
