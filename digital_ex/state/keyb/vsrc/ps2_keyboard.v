@@ -29,7 +29,7 @@ module ps2_keyboard(
 		//reset
 		if (clrn == 0) begin
 			count <= 0;
-			w_ptr <= 0; r_ptr <= 7;
+			w_ptr <= 0; r_ptr <= 0;
 		  overflow <= 0;
 			ready <= 0;
 			break_code <= 0;
@@ -40,7 +40,7 @@ module ps2_keyboard(
 			end
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
 					r_ptr <= r_ptr + 3'b1;
-			    if (w_ptr == r_ptr + 1) begin 
+			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
 			end
