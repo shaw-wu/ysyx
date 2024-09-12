@@ -96,6 +96,7 @@ handle_hex hdl_h3(
 handle hdl (
 	.clk(clk),
 	.ready(ready),
+	.sampling(sampling),
 	.nextdata_n(nextdata_n),
 	.rst_n(clrn),
 	.data(dataTemp),

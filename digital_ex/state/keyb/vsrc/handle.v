@@ -1,6 +1,7 @@
 module handle(
 	input clk, 
 	input ready, 
+	input sampling,
 	input rst_n,
 	input [7:0] data,
 	output reg [7:0] dataTemp,
@@ -8,7 +9,7 @@ module handle(
 );
 
 always @(posedge clk) begin
-	if (ready) begin
+	if (sampling) begin
 		dataTemp = data;
 		$display("dataTemp : %h, data : %h",dataTemp,data);
 	end
