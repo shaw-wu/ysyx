@@ -1,9 +1,11 @@
-module decode(x, en, y);
-	input [3:0] x;
-	input en;
-	output reg [6:0] y;
+module decode(
+	input clk,
+	input [3:0] x,
+	input en,
+	output reg [6:0] y
+);
 
-	always @(x or en) begin
+	always @(posedge clk, en) begin
 		if(en) begin
 			case(x)
 				4'b0000 : y = 7'b1000000;
@@ -62,9 +64,29 @@ always @(posedge clk) begin
 	end
 end
 
-decode i1 (ascii_code[7:4], 1, hex3);
-decode i2 (ascii_code[3:0], 1, hex2);
-decode i3 (data[7:4]      , 1, hex1);
-decode i4 (data[3:0]      , 1, hex0);
+decode i1 (
+	.clk(clk),
+	.x(ascii_code[7:4]), 
+	.en(1), 
+	.y(hex3)
+);
+decode i2 (
+	.clk(clk),
+	.x(ascii_code[3:0]), 
+	.en(1),
+ 	.y(hex2)
+);
+decode i3 (
+	.clk(clk),
+	.x(data[7:4]), 
+	.en(1), 
+	.y(hex1)
+);
+decode i4 (
+	.clk(clk),
+	.x(data[3:0]), 
+	.en(1), 
+	.y(hex0)
+);
 
 endmodule
