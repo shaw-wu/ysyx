@@ -20,13 +20,11 @@ reg break_code;
 reg [6:0] hex0In,hex1In,hex2In,hex3In;
 reg [7:0] count;
 
-/*
-always @(posedge clk) begin
-	if (!break_code) begin
+
+always @(posedge break_code) begin
 		count <= count + 1;
-	end
 end
-*/
+
 
 ps2_keyboard kbd (
 	.clk(clk),
