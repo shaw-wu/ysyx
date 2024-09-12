@@ -1,13 +1,28 @@
-module top(clk,clrn,ps2_clk,ps2_data,hex0,hex1,hex2,hex3,ready,overflow,nextdata_n,sampling);
-input clk;
-input clrn;
-input ps2_clk,ps2_data;
-output [6:0] hex0,hex1,hex2,hex3;
-output reg ready,overflow,nextdata_n,sampling;
+module top(
+	input clk,
+	input clrn,
+	input ps2_clk,
+	input ps2_data,
+	output reg [6:0] hex0,
+	output reg [6:0] hex1,
+	output reg [6:0] hex2,
+	output reg [6:0] hex3,
+	output reg [6:0] hex4,
+	output reg [6:0] hex5,
+	output reg ready,
+	output reg overflow,
+	output reg nextdata_n,
+	output reg sampling
+);
 
 reg [7:0] data;
 reg break_code;
 reg [6:0] hex0In,hex1In,hex2In,hex3In;
+reg [4:0] count;
+
+always @(posedge clk) begin
+	count <= count + {4'b0000,break_code};
+end
 
 ps2_keyboard kbd (
 	.clk(clk),
@@ -67,6 +82,12 @@ kbd7seg seg (
 	.hex3(hex3In)
 );
 
+count7seg countSeg(
+	.clk(clk),
+	.count(count),
+	.hex0(hex4),
+	.hex1(hex5)
+);
 handle_hex hdl_h0(
   .clk(clk),
 	.cond(break_code),
@@ -98,5 +119,6 @@ handle hdl (
 	.nextdata_n(nextdata_n),
 	.rst_n(clrn)
 );
+
 
 endmodule;
