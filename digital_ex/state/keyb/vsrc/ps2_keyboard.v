@@ -40,8 +40,6 @@ module ps2_keyboard(
 			end
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
 					r_ptr <= r_ptr + 3'b1;
-					$display("receive : %x ",data);
-					$display("ps2_clk : %h, clk : %h",ps2_clk,clk);
 			    if ((w_ptr == r_ptr + 1) || ((w_ptr == 0) && (r_ptr == 0))) begin 
 						ready <= 1'b0;
 					end
