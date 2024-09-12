@@ -32,7 +32,7 @@ module ps2_keyboard(
 			w_ptr <= 0; r_ptr <= 0;
 		  overflow <= 0;
 			ready <= 0;
-			break_code <= 0;
+			break_code <= 1;
 		end
 		else begin
 			if (r_ptr != (w_ptr + 3'b1)) begin
@@ -65,7 +65,6 @@ module ps2_keyboard(
 		end else begin
 			break_code <= 0;
 		end
-		$display("fifo : %h",fifo);
 	end
 	assign data = fifo[r_ptr-1];
 endmodule
