@@ -40,7 +40,7 @@ module ps2_keyboard(
 			end
 			if (ready&&(!nextdata_n)) begin //队列中有数据(ready用读写指针判断并赋值)
 					r_ptr <= r_ptr + 3'b1;
-			    if ((w_ptr == r_ptr + 1)) begin 
+			    if ((w_ptr == r_ptr + 1) || (w_ptr == 0 && r_ptr == 7)) begin 
 						ready <= 1'b0;
 					end
 					$display("fifo : %h %h %h %h %h %h %h %h",fifo[7],fifo[6],fifo[5],fifo[4],fifo[3],fifo[2],fifo[1],fifo[0]);
