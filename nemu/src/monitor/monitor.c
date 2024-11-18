@@ -100,7 +100,7 @@ static int parse_args(int argc, char *argv[]) {
 
 void init_monitor(int argc, char *argv[]) {
   /* Perform some global initialization. */
-
+  /* 函数调用:代码可读性强,通过配置参数可以让API适应不同环境从而保持一致的框架 wxz*/
   /* Parse arguments. */
   parse_args(argc, argv);
 
