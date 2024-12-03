@@ -98,17 +98,17 @@ void assert_fail_msg() {
 
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
-  g_print_step = (n < MAX_INST_TO_PRINT);
+  g_print_step = (n < MAX_INST_TO_PRINT);/*n小于能打印的最大指令数量 wxz*/
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:
       printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
       return;
     default: nemu_state.state = NEMU_RUNNING;
   }
-
+/*执行指令并计时 wxz*/
   uint64_t timer_start = get_time();
 
-  execute(n);
+  execute(n);/*运行n个exec_once()循环  wxz*/
 
   uint64_t timer_end = get_time();
   g_timer += timer_end - timer_start;
