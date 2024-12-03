@@ -43,7 +43,7 @@ static char* rl_gets() {
 }
 
 static int cmd_c(char *args) {
-  cpu_exec(-1);
+  cpu_exec(-1);/*uint64_t 无符号数,-1溢出,实际为0xffffffffffffffff wxz*/
   return 0;
 }
 
