@@ -52,7 +52,7 @@ static int cmd_q(char *args) {
   return -1;
 }
 
-static int cmd_si(char *args);
+static int cmd_si(char *args);/*wxz*/
 
 static int cmd_help(char *args);
 
@@ -64,7 +64,7 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-  { "si", "Single Excute", cmd_si },
+  { "si", "Single Excute", cmd_si },/*wxz*/
 
   /* TODO: Add more commands */
 
@@ -99,8 +99,6 @@ static int cmd_help(char *args) {
 static int cmd_si(char *args) {
 	char* arg = strtok(NULL," ");//only first argument available.
   int i;
-	
-	printf("arg = %d, %lu\n",*arg - 48,(uint64_t)*arg - 48);
 
   if(arg == NULL) {
 		for (i = 0; i < NR_CMD; i++) {
