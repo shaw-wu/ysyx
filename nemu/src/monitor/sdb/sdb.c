@@ -143,10 +143,18 @@ static int cmd_x(char *args) {
   vaddr_t addr;
 	sscanf(arg1, "%d", &len);
 	sscanf(arg2, "%x", &addr);
+	vaddr_t Addr = addr; 
 
-	word_t w = vaddr_read(addr, len);
+	printf("0x%x : ", addr);
+  for(int i = 0; i < len; i++){
+		printf("%x ", vaddr_read(Addr     , 1));
+		printf("%x ", vaddr_read(Addr+0x01, 1));
+		printf("%x ", vaddr_read(Addr+0x02, 1));
+		printf("%x ", vaddr_read(Addr+0x03, 1));
+		Addr = Addr + 0x04;
+	}
 
-	printf("0x%x : %x\n",addr,w);
+
 
 	return 0;
 }
