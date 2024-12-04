@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/vaddr.h>
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -56,6 +57,8 @@ static int cmd_si(char *args);/*wxz*/
 
 static int cmd_info(char *args);/*wxz*/
 
+static int cmd_x(char *args);/*wxz*/
+
 static int cmd_help(char *args);
 
 static struct {
@@ -68,6 +71,7 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single Excute", cmd_si },/*wxz*/
   { "info", "Print information of regs(with sub-cmd r) or watch(with sub-cmd w).", cmd_info },/*wxz*/
+  { "x", "Constantly print N of 4 bytes,start address is value of expression.", cmd_x},/*wxz*/
 
   /* TODO: Add more commands */
 
@@ -127,6 +131,23 @@ static int cmd_info(char *args) {
 	else {
     printf("%s - %s\n", cmd_table[4].name, cmd_table[4].description);
 	}
+	return 0;
+}
+
+/*wxz*/
+static int cmd_x(char *args) {
+	char* arg1 = strtok(NULL," ");
+	char* arg2 = strtok(NULL," ");
+	
+  int len;
+  vaddr_t addr;
+	sscanf(arg1, "%d", &len);
+	sscanf(arg2, "%x", &addr);
+
+	word_t w = vaddr_read(addr, len);
+
+	printf("%x : %x",addr,w);
+
 	return 0;
 }
 
