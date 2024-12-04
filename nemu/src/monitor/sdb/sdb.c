@@ -154,7 +154,7 @@ static int cmd_x(char *args) {
 			for(int j = 0; j < 4; j++){
 				w = vaddr_read(Addr, 1);
 				if(w <= 0x0f) {
-					printf("%0x ", w);
+					printf("0%x ", w);
 				} 
 				else {
 					printf("%x ", w);
