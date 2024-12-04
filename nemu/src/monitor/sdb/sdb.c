@@ -150,12 +150,18 @@ static int cmd_x(char *args) {
 			if(i){
 				printf("%13s","");
 			}
-			printf("%x ", vaddr_read(Addr     , 1));
-			printf("%x ", vaddr_read(Addr+0x01, 1));
-			printf("%x ", vaddr_read(Addr+0x02, 1));
-			printf("%x ", vaddr_read(Addr+0x03, 1));
+			word_t w;
+			for(int j = 0; j < 4; j++){
+				w = vaddr_read(Addr, 1);
+				if(w <= 0x0f) {
+					printf("%0x ", w);
+				} 
+				else {
+					printf("%x ", w);
+				} 
+	      Addr += 0x01;		
+			}
 			printf("\n");
-			Addr = Addr + 0x04;
 		}
 	} 
 	else{
