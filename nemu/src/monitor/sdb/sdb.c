@@ -125,7 +125,7 @@ static int cmd_info(char *args) {
 		printf("noh\n");
 	}
 	else {
-		cmd_help("info");
+    printf("%s - %s\n", cmd_table[4].name, cmd_table[4].description);
 	}
 	return 0;
 }
