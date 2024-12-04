@@ -147,13 +147,16 @@ static int cmd_x(char *args) {
   if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
 		printf("0x%x : ", addr);
 	  for(int i = 0; i < len; i++){
+			if(i){
+				printf("%13s","");
+			}
 			printf("%x ", vaddr_read(Addr     , 1));
 			printf("%x ", vaddr_read(Addr+0x01, 1));
 			printf("%x ", vaddr_read(Addr+0x02, 1));
 			printf("%x ", vaddr_read(Addr+0x03, 1));
+			printf("\n");
 			Addr = Addr + 0x04;
 		}
-		printf("\n");
 	} 
 	else{
 		printf("Address overflow.[0x80000000, ox87ffffff]\n");
