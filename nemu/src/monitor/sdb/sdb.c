@@ -148,10 +148,10 @@ static int cmd_x(char *args) {
 	printf("0x%x : ", addr);
   for(int i = 0; i < len; i++){
 		printf("%x ", vaddr_read(Addr     , 1));
-		printf("%x ", vaddr_read(Addr+0x01, 1));
-		printf("%x ", vaddr_read(Addr+0x02, 1));
-		printf("%x ", vaddr_read(Addr+0x03, 1));
-		Addr = Addr + 0x04;
+		printf("%x ", vaddr_read(Addr-0x01, 1));
+		printf("%x ", vaddr_read(Addr-0x02, 1));
+		printf("%x ", vaddr_read(Addr-0x03, 1));
+		Addr = Addr - 0x04;
 	}
 	printf("\n");
 
