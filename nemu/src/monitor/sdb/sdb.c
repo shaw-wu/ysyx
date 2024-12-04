@@ -52,6 +52,8 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args);
+
 static int cmd_help(char *args);
 
 static struct {
@@ -62,6 +64,7 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si", "Single Excute", cmd_si },
 
   /* TODO: Add more commands */
 
@@ -90,6 +93,25 @@ static int cmd_help(char *args) {
     printf("Unknown command '%s'\n", arg);
   }
   return 0;
+}
+
+/*wxz*/
+static int cmd_si(char *args) {
+	char* arg = strtok(NULL," ");//only first argument available.
+  int i;
+	
+  if(arg == NULL) {
+		for (i = 0; i < NR_CMD; i++) {
+			printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+		}
+	}
+	else if(sizeof(arg) > sizeof(uint64_t)) {
+		printf("si [N] : argument[N] too big,overflow of uint64_t type.\n");
+	}
+	else {
+		cpu_exec((uint64_t)arg);
+	}
+	return 0;
 }
 
 void sdb_set_batch_mode() {
