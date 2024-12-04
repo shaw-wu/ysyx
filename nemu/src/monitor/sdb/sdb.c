@@ -111,7 +111,7 @@ static int cmd_si(char *args) {
 		printf("si [N] : argument[N] too big,overflow of uint64_t type.\n");
 	}
 	else {
-		cpu_exec((uint64_t)*arg);
+		cpu_exec((uint64_t)*arg - 48);//0 - ASCII 48 
 	}
 	return 0;
 }
