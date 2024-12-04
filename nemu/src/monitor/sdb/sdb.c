@@ -144,6 +144,7 @@ static int cmd_x(char *args) {
 	sscanf(arg1, "%d", &len);
 	sscanf(arg2, "%x", &addr);
 	vaddr_t Addr = addr; 
+
   if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
 		printf("0x%x : ", addr);
 	  for(int i = 0; i < len; i++){
@@ -167,9 +168,6 @@ static int cmd_x(char *args) {
 	else{
 		printf("Address overflow.[0x80000000, ox87ffffff]\n");
 	}
-		
-
-
 
 	return 0;
 }
