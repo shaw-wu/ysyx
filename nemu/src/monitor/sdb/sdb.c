@@ -100,6 +100,8 @@ static int cmd_si(char *args) {
 	char* arg = strtok(NULL," ");//only first argument available.
   int i;
 	
+	printf("arg = %d, %lu\n",*arg,(uint64_t)*arg);
+
   if(arg == NULL) {
 		for (i = 0; i < NR_CMD; i++) {
 			printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
