@@ -153,6 +153,7 @@ static int cmd_x(char *args) {
 		printf("%x ", vaddr_read(Addr+0x03, 1));
 		Addr = Addr + 0x04;
 	}
+	printf("\n");
 
 
 
