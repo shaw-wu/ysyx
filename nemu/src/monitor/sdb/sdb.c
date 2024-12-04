@@ -138,22 +138,27 @@ static int cmd_info(char *args) {
 static int cmd_x(char *args) {
 	char* arg1 = strtok(NULL," ");
 	char* arg2 = strtok(NULL," ");
-	
+
   int len;
   vaddr_t addr;
 	sscanf(arg1, "%d", &len);
 	sscanf(arg2, "%x", &addr);
 	vaddr_t Addr = addr; 
-
-	printf("0x%x : ", addr);
-  for(int i = 0; i < len; i++){
-		printf("%x ", vaddr_read(Addr     , 1));
-		//printf("%x ", vaddr_read(Addr+0x01, 1));
-		//printf("%x ", vaddr_read(Addr+0x02, 1));
-		//printf("%x ", vaddr_read(Addr+0x03, 1));
-		Addr = Addr + 0x04;
+  if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
+		printf("0x%x : ", addr);
+	  for(int i = 0; i < len; i++){
+			printf("%x ", vaddr_read(Addr     , 1));
+			printf("%x ", vaddr_read(Addr+0x01, 1));
+			printf("%x ", vaddr_read(Addr+0x02, 1));
+			printf("%x ", vaddr_read(Addr+0x03, 1));
+			Addr = Addr + 0x04;
+		}
+		printf("\n");
+	} 
+	else{
+		printf("Address overflow.[0x80000000, ox87ffffff]\n");
 	}
-	printf("\n");
+		
 
 
 
