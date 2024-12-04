@@ -67,7 +67,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single Excute", cmd_si },/*wxz*/
-  { "info", "Print information of regs(with option -r) or watch(with option -w).", cmd_info },/*wxz*/
+  { "info", "Print information of regs(with sub-cmd r) or watch(with sub-cmd w).", cmd_info },/*wxz*/
 
   /* TODO: Add more commands */
 
