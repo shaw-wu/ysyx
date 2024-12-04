@@ -30,7 +30,7 @@ void isa_reg_display() {
 	i = 0;
 	for(j = 0; j < row; j++){
 		for(; i < n; i++){
-			printf("%s : %d ", regs[i], cpu.gpr[i]);
+			printf("%s : %d ", reg_name(i), cpu.gpr[i]);
 		}
 		printf("\n");
 	}
