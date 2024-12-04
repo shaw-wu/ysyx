@@ -24,6 +24,17 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
+	int n = sizeof(regs);
+	int row = n / 4 + 1;
+	int i, j;
+	i = 0;
+	for(j = 0; j < row; j++){
+		for(; i < n; i++){
+			printf("%s : %d ", reg_name(i), *regs[i]);
+		}
+		printf("\n");
+	}
+	return;
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

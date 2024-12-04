@@ -54,6 +54,8 @@ static int cmd_q(char *args) {
 
 static int cmd_si(char *args);/*wxz*/
 
+static int cmd_info(char *args);/*wxz*/
+
 static int cmd_help(char *args);
 
 static struct {
@@ -65,6 +67,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single Excute", cmd_si },/*wxz*/
+  { "info", "Print information of regs(with option -r) or watch(with option -w).", cmd_info },/*wxz*/
 
   /* TODO: Add more commands */
 
@@ -107,6 +110,22 @@ static int cmd_si(char *args) {
 	}
 	else {
 		cpu_exec((uint64_t)*arg - 48);//0 - ASCII 48 
+	}
+	return 0;
+}
+
+/*wxz*/
+static int cmd_info(char *args) {
+	char* sub_cmd = strtok(NULL," ");//only first argument available.
+
+  if (strcmp(sub_cmd, "r") == 0) {
+		isa_reg_display();
+	}
+	else if(strcmp(sub_cmd, "w") == 0){
+		printf("noh\n");
+	}
+	else {
+		cmd_help("info");
 	}
 	return 0;
 }
