@@ -16,6 +16,7 @@
 #include <isa.h>
 #include <memory/paddr.h>
 
+/* 内置客户程序(isa) wxz*/
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
 static const uint32_t img [] = {

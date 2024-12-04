@@ -32,8 +32,8 @@ static void welcome() {
   Log("Build time: %s, %s", __TIME__, __DATE__);
   printf("Welcome to %s-NEMU!\n", ANSI_FMT(str(__GUEST_ISA__), ANSI_FG_YELLOW ANSI_BG_RED));
   printf("For help, type \"help\"\n");
-  Log("Exercise: Please remove me in the source code and compile NEMU again.");
-  assert(0);
+  //Log("Exercise: Please remove me in the source code and compile NEMU again.");
+ // assert(0);
 }
 
 #ifndef CONFIG_TARGET_AM
@@ -100,7 +100,7 @@ static int parse_args(int argc, char *argv[]) {
 
 void init_monitor(int argc, char *argv[]) {
   /* Perform some global initialization. */
-
+  /* 函数调用:代码可读性强,通过配置参数可以让API适应不同环境从而保持一致的框架 wxz*/
   /* Parse arguments. */
   parse_args(argc, argv);
 

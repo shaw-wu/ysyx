@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/vaddr.h>
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -33,7 +34,7 @@ static char* rl_gets() {
     line_read = NULL;
   }
 
-  line_read = readline("(nemu) ");
+  line_read = readline("(nemu) ");/*读命令行输入  wxz*/
 
   if (line_read && *line_read) {
     add_history(line_read);
@@ -43,7 +44,7 @@ static char* rl_gets() {
 }
 
 static int cmd_c(char *args) {
-  cpu_exec(-1);
+  cpu_exec(-1);/*uint64_t 无符号数,-1溢出,实际为0xffffffffffffffff wxz*/
   return 0;
 }
 
@@ -51,6 +52,12 @@ static int cmd_c(char *args) {
 static int cmd_q(char *args) {
   return -1;
 }
+
+static int cmd_si(char *args);/*wxz*/
+
+static int cmd_info(char *args);/*wxz*/
+
+static int cmd_x(char *args);/*wxz*/
 
 static int cmd_help(char *args);
 
@@ -62,6 +69,9 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si", "Single Excute", cmd_si },/*wxz*/
+  { "info", "Print information of regs(with sub-cmd r) or watch(with sub-cmd w).", cmd_info },/*wxz*/
+  { "x", "Constantly print N of 4 bytes,start address is value of expression.", cmd_x},/*wxz*/
 
   /* TODO: Add more commands */
 
@@ -90,6 +100,76 @@ static int cmd_help(char *args) {
     printf("Unknown command '%s'\n", arg);
   }
   return 0;
+}
+
+/*wxz*/
+static int cmd_si(char *args) {
+	char* arg = strtok(NULL," ");//only first argument available.
+  int i;
+
+  if(arg == NULL) {
+		for (i = 0; i < NR_CMD; i++) {
+			printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+		}
+	}
+	else {
+		cpu_exec((uint64_t)*arg - 48);//0 - ASCII 48 
+	}
+	return 0;
+}
+
+/*wxz*/
+static int cmd_info(char *args) {
+	char* sub_cmd = strtok(NULL," ");//only first argument available.
+
+  if (strcmp(sub_cmd, "r") == 0) {
+		isa_reg_display();
+	}
+	else if(strcmp(sub_cmd, "w") == 0){
+		printf("noh\n");
+	}
+	else {
+    printf("%s - %s\n", cmd_table[4].name, cmd_table[4].description);
+	}
+	return 0;
+}
+
+/*wxz*/
+static int cmd_x(char *args) {
+	char* arg1 = strtok(NULL," ");
+	char* arg2 = strtok(NULL," ");
+
+  int len;
+  vaddr_t addr;
+	sscanf(arg1, "%d", &len);
+	sscanf(arg2, "%x", &addr);
+	vaddr_t Addr = addr; 
+
+  if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
+		printf("0x%x : ", addr);
+	  for(int i = 0; i < len; i++){
+			if(i){
+				printf("%13s","");
+			}
+			word_t w;
+			for(int j = 0; j < 4; j++){
+				w = vaddr_read(Addr, 1);
+				if(w <= 0x0f) {
+					printf("0%x ", w);
+				} 
+				else {
+					printf("%x ", w);
+				} 
+	      Addr += 0x01;		
+			}
+			printf("\n");
+		}
+	} 
+	else{
+		printf("Address overflow.[0x80000000, ox87ffffff]\n");
+	}
+
+	return 0;
 }
 
 void sdb_set_batch_mode() {
