@@ -100,7 +100,7 @@ static int cmd_si(char *args) {
 	char* arg = strtok(NULL," ");//only first argument available.
   int i;
 	
-	printf("arg = %d, %lu\n",*arg,(uint64_t)*arg);
+	printf("arg = %d, %lu\n",*arg - 48,(uint64_t)*arg - 48);
 
   if(arg == NULL) {
 		for (i = 0; i < NR_CMD; i++) {
