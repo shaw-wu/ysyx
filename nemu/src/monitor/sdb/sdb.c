@@ -146,7 +146,7 @@ static int cmd_x(char *args) {
 
 	word_t w = vaddr_read(addr, len);
 
-	printf("%x : %x",addr,w);
+	printf("0x%x : %x\n",addr,w);
 
 	return 0;
 }
