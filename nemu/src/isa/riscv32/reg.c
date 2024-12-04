@@ -28,7 +28,7 @@ void isa_reg_display() {
 	i = 0;
 	for(j = 0; j < 8; j++){
 		for(; i < (j + 1) * 4; i++){
-			printf("%s : %d   ", reg_name(i), cpu.gpr[i]);
+			printf("%s : %d    ", reg_name(i), cpu.gpr[i]);
 		}
 		printf("\n");
 	}
