@@ -24,11 +24,11 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-	int n = sizeof(regs);
-	int row = n / 4 + 1;
+	//int n = sizeof(regs);
+	//int row = n / 4 + 1;
 	int i, j;
 	i = 0;
-	for(j = 0; j < row; j++){
+	for(j = 0; j < 1; j++){
 		for(; i < 1; i++){
 			//printf("1 \n");
 			printf("%s : %d ", reg_name(i), *regs[i]);
