@@ -20,8 +20,9 @@
  */
 #include <regex.h>
 
+/*wxz*/
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_LBRKET, TK_RBRKET, TK_EQ, TK_DIG,
 
   /* TODO: Add more token types */
 
@@ -36,9 +37,16 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
 
-  {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
-  {"==", TK_EQ},        // equal
+  /*wxz*/
+  {" +"  , TK_NOTYPE},   // spaces
+  {"\\(" , TK_LBRKET},   // left brackets
+  {"\\)" , TK_RBRKET},   // right brackets
+  {"\\*" , '*'},         // multiple
+  {"/"   , '/'},         // division
+  {"\\+" , '+'},         // plus
+  {"-"   , '-'},         // minus
+  {"=="  , TK_EQ},       // equal
+  {"\\d" , TK_DIG},      // digital 
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -53,6 +61,7 @@ void init_regex() {
   char error_msg[128];
   int ret;
 
+	/*编译rules中的表达式, 将rules匹配的表达式信息相应放在re[i]中 wxz*/
   for (i = 0; i < NR_REGEX; i ++) {
     ret = regcomp(&re[i], rules[i].regex, REG_EXTENDED);
     if (ret != 0) {
@@ -67,13 +76,13 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[32] __attribute__((used)) = {};/*__attribute__((used)) 提示编译器不要优化 wxz*/
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
   int position = 0;
   int i;
-  regmatch_t pmatch;
+  regmatch_t pmatch;/*匹配的信息,pmatch.rm_so:start offset,pmatch.eo:end offset wxz*/
 
   nr_token = 0;
 
@@ -82,7 +91,7 @@ static bool make_token(char *e) {
     for (i = 0; i < NR_REGEX; i ++) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
-        int substr_len = pmatch.rm_eo;
+        int substr_len = pmatch.rm_eo;/*end offset 相对start位置的偏移量 wxz*/
 
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
@@ -93,10 +102,53 @@ static bool make_token(char *e) {
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-
+				/*wxz*/
         switch (rules[i].token_type) {
+          case TK_NOTYPE: 
+						break;
+          case TK_LBRKET : 
+						tokens[nr_token].type = TK_LBRKET;
+						assert(substr_len > 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						nr_token++;
+						break;
+          case TK_RBRKET : 
+						tokens[nr_token].type = TK_RBRKET;
+						assert(substr_len > 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						nr_token++;
+						break;
+          case '*'      : 
+						tokens[nr_token].type = '*';
+						nr_token++;
+						break;
+          case '/'      : 
+						tokens[nr_token].type = '/';
+						nr_token++;
+						break;
+          case '+'      : 
+						tokens[nr_token].type = '+';
+						nr_token++;
+						break;
+          case '-'      : 
+						tokens[nr_token].type = '-';
+						nr_token++;
+						break;
+          case TK_EQ    : 
+						tokens[nr_token].type = TK_EQ;
+						assert(substr_len > 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						nr_token++;
+						break;
+          case TK_DIG   : 
+						tokens[nr_token].type = TK_DIG;
+						assert(substr_len > 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						nr_token++;
+						break;
           default: TODO();
         }
+				position += substr_len;
 
         break;
       }
@@ -107,6 +159,11 @@ static bool make_token(char *e) {
       return false;
     }
   }
+	
+	for(int k = 0; k < nr_token; k++){
+		printf("%s(%d)",tokens[k].str,tokens[k].type);
+	}
+	printf("\n");
 
   return true;
 }
