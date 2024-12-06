@@ -117,42 +117,49 @@ static bool make_token(char *e) {
 						tokens[nr_token].type = TK_RBRKET;
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case '*'      : 
 						tokens[nr_token].type = '*';
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case '/'      : 
 						tokens[nr_token].type = '/';
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case '+'      : 
 						tokens[nr_token].type = '+';
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case '-'      : 
 						tokens[nr_token].type = '-';
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case TK_EQ    : 
 						tokens[nr_token].type = TK_EQ;
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case TK_DIG   : 
 						tokens[nr_token].type = TK_DIG;
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           default: TODO();
