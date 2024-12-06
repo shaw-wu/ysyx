@@ -42,9 +42,9 @@ static struct rule {
   {"\\(" , TK_LBRKET},   // left brackets
   {"\\)" , TK_RBRKET},   // right brackets
   {"\\*" , '*'},         // multiple
-  {"/"   , '/'},         // division
+  {"\\/"   , '/'},         // division
   {"\\+" , '+'},         // plus
-  {"-"   , '-'},         // minus
+  {"\\-"   , '-'},         // minus
   {"=="  , TK_EQ},       // equal
   {"\\[:difital:\\]" , TK_DIG},      // digital 
 };
