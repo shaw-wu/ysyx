@@ -148,7 +148,6 @@ static bool make_token(char *e) {
 						break;
           default: TODO();
         }
-				position += substr_len;
 
         break;
       }
