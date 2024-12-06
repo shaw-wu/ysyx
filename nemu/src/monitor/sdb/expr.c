@@ -120,18 +120,26 @@ static bool make_token(char *e) {
 						break;
           case '*'      : 
 						tokens[nr_token].type = '*';
+						assert(substr_len < 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						nr_token++;
 						break;
           case '/'      : 
 						tokens[nr_token].type = '/';
+						assert(substr_len < 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						nr_token++;
 						break;
           case '+'      : 
 						tokens[nr_token].type = '+';
+						assert(substr_len < 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						nr_token++;
 						break;
           case '-'      : 
 						tokens[nr_token].type = '-';
+						assert(substr_len < 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						nr_token++;
 						break;
           case TK_EQ    : 
