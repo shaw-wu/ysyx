@@ -59,6 +59,8 @@ static int cmd_info(char *args);/*wxz*/
 
 static int cmd_x(char *args);/*wxz*/
 
+static int cmd_et(char *args);/*wxz*/
+
 static int cmd_help(char *args);
 
 static struct {
@@ -72,6 +74,7 @@ static struct {
   { "si", "Single Excute", cmd_si },/*wxz*/
   { "info", "Print information of regs(with sub-cmd r) or watch(with sub-cmd w).", cmd_info },/*wxz*/
   { "x", "Constantly print N of 4 bytes,start address is value of expression.", cmd_x},/*wxz*/
+  { "et", "Constantly print N of 4 bytes,start address is value of expression.", cmd_et},/*wxz*/
 
   /* TODO: Add more commands */
 
@@ -168,6 +171,16 @@ static int cmd_x(char *args) {
 	else{
 		printf("Address overflow.[0x80000000, ox87ffffff]\n");
 	}
+
+	return 0;
+}
+
+/*wxz*/
+static int cmd_et(char *args) {
+	//char* arg = strtok(NULL," ");
+	char* arg = args;
+	bool suc = true;
+	expr(arg, &suc);
 
 	return 0;
 }
