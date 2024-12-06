@@ -179,8 +179,8 @@ static int cmd_x(char *args) {
 static int cmd_et(char *args) {
 	//char* arg = strtok(NULL," ");
 	char* arg = args;
-	bool* suc = NULL;
-	expr(arg, suc);
+	bool suc = true;
+	expr(arg, &suc);
 
 	return 0;
 }
