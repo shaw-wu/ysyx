@@ -108,13 +108,13 @@ static bool make_token(char *e) {
 						break;
           case TK_LBRKET : 
 						tokens[nr_token].type = TK_LBRKET;
-						assert(substr_len > 32);
+						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						nr_token++;
 						break;
           case TK_RBRKET : 
 						tokens[nr_token].type = TK_RBRKET;
-						assert(substr_len > 32);
+						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						nr_token++;
 						break;
@@ -136,13 +136,13 @@ static bool make_token(char *e) {
 						break;
           case TK_EQ    : 
 						tokens[nr_token].type = TK_EQ;
-						assert(substr_len > 32);
+						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						nr_token++;
 						break;
           case TK_DIG   : 
 						tokens[nr_token].type = TK_DIG;
-						assert(substr_len > 32);
+						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						nr_token++;
 						break;
