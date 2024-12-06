@@ -103,7 +103,6 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 				/*wxz*/
-				char* end_flag = '\000';
         switch (rules[i].token_type) {
           case TK_NOTYPE: 
 						break;
@@ -111,7 +110,7 @@ static bool make_token(char *e) {
 						tokens[nr_token].type = TK_LBRKET;
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
-					  strcat(end_flag, tokens[nr_token].str+substr_len); 
+						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case TK_RBRKET : 
