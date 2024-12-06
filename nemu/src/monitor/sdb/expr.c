@@ -46,7 +46,7 @@ static struct rule {
   {"\\+" , '+'},         // plus
   {"-"   , '-'},         // minus
   {"=="  , TK_EQ},       // equal
-  {"\\d" , TK_DIG},      // digital 
+  {"\\[:difital:\\]" , TK_DIG},      // digital 
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -159,12 +159,12 @@ static bool make_token(char *e) {
       return false;
     }
   }
-/*	
+
 	for(int k = 0; k < nr_token; k++){
 		printf("%s(%d)",tokens[k].str,tokens[k].type);
 	}
 	printf("\n");
-*/
+
   return true;
 }
 
