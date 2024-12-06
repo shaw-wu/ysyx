@@ -177,8 +177,8 @@ static int cmd_x(char *args) {
 
 /*wxz*/
 static int cmd_et(char *args) {
-	char* arg = strtok(NULL," ");
-	//char* arg = args;
+	//char* arg = strtok(NULL," ");
+	char* arg = args;
 	bool* suc = NULL;
 	expr(arg, suc);
 
