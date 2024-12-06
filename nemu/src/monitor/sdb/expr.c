@@ -46,7 +46,7 @@ static struct rule {
   {"\\+" , '+'},         // plus
   {"\\-"   , '-'},         // minus
   {"=="  , TK_EQ},       // equal
-  {"\\[:difital:\\]" , TK_DIG},      // digital 
+  {"\\[:digital:\\]" , TK_DIG},      // digital 
 };
 
 #define NR_REGEX ARRLEN(rules)
