@@ -111,7 +111,7 @@ static bool make_token(char *e) {
 						tokens[nr_token].type = TK_LBRKET;
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
-					  strcat(tokens[nr_token].str+substr_len, end_flag); 
+					  strcat(end_flag, tokens[nr_token].str+substr_len); 
 						nr_token++;
 						break;
           case TK_RBRKET : 
