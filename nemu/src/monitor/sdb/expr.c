@@ -235,8 +235,14 @@ static bool check_parentheses(int st, int en, bool* illegal){
 		}
 	}
 
-	if(ind_l != ind_r) return false;
-	if(ind == 2) return true;
+	if(ind_l != ind_r) {
+		free(parents);
+		return false;
+	}
+	if(ind == 2) {
+		free(parents);
+		return true;
+	}
 
   //匹配括号 : 从里到外,即识别<中间没有未匹配括号>的括号对,每识别一对就将其标记为已匹配
 	do{
@@ -259,9 +265,13 @@ static bool check_parentheses(int st, int en, bool* illegal){
 	}while(1);
 
 	for(i = 1; i < ind - 1; i++){
-		if(parents[i] != -1) return false;
+		if(parents[i] != -1) {
+			free(parents);
+			return false;
+		}
 	}
 
+	free(parents);
 	return true;
 
 }
