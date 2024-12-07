@@ -22,7 +22,7 @@
 
 /*wxz*/
 enum {
-  TK_NOTYPE = 256, TK_LBRKET, TK_RBRKET, TK_EQ, TK_DIG,
+  TK_NOTYPE = 256, TK_LPARENT, TK_RPARENT, TK_EQ, TK_DIG,
 
   /* TODO: Add more token types */
 
@@ -39,8 +39,8 @@ static struct rule {
 
   /*wxz*/
   {" +"  , TK_NOTYPE},   // spaces
-  {"\\(" , TK_LBRKET},   // left brackets
-  {"\\)" , TK_RBRKET},   // right brackets
+  {"\\(" , TK_LPARENT},   // left brackets
+  {"\\)" , TK_RPARENT},   // right brackets
   {"\\*" , '*'},         // multiple
   {"\\/"   , '/'},         // division
   {"\\+" , '+'},         // plus
@@ -106,15 +106,15 @@ static bool make_token(char *e) {
         switch (rules[i].token_type) {
           case TK_NOTYPE: 
 						break;
-          case TK_LBRKET : 
-						tokens[nr_token].type = TK_LBRKET;
+          case TK_LPARENT : 
+						tokens[nr_token].type = TK_LPARENT;
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
-          case TK_RBRKET : 
-						tokens[nr_token].type = TK_RBRKET;
+          case TK_RPARENT : 
+						tokens[nr_token].type = TK_RPARENT;
 						assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
@@ -188,7 +188,93 @@ static bool make_token(char *e) {
 
   return true;
 }
+static bool check_parentheses(int st, int en, bool* illegal);
+static uint32_t eval(int st, int en, bool* illegal){
+	if(st > en){
+		*illegal = true;
+		return -1;
+	}
+	else if(st == en){
+		uint32_t num;
+		sscanf(tokens[st].str,"%u",&num);
+		*illegal = false;
+		return num;
+	}
+	else if(check_parentheses(st, en, illegal) == true){
+		return eval(st + 1, en - 1, illegal);
+	}
+	else{
+		if(*illegal == true) return -1;
+		return 0;
+	}
+}
 
+static bool check_parentheses(int st, int en, bool* illegal){
+	if(tokens[st].type != TK_LPARENT || tokens[st].type != TK_RPARENT){
+		return false;
+	}
+	int *parents  = (int*)malloc((en - st + 1) * sizeof(int));
+	int ind = 0;
+	int ind_l, ind_r;
+	ind_l = 0, ind_r = 0;
+	int i;
+	//计算有多少对括号
+	for(i = st; i <= en; i++){
+		switch(tokens[i].type){
+			case TK_LPARENT :
+				parents[ind] = TK_LPARENT;
+				ind++;
+				ind_l++;
+				break;	
+			case TK_RPARENT :
+				parents[ind] = TK_RPARENT;
+				ind++;
+				ind_r++;
+				break;	
+			default : break;
+		}
+	}
+
+	if(ind_l != ind_r) {
+		free(parents);
+		return false;
+	}
+	if(ind == 2) {
+		free(parents);
+		return true;
+	}
+
+  //匹配括号 : 从里到外,即识别<中间没有未匹配括号>的括号对,每识别一对就将其标记为已匹配
+	do{
+		bool match = false;												/*记录本次do while循环有没有匹配到括号对*/
+		for(i = 1; i < ind - 1; i++){							/*为左括号匹配右括号*/ 
+			if(parents[i] != TK_LPARENT) continue;
+			for(int j = i + 1; j < ind - 1; j++){
+				if(parents[j] == -1){									/*已匹配括号对 : 跳过*/
+					continue;																		
+				}
+				if(parents[j] == TK_RPARENT){					/*遇到的第一个未匹配括号 : 右括号--匹配成功 左括号--匹配失败*/
+					parents[i] = parents[j] = -1;
+					match = true;
+				}
+				break;
+			}
+			if(match == true) break;
+		}
+		if(match == false) break;
+	}while(1);
+
+	for(i = 1; i < ind - 1; i++){
+		if(parents[i] != -1) {
+			free(parents);
+			return false;
+		}
+	}
+
+	free(parents);
+	return true;
+
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -198,6 +284,8 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
+	bool illegal;
+	eval(0, nr_token - 1, &illegal);
 
   return 0;
 }
