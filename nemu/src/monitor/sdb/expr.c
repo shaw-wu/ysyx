@@ -284,12 +284,6 @@ static uint32_t eval(int st, int en, bool* illegal){
 
 static bool check_parentheses(int st, int en, bool* illegal){
 	if(tokens[st].type != TK_LPARENT || tokens[en].type != TK_RPARENT){
-		if(tokens[st].type == TK_LPARENT || tokens[en].type == TK_RPARENT){
-			*illegal = false;
-		}
-		else{
-			*illegal = true;
-		}
 		return false;
 	}
 	int *parents  = (int*)malloc((en - st + 1) * sizeof(int));
