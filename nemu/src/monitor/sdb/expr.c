@@ -190,27 +190,113 @@ static bool make_token(char *e) {
 }
 static bool check_parentheses(int st, int en, bool* illegal);
 static uint32_t eval(int st, int en, bool* illegal){
+	if(*illegal == true){
+		return 1;
+	}
 	if(st > en){
 		*illegal = true;
-		return -1;
+		return 1;
 	}
 	else if(st == en){
 		uint32_t num;
 		sscanf(tokens[st].str,"%u",&num);
-		*illegal = false;
 		return num;
 	}
 	else if(check_parentheses(st, en, illegal) == true){
 		return eval(st + 1, en - 1, illegal);
 	}
 	else{
-		if(*illegal == true) return -1;
-		return 0;
+		if(*illegal == true) return 1;
+		int *symbol = (int*)malloc((en - st + 1) * sizeof(int));
+		int ind = 0;
+		int i;
+		for(i = st; i <= en; i++){
+			switch(tokens[i].type){
+				case '+' :
+					symbol[ind] = i;
+					ind++;
+					break;	
+				case '-' : 
+					symbol[ind] = i;
+					ind++;
+					break;	
+				case '*' : 
+					symbol[ind] = i;
+					ind++;
+					break;	
+				case '/' : 
+					symbol[ind] = i;
+					ind++;
+					break;	
+				default : break;
+			}
+		}	
+		for(i = 0; i < ind; i++){									/*检查运算符是否在括号内*/
+			int j;
+			for(j = symbol[i]; j >= st; j--){		    
+				if(tokens[j].type == TK_LPARENT){			/*在括号内 : 不是主运算符*/
+					break;															/*这里默认经check_parentheses()处理的表达式均合法*/
+				}																			/*即遇到的第一个括号元素为左括号时*/
+				else if(tokens[j].type == TK_RPARENT){
+					j = st;
+				}
+			}																				/*那么必有相匹配的一个右括号将该子表达式包含在一起*/
+			if(j != st - 1){												/*且这个子表达式不可能等于主表达式(check函数已经进行了去除两端括号的操作)*/	
+				symbol[i] = -1;
+			}
+		}
+
+		int op = -1;
+		int op_temp = -1;
+		for(i = ind - 1; i >= 0; i--){						/*搜索主运算符 : 从右到左*/
+			int p = symbol[i]; 
+			if(p == -1){
+				continue;
+			}
+			else if(tokens[p].type == '+' || tokens[p].type == '-'){
+				op = p;
+				break;
+			}
+			else if(op_temp != -1){
+				continue;
+			}
+			else if(tokens[p].type == '*' || tokens[p].type == '/'){
+				op_temp = p;
+				continue;
+			}
+			else{																		/*防御性编程 : 我也不知道会不会有这种情况*/
+				*illegal = true;
+				free(symbol);
+				return 1;
+			}
+		}
+		free(symbol);
+		if(op == -1){
+			if(op_temp != -1){
+				op = op_temp;
+			}
+			else {
+				*illegal = true;
+				return 1;
+			}
+		}
+
+		uint32_t val1 = eval(st, op - 1, illegal);
+		uint32_t val2 = eval(op + 1, en, illegal);
+		switch(tokens[op].type){
+			case '+' : return val1 + val2;
+			case '-' : return val1 - val2;
+			case '*' : return val1 * val2;
+			case '/' : return val1 / val2;
+			default : 
+				*illegal = true;
+				return 1;
+		}
 	}
 }
 
 static bool check_parentheses(int st, int en, bool* illegal){
-	if(tokens[st].type != TK_LPARENT || tokens[st].type != TK_RPARENT){
+	if(tokens[st].type != TK_LPARENT || tokens[en].type != TK_RPARENT){
 		return false;
 	}
 	int *parents  = (int*)malloc((en - st + 1) * sizeof(int));
@@ -237,9 +323,11 @@ static bool check_parentheses(int st, int en, bool* illegal){
 
 	if(ind_l != ind_r) {
 		free(parents);
+		*illegal = true;
 		return false;
 	}
 	if(ind == 2) {
+		*illegal = false;
 		free(parents);
 		return true;
 	}
@@ -266,11 +354,13 @@ static bool check_parentheses(int st, int en, bool* illegal){
 
 	for(i = 1; i < ind - 1; i++){
 		if(parents[i] != -1) {
+			*illegal = false;
 			free(parents);
 			return false;
 		}
 	}
 
+	*illegal = false;
 	free(parents);
 	return true;
 
@@ -285,7 +375,8 @@ word_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
 	bool illegal;
-	eval(0, nr_token - 1, &illegal);
+	uint32_t result = eval(0, nr_token - 1, &illegal);
+	printf("result = %d, illegal = %s\n", result, illegal ? "true" : "false");
 
   return 0;
 }
