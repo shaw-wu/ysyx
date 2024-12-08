@@ -255,7 +255,7 @@ static uint32_t eval(int st, int en, bool* illegal){
 				break;
 			}
 			else if(op_temp != -1){
-				break;
+				continue;
 			}
 			else if(tokens[p].type == '*' || tokens[p].type == '/'){
 				op_temp = p;
