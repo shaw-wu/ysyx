@@ -207,7 +207,6 @@ static uint32_t eval(int st, int en, bool* illegal){
 	}
 	else{
 		if(*illegal == true) return 1;
-		int op = -1;
 		int *symbol = (int*)malloc((en - st + 1) * sizeof(int));
 		int ind = 0;
 		int i;
@@ -243,6 +242,9 @@ static uint32_t eval(int st, int en, bool* illegal){
 				symbol[i] = -1;
 			}
 		}
+
+		int op = -1;
+		int op_temp = -1;
 		for(i = ind - 1; i >= 0; i--){						/*搜索主运算符 : 从右到左*/
 			int p = symbol[i]; 
 			if(p == -1){
@@ -252,9 +254,12 @@ static uint32_t eval(int st, int en, bool* illegal){
 				op = p;
 				break;
 			}
-			else if(tokens[p].type == '*' || tokens[p].type == '/'){
-				op = p;
+			else if(op_temp != -1){
 				break;
+			}
+			else if(tokens[p].type == '*' || tokens[p].type == '/'){
+				op_temp = p;
+				continue;
 			}
 			else{																		/*防御性编程 : 我也不知道会不会有这种情况*/
 				*illegal = true;
@@ -264,8 +269,13 @@ static uint32_t eval(int st, int en, bool* illegal){
 		}
 		free(symbol);
 		if(op == -1){
-			*illegal = true;
-			return 1;
+			if(op_temp != -1){
+				op = op_temp;
+			}
+			else {
+				*illegal = true;
+				return 1;
+			}
 		}
 
 		uint32_t val1 = eval(st, op - 1, illegal);
