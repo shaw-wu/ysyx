@@ -237,6 +237,9 @@ static uint32_t eval(int st, int en, bool* illegal){
 				if(tokens[j].type == TK_LPARENT){			/*在括号内 : 不是主运算符*/
 					break;															/*这里默认经check_parentheses()处理的表达式均合法*/
 				}																			/*即遇到的第一个括号元素为左括号时*/
+				else if(tokens[j].type == TK_RPARENT){
+					j = st;
+				}
 			}																				/*那么必有相匹配的一个右括号将该子表达式包含在一起*/
 			if(j != st - 1){												/*且这个子表达式不可能等于主表达式(check函数已经进行了去除两端括号的操作)*/	
 				symbol[i] = -1;
