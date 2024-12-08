@@ -368,7 +368,8 @@ word_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
 	bool illegal;
-	eval(0, nr_token - 1, &illegal);
+	uint32_t result = eval(0, nr_token - 1, &illegal);
+	printf("result = %d, illegal = %s\n", result, illegal ? "true" : "false");
 
   return 0;
 }
