@@ -95,7 +95,10 @@ int main(int argc, char *argv[]) {
 		buf[0] = '\0';
 		buf_i = 0;
     gen_rand_expr();
-
+		if(buf_i < 10){
+			i--;
+			continue;
+		}
     sprintf(code_buf, code_format, buf);		/*将buf中的测试填进代码框架,并缓冲到代码缓冲区*/
 
     FILE *fp = fopen("/tmp/.code.c", "w");  /*打开文件,将缓冲代码加载到文件中*/
