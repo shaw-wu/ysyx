@@ -32,8 +32,59 @@ static char *code_format =
 "  return 0; "
 "}";
 
+static char zero_buf[65536 + 512] = {};
+static char *check_zero =
+"#include <stdio.h>\n"
+"#include <stdlib.h>\n"
+"#include <assert.h>\n"
+"int main() {\n"
+"  FILE* fp = fopen(\"/home/shaw/ysyx-workbench/nemu/tools/gen-expr/.zero.log\", \"w\");\n"
+"	 assert(fp != NULL);\n"
+"  unsigned int result = %s;\n"
+"  int arr[2] = {0, 1};\n"
+"  if(result == 0){\n"
+"	   fwrite(arr + 1, sizeof(int), 1, fp);\n"
+"  }\n"
+"  else{\n"
+"	   fwrite(arr, sizeof(int), 1, fp);\n"
+"  }\n"
+"	 fclose(fp);\n"
+"  return 0;\n"
+"}";
+
 static void gen_rand_expr() {
 	unsigned int rand1 = rand() % 5;
+	//括号内不能单独出现数字
+	if(buf_i != 0 && (rand1 == 0 || rand1 == 1)){
+		int ind_t = buf_i-1;
+		int jdg = 0;
+		do{
+			switch(buf[ind_t]){
+				case ' ':
+					if(ind_t == 0){
+						jdg = 0;
+					}
+					else{
+						ind_t--;
+					}
+					jdg = 1;
+					break;
+				case '+':
+				case '-':
+				case '*':
+				case '/':
+					jdg = 0;
+					break;
+				case '(':
+				case ')':
+					do{
+						rand1 = rand() % 5;
+					}while(rand1 == 0 || rand1 == 1);
+					break;
+				default : break;
+			}
+		}while(jdg);
+	}
 	switch(rand1){
 		case 0 :
 		case 1 :
@@ -54,31 +105,75 @@ static void gen_rand_expr() {
 			buf_i++;
 			gen_rand_expr();
 			buf[buf_i] = ')';	
-			buf[buf_i + 1] = '\0';
 			buf_i++;
+			buf[buf_i] = '\0';
 			break;
 		default :
-			gen_rand_expr();
-			unsigned int rand2 = rand() % 4;
-			switch(rand2){
-				case 0 : 
-					buf[buf_i] = '+';
-					buf_i++;
-					break;
-				case 1 : 
-					buf[buf_i] = '-';
-					buf_i++;
-					break;
-				case 2 : 
-					buf[buf_i] = '*';
-					buf_i++;
-					break;
-				default : 
-					buf[buf_i] = '/';
-					buf_i++;
-					break;
-			}
-			gen_rand_expr();
+			int ind_st1 = buf_i;
+			int Zero = 0;
+			do{
+				int devide = 0;
+				gen_rand_expr();
+				unsigned int rand2 = rand() % 4;
+				switch(rand2){
+					case 0 : 
+						buf[buf_i] = '+';
+						buf_i++;
+						break;
+					case 1 : 
+						buf[buf_i] = '-';
+						buf_i++;
+						break;
+					case 2 : 
+						buf[buf_i] = '*';
+						buf_i++;
+						break;
+					default : 
+						buf[buf_i] = '/';
+						buf_i++;
+						devide = 1; //除法:检测后面是否为0
+						break;
+				}
+				int ind_st2 = buf_i;
+				gen_rand_expr();
+
+				if(devide == 1){
+					sprintf(zero_buf, check_zero, buf + ind_st2);		
+					FILE *fp = fopen("/tmp/.code_zero.c", "w");  
+					assert(fp != NULL);
+					fputs(zero_buf, fp);
+					fclose(fp);
+
+					int ret = system("gcc /tmp/.code_zero.c -o /tmp/.zero");
+					if(ret != 0){
+						perror("system() : gen_rand_expr()");
+					}
+					ret = system("/tmp/.zero");
+					if(ret != 0){
+						perror("system() : gen_rand_expr()");
+					}
+
+					fp = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/.zero.log", "r");  
+					assert(fp != NULL);
+					size_t res = fread(&Zero, sizeof(int), 1, fp);
+					if(res != 1){
+						perror("Error reading file");
+					}
+					else{
+						if(Zero == 1){
+							buf_i = ind_st1;
+							buf[buf_i] = '\0';
+						}
+						else if(Zero == 0){
+							break;
+						}
+						else{
+							perror("unknown statu : gen_rand_expr():Zero ");
+						}
+					}
+					fclose(fp);
+				}
+			}while(Zero);
 			break;
 	}
 }
