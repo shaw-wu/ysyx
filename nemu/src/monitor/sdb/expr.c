@@ -366,7 +366,7 @@ static bool check_parentheses(int st, int en, bool* illegal){
 
 }
 
-word_t expr(char *e, bool *success) {
+word_t expr(char *e, bool *success, uint32_t *result) {
   if (!make_token(e)) {
     *success = false;
     return 0;
@@ -375,8 +375,8 @@ word_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
 	bool illegal;
-	uint32_t result = eval(0, nr_token - 1, &illegal);
-	printf("result = %d, illegal = %s\n", result, illegal ? "true" : "false");
+	*result = eval(0, nr_token - 1, &illegal);
+	//printf("result = %d, illegal = %s\n", *result, illegal ? "true" : "false");
 
   return 0;
 }
