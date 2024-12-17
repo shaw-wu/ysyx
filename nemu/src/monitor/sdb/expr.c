@@ -322,7 +322,7 @@ static bool check_parentheses(int st, int en, bool* illegal){
 		return false;
 	}
 	int i = st;
-	int count = 1;
+	int count = 0;
 	do{
 		if(i > en){
 			break;
@@ -334,11 +334,11 @@ static bool check_parentheses(int st, int en, bool* illegal){
 			count--;
 		}
 		i++;
-	}while(count != 0);
-	if(!count && i == en + 1){
+	}while(count != -1);
+	if(count == -1 && i == en + 1){
 		return true;
 	}
-	if(count != 0){
+	if(count != -1){
 		perror("parentheses not match!\n");
 	}
 	
