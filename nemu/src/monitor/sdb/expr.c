@@ -339,7 +339,7 @@ static bool check_parentheses(int st, int en, bool* illegal){
 		return true;
 	}
 	if(count != 0){
-		perror("parentheses not match!");
+		perror("parentheses not match!\n");
 	}
 	
 	return false;
