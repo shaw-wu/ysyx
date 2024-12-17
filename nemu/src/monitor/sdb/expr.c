@@ -180,7 +180,7 @@ static bool make_token(char *e) {
 	for(int k = 0; k < nr_token; k++){
 		printf("%s",tokens[k].str);
 	}
-	printf("\n");
+	//printf("\n");
 	/*
 	for(int k = 0; k < nr_token; k++){
 		printf("(%d)",tokens[k].type);
