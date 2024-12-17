@@ -321,8 +321,8 @@ static bool check_parentheses(int st, int en, bool* illegal){
 	if(tokens[st].type != TK_LPARENT || tokens[en].type != TK_RPARENT){
 		return false;
 	}
-	int i = st;
-	int count = 0;
+	int i = st + 1;
+	int count = 1;
 	do{
 		if(i > en){
 			break;
@@ -334,11 +334,11 @@ static bool check_parentheses(int st, int en, bool* illegal){
 			count--;
 		}
 		i++;
-	}while(count != -1);
-	if(count == -1 && i == en + 1){
+	}while(count != 0);
+	if(!count && i == en + 1){
 		return true;
 	}
-	if(count != -1){
+	if(count != 0){
 		perror("parentheses not match!\n");
 	}
 	
