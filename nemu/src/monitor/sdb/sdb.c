@@ -186,8 +186,9 @@ static int cmd_et(char *args) {
 	char ex[65536] = {};
 	while(fgets(line, sizeof(line), fp) != NULL){
 		char* result = strtok(line, " ");
+		int re_len = strlen(result);
 		memset(ex, '\0', sizeof(ex));
-		strcpy(ex, line);
+		strcpy(ex, line + re_len + 1);
 		uint32_t rt,rp;
 		sscanf(result, "%d", &rt);
 		expr(ex, &suc, &rp);
