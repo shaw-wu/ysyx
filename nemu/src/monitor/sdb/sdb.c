@@ -181,6 +181,7 @@ static int cmd_et(char *args) {
 	//char* arg = args;
 	bool suc = true;
 	FILE *fp = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/gen-expr.log", "r");
+	FILE *log = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/test.log", "w");
 	assert(fp != NULL);
 	char line[65536 + 16] = {};
 	char ex[65536] = {};
@@ -193,13 +194,14 @@ static int cmd_et(char *args) {
 		sscanf(result, "%d", &rt);
 		expr(ex, &suc, &rp);
 		if(rp == rt){
-			printf(" = %d\n", rp);
+			fprintf(log, "%d = %s\n", rp, ex);
 		}
 		else{
-			printf(" != %d(= %d)\n", rp, rt);
+			fprintf(log, "%d != %s(= %d)\n", rp, ex, rt);
 		}
 	}
 	fclose(fp);
+	fclose(log);
 
 	return 0;
 }
