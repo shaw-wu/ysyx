@@ -334,7 +334,7 @@ static bool check_parentheses(int st, int en, bool* illegal){
 			count--;
 		}
 		i++;
-	}while(count == 0);
+	}while(count != 0);
 	if(!count && i == en + 1){
 		return true;
 	}
