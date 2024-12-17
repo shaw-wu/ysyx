@@ -33,12 +33,17 @@ static char *code_format =
 "}";
 
 static void gen_rand_expr() {
-	unsigned int rand1 = rand() % 5;
+	unsigned int rand1 = rand() % 8;
+	int ind_st1, ind_st2;
+	int i;
 	switch(rand1){
 		case 0 :
 		case 1 :
-			int d = rand() % 2 + 1;
-			for(int i = 0; i < d; i++){
+		case 2 :
+		case 3 :
+		case 4 :
+			unsigned int d = rand() % 2 + 1;
+			for(i = 0; i < d; i++){
 				if(i == 0){
 					buf[buf_i] = (char)(rand() % 9 + 1 + 48);
 				}
@@ -49,16 +54,37 @@ static void gen_rand_expr() {
 			}
 			buf[buf_i] = '\0';
 			break;
-		case 2 :
+		case 5 :
+			int single = 0;
 			buf[buf_i] = '(';	
 			buf_i++;
-			gen_rand_expr();
-			buf[buf_i] = ')';	
-			buf[buf_i + 1] = '\0';
-			buf_i++;
+			ind_st1 = buf_i;
+			do{
+				gen_rand_expr();
+				buf[buf_i] = ')';	
+				for(i = buf_i - 1; i >= ind_st1; i--){
+					if(buf[i] == '+' || buf[i] == '-' || buf[i] == '*' || buf[i] == '/'){
+						break;
+					}
+					else{
+						continue;
+					}
+				}
+				if(i == ind_st1 - 1){
+					buf_i = ind_st1;
+					single = 1;
+				}
+				else{
+					buf_i++;
+					single = 0;
+				}
+				buf[buf_i] = '\0';
+			}while(single);
 			break;
 		default :
 			gen_rand_expr();
+			int devision = 0;
+			int Zero = 0;
 			unsigned int rand2 = rand() % 4;
 			switch(rand2){
 				case 0 : 
@@ -76,9 +102,60 @@ static void gen_rand_expr() {
 				default : 
 					buf[buf_i] = '/';
 					buf_i++;
+					devision = 1;
 					break;
 			}
-			gen_rand_expr();
+			
+			ind_st1 = buf_i;
+			do{
+				char sub_expr[65536] = {};
+				gen_rand_expr();
+				if(devision == 1){
+					if(buf[ind_st1] == '('){
+						int ac = 1;
+						for(i = ind_st1 + 1; i < buf_i; i++){
+							if(ac == 0) break;
+							if(buf[i] == '('){
+								ac++;
+							}
+							else if(buf[i] == ')'){
+								ac--;
+							}
+						}
+					}
+					else if(buf[ind_st1] >= 48 && buf[ind_st1] <= 57){
+						i = ind_st1; 
+						do{ i++; }while(buf[i] >= 48 && buf[i] <= 57);
+					}
+					strncpy(sub_expr, buf + ind_st1, i - ind_st1);
+					sub_expr[i - ind_st1] = '\0';
+      		
+					sprintf(code_buf, code_format, sub_expr);		/*将buf中的测试填进代码框架,并缓冲到代码缓冲区*/
+					FILE *fp = fopen("/tmp/.code.c", "w");  /*打开文件,将缓冲代码加载到文件中*/
+					assert(fp != NULL);
+					fputs(code_buf, fp);
+					fclose(fp);
+
+					int ret = system("gcc /tmp/.code.c -o /tmp/.expr");  /*编译命令 system()--使用bash程序(在linux环境下)*/
+					if (ret != 0) continue;
+
+					fp = popen("/tmp/.expr", "r");											 /*打开进程*/
+					assert(fp != NULL);
+
+					unsigned int result;
+					ret = fscanf(fp, "%u", &result);										 /*读取程序结果*/
+					pclose(fp);
+
+					if(result == 0){
+						buf_i = ind_st1;
+						Zero = 1;
+					}
+					else{
+						Zero = 0;
+					}
+				}
+			}while(Zero);
+
 			break;
 	}
 }
@@ -112,8 +189,8 @@ int main(int argc, char *argv[]) {
     fp = popen("/tmp/.expr", "r");											 /*打开进程*/
     assert(fp != NULL);
 
-    int result;
-    ret = fscanf(fp, "%d", &result);										 /*读取程序结果*/
+    unsigned int result;
+    ret = fscanf(fp, "%u", &result);										 /*读取程序结果*/
     pclose(fp);
 
     printf("%u %s\n", result, buf);
