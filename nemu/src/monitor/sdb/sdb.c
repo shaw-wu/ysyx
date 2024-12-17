@@ -193,10 +193,10 @@ static int cmd_et(char *args) {
 		sscanf(result, "%d", &rt);
 		expr(ex, &suc, &rp);
 		if(rp == rt){
-			printf("Y\n");
+			printf("Y: %d = %s\n", rp, ex);
 		}
 		else{
-			printf("N\n");
+			printf("N: %d != %s (= %d)\n", rp, ex, rt);
 		}
 	}
 	fclose(fp);
