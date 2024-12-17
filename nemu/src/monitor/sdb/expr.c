@@ -76,7 +76,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};/*__attribute__((used)) 提示编译器不要优化 wxz*/
+static Token tokens[65536] __attribute__((used)) = {};/*__attribute__((used)) 提示编译器不要优化 wxz*/
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -162,7 +162,7 @@ static bool make_token(char *e) {
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
-          default: TODO();
+          default: break; 
         }
 
         break;
@@ -175,16 +175,20 @@ static bool make_token(char *e) {
     }
   }
 
-	printf("nr_token: %d\n",nr_token);
-	printf("position: %d\n",position);
+	//printf("nr_token: %d\n",nr_token);
+	//printf("position: %d\n",position);
+	/*
 	for(int k = 0; k < nr_token; k++){
 		printf("%s",tokens[k].str);
 	}
-	printf("\n");
+	*/
+	//printf("\n");
+	/*
 	for(int k = 0; k < nr_token; k++){
 		printf("(%d)",tokens[k].type);
 	}
 	printf("\n");
+	*/
 
   return true;
 }
@@ -197,19 +201,23 @@ static uint32_t eval(int st, int en, bool* illegal){
 		*illegal = true;
 		return 1;
 	}
+	//数字
 	else if(st == en){
 		uint32_t num;
 		sscanf(tokens[st].str,"%u",&num);
 		return num;
 	}
+	//括号
 	else if(check_parentheses(st, en, illegal) == true){
 		return eval(st + 1, en - 1, illegal);
 	}
+	//其他
 	else{
 		if(*illegal == true) return 1;
 		int *symbol = (int*)malloc((en - st + 1) * sizeof(int));
 		int ind = 0;
 		int i;
+		//遍历记录所有运算符
 		for(i = st; i <= en; i++){
 			switch(tokens[i].type){
 				case '+' :
@@ -231,17 +239,24 @@ static uint32_t eval(int st, int en, bool* illegal){
 				default : break;
 			}
 		}	
-		for(i = 0; i < ind; i++){									/*检查运算符是否在括号内*/
-			int j;
-			for(j = symbol[i]; j >= st; j--){		    
-				if(tokens[j].type == TK_LPARENT){			/*在括号内 : 不是主运算符*/
-					break;															/*这里默认经check_parentheses()处理的表达式均合法*/
-				}																			/*即遇到的第一个括号元素为左括号时*/
-				else if(tokens[j].type == TK_RPARENT){
-					j = st;
+		//检查运算符是否在括号内,在括号内则不能作为主运算符
+		//这里默认check_parentheses()功能正常,主表达式不会有括号括起来
+		for(i = 0; i < ind; i++){				
+			int j = symbol[i];
+			int count = 0;
+			do{
+				if(j < st){
+					break;
 				}
-			}																				/*那么必有相匹配的一个右括号将该子表达式包含在一起*/
-			if(j != st - 1){												/*且这个子表达式不可能等于主表达式(check函数已经进行了去除两端括号的操作)*/	
+				if(tokens[j].type == TK_RPARENT){
+					count++;
+				}
+				else if(tokens[j].type == TK_LPARENT){
+					count--;
+				}
+				j--;
+			}while(count != -1);
+			if(count == -1){
 				symbol[i] = -1;
 			}
 		}
@@ -299,70 +314,28 @@ static bool check_parentheses(int st, int en, bool* illegal){
 	if(tokens[st].type != TK_LPARENT || tokens[en].type != TK_RPARENT){
 		return false;
 	}
-	int *parents  = (int*)malloc((en - st + 1) * sizeof(int));
-	int ind = 0;
-	int ind_l, ind_r;
-	ind_l = 0, ind_r = 0;
-	int i;
-	//计算有多少对括号
-	for(i = st; i <= en; i++){
-		switch(tokens[i].type){
-			case TK_LPARENT :
-				parents[ind] = TK_LPARENT;
-				ind++;
-				ind_l++;
-				break;	
-			case TK_RPARENT :
-				parents[ind] = TK_RPARENT;
-				ind++;
-				ind_r++;
-				break;	
-			default : break;
+	int i = st + 1;
+	int count = 1;
+	do{
+		if(i > en){
+			break;
 		}
-	}
-
-	if(ind_l != ind_r) {
-		free(parents);
-		*illegal = true;
-		return false;
-	}
-	if(ind == 2) {
-		*illegal = false;
-		free(parents);
+		if(tokens[i].type == TK_LPARENT){
+			count++;
+		}
+		else if(tokens[i].type == TK_RPARENT){
+			count--;
+		}
+		i++;
+	}while(count != 0);
+	if(!count && i == en + 1){
 		return true;
 	}
-
-  //匹配括号 : 从里到外,即识别<中间没有未匹配括号>的括号对,每识别一对就将其标记为已匹配
-	do{
-		bool match = false;												/*记录本次do while循环有没有匹配到括号对*/
-		for(i = 1; i < ind - 1; i++){							/*为左括号匹配右括号*/ 
-			if(parents[i] != TK_LPARENT) continue;
-			for(int j = i + 1; j < ind - 1; j++){
-				if(parents[j] == -1){									/*已匹配括号对 : 跳过*/
-					continue;																		
-				}
-				if(parents[j] == TK_RPARENT){					/*遇到的第一个未匹配括号 : 右括号--匹配成功 左括号--匹配失败*/
-					parents[i] = parents[j] = -1;
-					match = true;
-				}
-				break;
-			}
-			if(match == true) break;
-		}
-		if(match == false) break;
-	}while(1);
-
-	for(i = 1; i < ind - 1; i++){
-		if(parents[i] != -1) {
-			*illegal = false;
-			free(parents);
-			return false;
-		}
+	if(count != 0){
+		perror("parentheses not match!\n");
 	}
-
-	*illegal = false;
-	free(parents);
-	return true;
+	
+	return false;
 
 }
 
