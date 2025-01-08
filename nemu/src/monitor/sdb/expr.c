@@ -204,7 +204,7 @@ static uint32_t to_complement(uint32_t x){
 
 static uint32_t to_original(uint32_t x){
 	if(x >= 0x80000000){
-		x = ~(x - 1) << 1;
+		x = ~(x - 0b1) << 1;
 		x = (x >> 1) + 0x80000000;
 	}
 	return x;
