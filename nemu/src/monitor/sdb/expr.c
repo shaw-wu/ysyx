@@ -347,7 +347,6 @@ static uint32_t eval(int st, int en, bool* illegal){
 				if(res != 0){
 					res = res | sign;
 				}
-				res = to_original(res);
 				return res;
 			case '/' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
@@ -357,7 +356,6 @@ static uint32_t eval(int st, int en, bool* illegal){
 				if(res != 0){
 					res = res | sign;
 				}
-				res = to_original(res);
 				return res;
 			default : 
 				*illegal = true;
