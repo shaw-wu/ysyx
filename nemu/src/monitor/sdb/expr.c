@@ -360,7 +360,7 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val1 = val1 & 0x7fffffff;
 				val2 = val2 & 0x7fffffff;
 				multi_res = val1 * val2;
-				res = multi_res & 0x00000000ffffffff;
+				res = multi_res & 0x000000007fffffff;
 				if(multi_res >= 0xffffffff){
 					overflow = 1;
 				}
