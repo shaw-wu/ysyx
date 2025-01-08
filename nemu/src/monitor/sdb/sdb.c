@@ -184,8 +184,8 @@ static int cmd_et(char *args) {
 	FILE *log = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/test.log", "w");
 	assert(fp != NULL);
 	char line[65536 + 16] = {};
-	char ex[65536] = {};
 	while(fgets(line, sizeof(line), fp) != NULL){
+	  char ex[65536] = {};
 		//memset(ex, '\0', 65536);
 		char* result = strtok(line, " ");
 		int re_len = strlen(result);
