@@ -45,7 +45,7 @@ static void gen_rand_expr() {
 			unsigned int d = rand() % 2 + 1;
 			for(i = 0; i < d; i++){
 				if(i == 0){
-					buf[buf_i] = (char)(rand() % 9 + 1 + 48);
+					buf[buf_i] = (char)(rand() % 9 + 1 + 48);//首位不为0
 				}
 				else{
 					buf[buf_i] = (char)(rand() % 10 + 48);
@@ -168,6 +168,7 @@ int main(int argc, char *argv[]) {
     sscanf(argv[1], "%d", &loop);
   }
   int i;
+	//memset(buf, '\0', 65536);
   for (i = 0; i < loop; i ++) {
 		buf[0] = '\0';
 		buf_i = 0;
