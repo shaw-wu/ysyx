@@ -321,6 +321,7 @@ static uint32_t eval(int st, int en, bool* illegal){
 		uint32_t val1 = eval(st, op - 1, illegal);
 		uint32_t val2 = eval(op + 1, en, illegal);
 		uint32_t res,sign;
+		uint64_t multi_res;
 		switch(tokens[op].type){
 			case '+' : 
 				val1 = to_complement(val1);
@@ -358,8 +359,9 @@ static uint32_t eval(int st, int en, bool* illegal){
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
 				val1 = val1 & 0x7fffffff;
 				val2 = val2 & 0x7fffffff;
-				res = val1 * val2;
-				if(res >= 0x80000000){
+				multi_res = val1 * val2;
+				res = multi_res & 0x00000000ffffffff;
+				if(multi_res >= 0xffffffff){
 					overflow = 1;
 				}
 				else{
