@@ -335,6 +335,9 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val2 = val2 & 0x7fffffff;
 				res = val1 * val2;
 				res = (res & 0x7fffffff) + sign;
+				if(res != 0){
+					res = (res & 0x7fffffff) + sign;
+				}
 				return res;
 			case '/' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
@@ -343,7 +346,9 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val2 = to_original(val2);
 				val2 = val2 & 0x7fffffff;
 				res = val1 / val2;
-				res = (res & 0x7fffffff) + sign;
+				if(res != 0){
+					res = (res & 0x7fffffff) + sign;
+				}
 				return res;
 			default : 
 				*illegal = true;
