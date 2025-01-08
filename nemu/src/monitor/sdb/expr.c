@@ -195,18 +195,24 @@ static bool make_token(char *e) {
 static bool check_parentheses(int st, int en, bool* illegal);
 
 static uint32_t to_complement(uint32_t x){
-	if(x >= 0x80000000){
+	if(x > 0x80000000){
 		x = (~x << 1) + 0b10;
 	  x = (x >> 1) + 0x80000000;	
+	}
+	else if(x ==0x80000000){
+		x = 0;
 	}	
 	return x;
 };
 
 static uint32_t to_original(uint32_t x){
-	if(x >= 0x80000000){
+	if(x > 0x80000000){
 		x = ~(x - 0b1) << 1;
 		x = (x >> 1) + 0x80000000;
 	}
+	else if(x ==0x80000000){
+		x = 0;
+	}	
 	return x;
 }
 
