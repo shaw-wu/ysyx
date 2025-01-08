@@ -354,7 +354,7 @@ static uint32_t eval(int st, int en, bool* illegal){
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
 				val1 = val1 & 0x7fffffff;
 				val2 = val2 & 0x7fffffff;
-				res = val1 * val2;
+				res = val1 / val2;
 				if(res != 0){
 					res = res | sign;
 				}
