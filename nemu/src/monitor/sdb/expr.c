@@ -325,7 +325,10 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val1 = to_complement(val1);
 				val2 = to_complement(val2);
 				res = val1 + val2; 
-				res = to_original(res);
+				if(!((val1 < 0x80000000 && val2 < 0x80000000 && res >= 0x80000000) || \
+					   (val1 > 0x80000000 && val2 > 0x80000000 && res <= 0x80000000))){
+					res = to_original(res);
+				}
 				return res;
 			case '-' : 
 				if(val2 > 0x80000000){
@@ -337,14 +340,17 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val1 = to_complement(val1);
 				val2 = to_complement(val2);
 				res = val1 + val2; 
-				res = to_original(res);
+				if(!((val1 < 0x80000000 && val2 < 0x80000000 && res >= 0x80000000) || \
+					   (val1 > 0x80000000 && val2 > 0x80000000 && res <= 0x80000000))){
+					res = to_original(res);
+				}
 				return res;
 			case '*' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
 				val1 = val1 & 0x7fffffff;
 				val2 = val2 & 0x7fffffff;
 				res = val1 * val2;
-				if(res != 0){
+				if(res < 0x80000000 && res != 0){
 					res = res | sign;
 				}
 				return res;
@@ -353,7 +359,7 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val1 = val1 & 0x7fffffff;
 				val2 = val2 & 0x7fffffff;
 				res = val1 / val2;
-				if(res != 0){
+				if(res < 0x80000000 && res != 0){
 					res = res | sign;
 				}
 				return res;
