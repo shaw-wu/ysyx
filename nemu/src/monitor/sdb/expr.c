@@ -367,7 +367,7 @@ static uint32_t eval(int st, int en, bool* illegal){
 				else{
 					overflow = 0;
 				}
-				if(res != 0){
+				if(overflow == 0 && res != 0){
 					res = res | sign;
 				}
 				return res;
@@ -376,15 +376,10 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val1 = val1 & 0x7fffffff;
 				val2 = val2 & 0x7fffffff;
 				res = val1 / val2;
-				if(res >= 0x80000000){
-					overflow = 1;
-				}
-				else{
-					overflow = 0;
-				}
 				if(res != 0){
 					res = res | sign;
 				}
+				overflow = 0;
 				return res;
 			default : 
 				*illegal = true;
