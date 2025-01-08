@@ -321,39 +321,42 @@ static uint32_t eval(int st, int en, bool* illegal){
 
 		uint32_t val1 = eval(st, op - 1, illegal);
 		uint32_t val2 = eval(op + 1, en, illegal);
-		val1 = to_complement(val1);
-		val2 = to_complement(val2);
 		uint32_t res,sign;
 		switch(tokens[op].type){
 			case '+' : 
+				val1 = to_complement(val1);
+				val2 = to_complement(val2);
 				res = val1 + val2; 
 				res = to_original(res);
 				return res;
 			case '-' : 
-				res = val1 - val2; 
+				if(val2 > 0x80000000){
+					val2 = val2 & 0x7fffffff;
+				}
+				else{
+					val2 = val2 | 0x80000000;
+				}
+				val1 = to_complement(val1);
+				val2 = to_complement(val2);
+				res = val1 + val2; 
 				res = to_original(res);
 				return res;
 			case '*' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
-				val1 = to_original(val1);
 				val1 = val1 & 0x7fffffff;
-				val2 = to_original(val2);
 				val2 = val2 & 0x7fffffff;
 				res = val1 * val2;
-				res = (res & 0x7fffffff) + sign;
 				if(res != 0){
-					res = (res & 0x7fffffff) + sign;
+					res = res | sign;
 				}
 				return res;
 			case '/' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
-				val1 = to_original(val1);
 				val1 = val1 & 0x7fffffff;
-				val2 = to_original(val2);
 				val2 = val2 & 0x7fffffff;
-				res = val1 / val2;
+				res = val1 * val2;
 				if(res != 0){
-					res = (res & 0x7fffffff) + sign;
+					res = res | sign;
 				}
 				return res;
 			default : 
