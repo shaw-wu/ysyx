@@ -321,9 +321,11 @@ static uint32_t eval(int st, int en, bool* illegal){
 		switch(tokens[op].type){
 			case '+' : 
 				res = val1 + val2; 
+				res = to_original(res);
 				return res;
 			case '-' : 
 				res = val1 - val2; 
+				res = to_original(res);
 				return res;
 			case '*' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
