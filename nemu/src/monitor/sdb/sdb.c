@@ -195,10 +195,10 @@ static int cmd_et(char *args) {
 		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
 		if(rp == rt){
-			fprintf(log, "%d = %s\n", rp, ex);
+			fprintf(log, "%u = %s\n", rp, ex);
 		}
 		else{
-			fprintf(log, "%d != %s(= %d)\n", rp, ex, rt);
+			fprintf(log, "%u != %s(= %u)\n", rp, ex, rt);
 		}
 	}
 	fclose(fp);
