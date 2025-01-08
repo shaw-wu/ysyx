@@ -321,11 +321,9 @@ static uint32_t eval(int st, int en, bool* illegal){
 		switch(tokens[op].type){
 			case '+' : 
 				res = val1 + val2; 
-				res = to_original(res);
 				return res;
 			case '-' : 
 				res = val1 - val2; 
-				res = to_original(res);
 				return res;
 			case '*' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
@@ -338,7 +336,6 @@ static uint32_t eval(int st, int en, bool* illegal){
 				if(res != 0){
 					res = (res & 0x7fffffff) + sign;
 				}
-				res = to_original(res);
 				return res;
 			case '/' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
@@ -350,7 +347,6 @@ static uint32_t eval(int st, int en, bool* illegal){
 				if(res != 0){
 					res = (res & 0x7fffffff) + sign;
 				}
-				res = to_original(res);
 				return res;
 			default : 
 				*illegal = true;
@@ -397,7 +393,8 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
 	bool illegal;
-	*result = eval(0, nr_token - 1, &illegal);
+	uint32_t t = eval(0, nr_token - 1, &illegal);
+	*result = to_original(t);
 	//printf("result = %d, illegal = %s\n", *result, illegal ? "true" : "false");
 
   return 0;
