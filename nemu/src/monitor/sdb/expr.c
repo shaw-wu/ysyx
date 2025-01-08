@@ -193,6 +193,23 @@ static bool make_token(char *e) {
   return true;
 }
 static bool check_parentheses(int st, int en, bool* illegal);
+
+static uint32_t to_complement(uint32_t x){
+	if(x >= 0x80000000){
+		x = (~x << 1) + 0b10;
+	  x = (x >> 1) + 0x80000000;	
+	}	
+	return x;
+};
+
+static uint32_t to_original(uint32_t x){
+	if(x >= 0x80000000){
+		x = ~(x - 1) << 1;
+		x = (x >> 1) + 0x80000000;
+	}
+	return x;
+}
+
 static uint32_t eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
@@ -297,54 +314,34 @@ static uint32_t eval(int st, int en, bool* illegal){
 		}
 
 		uint32_t val1 = eval(st, op - 1, illegal);
-		if(val1 >= 0x80000000){
-			val1 = (~val1 << 1) + 0b10;
-		  val1 = (val1 >> 1) + 0x80000000;	
-		}	
 		uint32_t val2 = eval(op + 1, en, illegal);
-		if(val2 >= 0x80000000){
-			val2 = (~val2 << 1) + 0b10;
-		  val2 = (val2 >> 1) + 0x80000000;	
-		}	
+		val1 = to_complement(val1);
+		val2 = to_complement(val2);
 		uint32_t res,sign;
 		switch(tokens[op].type){
 			case '+' : 
 				res = val1 + val2; 
-				if(res >= 0x80000000){
-					res = ~(res - 1) << 1;
-					res = (res >> 1) + 0x80000000;
-				}
+				res = to_original(res);
 				return res;
 			case '-' : 
 				res = val1 - val2; 
-				if(res >= 0x80000000){
-					res = ~(res - 1) << 1;
-					res = (res >> 1) + 0x80000000;
-				}
+				res = to_original(res);
 				return res;
 			case '*' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
-				if(val1 >= 0x80000000){
-					val1 = ~(val1 - 1) << 1;
-					val1 = (val1 >> 1) + 0x80000000;
-				}
-				if(val2 >= 0x80000000){
-					val2 = ~(val2 - 1) << 1;
-					val2 = (val2 >> 1) + 0x80000000;
-				}
+				val1 = to_original(val1);
+				val1 = val1 & 0x7fffffff;
+				val2 = to_original(val2);
+				val2 = val2 & 0x7fffffff;
 				res = val1 * val2;
 				res = (res & 0x7fffffff) + sign;
 				return res;
 			case '/' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
-				if(val1 >= 0x80000000){
-					val1 = ~(val1 - 1) << 1;
-					val1 = (val1 >> 1) + 0x80000000;
-				}
-				if(val2 >= 0x80000000){
-					val2 = ~(val2 - 1) << 1;
-					val2 = (val2 >> 1) + 0x80000000;
-				}
+				val1 = to_original(val1);
+				val1 = val1 & 0x7fffffff;
+				val2 = to_original(val2);
+				val2 = val2 & 0x7fffffff;
 				res = val1 / val2;
 				res = (res & 0x7fffffff) + sign;
 				return res;
