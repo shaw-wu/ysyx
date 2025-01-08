@@ -181,7 +181,7 @@ static int cmd_et(char *args) {
 	//char* arg = args;
 	bool suc = true;
 	FILE *fp = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/gdb.log", "r");
-	FILE *log = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/test.log", "w");
+	FILE *log = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/gen-expr.log", "w");
 	assert(fp != NULL);
 	char line[65536 + 16] = {};
 	while(fgets(line, sizeof(line), fp) != NULL){
