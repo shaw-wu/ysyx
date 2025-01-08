@@ -214,6 +214,7 @@ static uint32_t to_original(uint32_t x){
 	return x;
 }
 
+static uint32_t overflow = 0;
 static uint32_t eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
@@ -325,10 +326,14 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val1 = to_complement(val1);
 				val2 = to_complement(val2);
 				res = val1 + val2; 
-				if(!((val1 < 0x80000000 && val2 < 0x80000000 && res >= 0x80000000) || \
-					   (val1 > 0x80000000 && val2 > 0x80000000 && res <= 0x80000000))){
-					res = to_original(res);
+				if((val1 < 0x80000000 && val2 < 0x80000000 && res >= 0x80000000) || \
+					 (val1 > 0x80000000 && val2 > 0x80000000 && res <= 0x80000000)){
+					overflow = 1;
 				}
+				else{
+					overflow = 0;
+				}
+				res = to_original(res);
 				return res;
 			case '-' : 
 				if(val2 > 0x80000000){
@@ -340,17 +345,27 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val1 = to_complement(val1);
 				val2 = to_complement(val2);
 				res = val1 + val2; 
-				if(!((val1 < 0x80000000 && val2 < 0x80000000 && res >= 0x80000000) || \
-					   (val1 > 0x80000000 && val2 > 0x80000000 && res <= 0x80000000))){
-					res = to_original(res);
+				if((val1 < 0x80000000 && val2 < 0x80000000 && res >= 0x80000000) || \
+					 (val1 > 0x80000000 && val2 > 0x80000000 && res <= 0x80000000)){
+					overflow = 1;
 				}
+				else{
+					overflow = 0;
+				}
+				res = to_original(res);
 				return res;
 			case '*' : 
 				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
 				val1 = val1 & 0x7fffffff;
 				val2 = val2 & 0x7fffffff;
 				res = val1 * val2;
-				if(res < 0x80000000 && res != 0){
+				if(res >= 0x80000000){
+					overflow = 1;
+				}
+				else{
+					overflow = 0;
+				}
+				if(res != 0){
 					res = res | sign;
 				}
 				return res;
@@ -359,7 +374,13 @@ static uint32_t eval(int st, int en, bool* illegal){
 				val1 = val1 & 0x7fffffff;
 				val2 = val2 & 0x7fffffff;
 				res = val1 / val2;
-				if(res < 0x80000000 && res != 0){
+				if(res >= 0x80000000){
+					overflow = 1;
+				}
+				else{
+					overflow = 0;
+				}
+				if(res != 0){
 					res = res | sign;
 				}
 				return res;
@@ -409,7 +430,9 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   //TODO();
 	bool illegal;
 	uint32_t t = eval(0, nr_token - 1, &illegal);
-	*result = to_original(t);
+	if(overflow == 1){
+		*result = to_original(t);
+	}
 	//*result = t;
 	//printf("result = %d, illegal = %s\n", *result, illegal ? "true" : "false");
 
