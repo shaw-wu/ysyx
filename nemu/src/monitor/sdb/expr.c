@@ -193,6 +193,29 @@ static bool make_token(char *e) {
   return true;
 }
 static bool check_parentheses(int st, int en, bool* illegal);
+
+static uint32_t to_complement(uint32_t x){
+	if(x > 0x80000000){
+		x = (~x << 1) + 0b10;
+	  x = (x >> 1) + 0x80000000;	
+	}
+	else if(x ==0x80000000){
+		x = 0;
+	}	
+	return x;
+};
+
+static uint32_t to_original(uint32_t x){
+	if(x > 0x80000000){
+		x = ~(x - 0b1) << 1;
+		x = (x >> 1) + 0x80000000;
+	}
+	else if(x ==0x80000000){
+		x = 0;
+	}	
+	return x;
+}
+
 static uint32_t eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
@@ -298,11 +321,41 @@ static uint32_t eval(int st, int en, bool* illegal){
 
 		uint32_t val1 = eval(st, op - 1, illegal);
 		uint32_t val2 = eval(op + 1, en, illegal);
+		val1 = to_complement(val1);
+		val2 = to_complement(val2);
+		uint32_t res,sign;
 		switch(tokens[op].type){
-			case '+' : return val1 + val2;
-			case '-' : return val1 - val2;
-			case '*' : return val1 * val2;
-			case '/' : return val1 / val2;
+			case '+' : 
+				res = val1 + val2; 
+				res = to_original(res);
+				return res;
+			case '-' : 
+				res = val1 - val2; 
+				res = to_original(res);
+				return res;
+			case '*' : 
+				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
+				val1 = to_original(val1);
+				val1 = val1 & 0x7fffffff;
+				val2 = to_original(val2);
+				val2 = val2 & 0x7fffffff;
+				res = val1 * val2;
+				res = (res & 0x7fffffff) + sign;
+				if(res != 0){
+					res = (res & 0x7fffffff) + sign;
+				}
+				return res;
+			case '/' : 
+				sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
+				val1 = to_original(val1);
+				val1 = val1 & 0x7fffffff;
+				val2 = to_original(val2);
+				val2 = val2 & 0x7fffffff;
+				res = val1 / val2;
+				if(res != 0){
+					res = (res & 0x7fffffff) + sign;
+				}
+				return res;
 			default : 
 				*illegal = true;
 				return 1;
@@ -348,7 +401,8 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
 	bool illegal;
-	*result = eval(0, nr_token - 1, &illegal);
+	uint32_t t = eval(0, nr_token - 1, &illegal);
+	*result = to_original(t);
 	//printf("result = %d, illegal = %s\n", *result, illegal ? "true" : "false");
 
   return 0;

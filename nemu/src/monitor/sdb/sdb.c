@@ -184,20 +184,21 @@ static int cmd_et(char *args) {
 	FILE *log = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/test.log", "w");
 	assert(fp != NULL);
 	char line[65536 + 16] = {};
-	char ex[65536] = {};
 	while(fgets(line, sizeof(line), fp) != NULL){
+	  char ex[65536] = {};
+		//memset(ex, '\0', 65536);
 		char* result = strtok(line, " ");
 		int re_len = strlen(result);
 		strcpy(ex, line + re_len + 1);
 		ex[strlen(ex) - 1] = '\0';
 		uint32_t rt,rp;
-		sscanf(result, "%d", &rt);
+		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
 		if(rp == rt){
-			fprintf(log, "%d = %s\n", rp, ex);
+			fprintf(log, "%u = %s\n", rp, ex);
 		}
 		else{
-			fprintf(log, "%d != %s(= %d)\n", rp, ex, rt);
+			fprintf(log, "%u != %s(= %u)\n", rp, ex, rt);
 		}
 	}
 	fclose(fp);

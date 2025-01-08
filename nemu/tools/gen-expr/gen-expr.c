@@ -27,13 +27,13 @@ static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned int result = %s; "
+"  uint32_t result = %s; "
 "  printf(\"%%u\", result); "
 "  return 0; "
 "}";
 
 static void gen_rand_expr() {
-	unsigned int rand1 = rand() % 8;
+	uint32_t rand1 = rand() % 8;
 	int ind_st1, ind_st2;
 	int i;
 	switch(rand1){
@@ -42,10 +42,10 @@ static void gen_rand_expr() {
 		case 2 :
 		case 3 :
 		case 4 :
-			unsigned int d = rand() % 2 + 1;
+			uint32_t d = rand() % 2 + 1;
 			for(i = 0; i < d; i++){
 				if(i == 0){
-					buf[buf_i] = (char)(rand() % 9 + 1 + 48);
+					buf[buf_i] = (char)(rand() % 9 + 1 + 48);//首位不为0
 				}
 				else{
 					buf[buf_i] = (char)(rand() % 10 + 48);
@@ -85,7 +85,7 @@ static void gen_rand_expr() {
 			gen_rand_expr();
 			int devision = 0;
 			int Zero = 0;
-			unsigned int rand2 = rand() % 4;
+			uint32_t rand2 = rand() % 4;
 			switch(rand2){
 				case 0 : 
 					buf[buf_i] = '+';
@@ -142,7 +142,7 @@ static void gen_rand_expr() {
 					fp = popen("/tmp/.expr", "r");											 /*打开进程*/
 					assert(fp != NULL);
 
-					unsigned int result;
+					uint32_t result;
 					ret = fscanf(fp, "%u", &result);										 /*读取程序结果*/
 					pclose(fp);
 
@@ -168,6 +168,7 @@ int main(int argc, char *argv[]) {
     sscanf(argv[1], "%d", &loop);
   }
   int i;
+	//memset(buf, '\0', 65536);
   for (i = 0; i < loop; i ++) {
 		buf[0] = '\0';
 		buf_i = 0;
@@ -189,7 +190,7 @@ int main(int argc, char *argv[]) {
     fp = popen("/tmp/.expr", "r");											 /*打开进程*/
     assert(fp != NULL);
 
-    unsigned int result;
+    uint32_t result;
     ret = fscanf(fp, "%u", &result);										 /*读取程序结果*/
     pclose(fp);
 
