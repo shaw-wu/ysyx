@@ -192,7 +192,7 @@ static int cmd_et(char *args) {
 		strcpy(ex, line + re_len + 1);
 		ex[strlen(ex) - 1] = '\0';
 		uint32_t rt,rp;
-		sscanf(result, "%d", &rt);
+		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
 		if(rp == rt){
 			fprintf(log, "%d = %s\n", rp, ex);
