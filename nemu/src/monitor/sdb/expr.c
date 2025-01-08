@@ -433,6 +433,9 @@ word_t expr(char *e, bool *success, uint32_t *result) {
 	if(!overflow){
 		*result = to_original(t);
 	}
+	else{
+		*result = t;
+	}
 	//*result = t;
 	//printf("result = %d, illegal = %s\n", *result, illegal ? "true" : "false");
 
