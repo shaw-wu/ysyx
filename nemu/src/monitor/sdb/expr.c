@@ -430,7 +430,9 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   //TODO();
 	bool illegal;
 	uint32_t t = eval(0, nr_token - 1, &illegal);
+	if(!overflow){
 		*result = to_original(t);
+	}
 	//*result = t;
 	//printf("result = %d, illegal = %s\n", *result, illegal ? "true" : "false");
 
