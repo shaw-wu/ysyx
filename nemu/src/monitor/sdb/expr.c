@@ -180,8 +180,8 @@ static bool make_token(char *e) {
 static bool check_parentheses(int st, int en, bool* illegal);
 
 static int negative(int* coe, int st, int en){
-	int neg = 1;
 	if(tokens[st].type == '-'){
+		int neg = 1;
 		if(st == en){
 		  Log("Illegal expration:negative sign");
 		  assert(NULL);
