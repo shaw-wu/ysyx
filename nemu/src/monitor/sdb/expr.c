@@ -175,24 +175,46 @@ static bool make_token(char *e) {
     }
   }
 
-	//printf("nr_token: %d\n",nr_token);
-	//printf("position: %d\n",position);
-	/*
-	for(int k = 0; k < nr_token; k++){
-		printf("%s",tokens[k].str);
-	}
-	*/
-	//printf("\n");
-	/*
-	for(int k = 0; k < nr_token; k++){
-		printf("(%d)",tokens[k].type);
-	}
-	printf("\n");
-	*/
-
   return true;
 }
 static bool check_parentheses(int st, int en, bool* illegal);
+
+static int negative(int* coe, int st, int en){
+	int k = st;
+	if(tokens[st].type == '-'){
+		int neg = 1;
+		if(st == en){
+		  Log("Illegal expration:negative sign");
+		  assert(NULL);
+		}
+		for(k = st + 1; k <= en; k++){
+			if(tokens[k].type == '+' || \
+				 tokens[k].type == '*' || \
+				 tokens[k].type == '/' || \
+				 tokens[k].type == TK_RPARENT){
+				Log("Illegal expration:negative sign");
+				assert(NULL);
+			}
+			if(tokens[k].type == '-'){
+				neg++;
+			}
+			else{
+				if(neg % 2){
+					*coe = -1;;
+					break;
+				}
+				else{
+					*coe = 1;
+					break;
+				}
+			}
+		}
+	}
+	else{
+		*coe = 1;
+	}
+	return k;
+}
 
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
@@ -205,7 +227,7 @@ static int eval(int st, int en, bool* illegal){
 	//数字
 	else if(st == en){
 		int num;
-		sscanf(tokens[st].str,"%d",&num);
+		sscanf(tokens[en].str,"%d",&num);
 		return num;
 	}
 	//括号
@@ -214,20 +236,25 @@ static int eval(int st, int en, bool* illegal){
 	}
 	//其他
 	else{
-		if(*illegal == true) return 1;
 		int *symbol = (int*)malloc((en - st + 1) * sizeof(int));
 		int ind = 0;
 		int i;
 		//遍历记录所有运算符
 		for(i = st; i <= en; i++){
+			if(i == 0 || i == nr_token - 1){
+				continue;
+			}
 			switch(tokens[i].type){
 				case '+' :
 					symbol[ind] = i;
 					ind++;
 					break;	
 				case '-' : 
-					symbol[ind] = i;
-					ind++;
+					//筛选负号,只有'-'前的符号为')'和[:digital:]时才是减号
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG){ 
+						symbol[ind] = i;
+						ind++;
+					}
 					break;	
 				case '*' : 
 					symbol[ind] = i;
@@ -287,7 +314,7 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		free(symbol);
-		if(op == -1){
+		if(op == -1 && ind != 0){
 			if(op_temp != -1){
 				op = op_temp;
 			}
@@ -296,21 +323,38 @@ static int eval(int st, int en, bool* illegal){
 				return 1;
 			}
 		}
-
-		int val1 = eval(st, op - 1, illegal);
-		int val2 = eval(op + 1, en, illegal);
-		switch(tokens[op].type){
-			case '+' : return val1 + val2;
-			case '-' : return val1 - val2;
-			case '*' : return val1 * val2;
-			case '/' : 
-			  if(!val2){
-					assert(val2);
-				}
-		    return val1 / val2;	
-			default : 
+		
+		if(op != -1){
+			int coe1 = 1;//系数,用于处理负号
+		  int	coe2 = 1;
+			int st1 = negative(&coe1, st, op - 1);
+			int st2 = negative(&coe2, op + 1, en);
+			
+			int val1 = coe1 * eval(st1, op - 1, illegal);
+			int val2 = coe2 * eval(st2, en, illegal);
+			switch(tokens[op].type){
+				case '+' : return val1 + val2;
+				case '-' : return val1 - val2;
+				case '*' : return val1 * val2;
+				case '/' : 
+				  if(!val2){
+						assert(val2);
+					}
+			    return val1 / val2;	
+				default : 
+					*illegal = true;
+					return 1;
+			}
+		}
+		else{
+			if(tokens[st].type != '-'){
 				*illegal = true;
 				return 1;
+			}
+			int coe0 = 1;
+			int st0 = negative(&coe0, st, en);
+			return coe0 * eval(st0, en, illegal);
+			
 		}
 	}
 }
