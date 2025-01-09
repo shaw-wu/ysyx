@@ -190,7 +190,7 @@ static int cmd_et(char *args) {
 		char* result = strtok(line, " ");
 		int re_len = strlen(result);
 		strcpy(ex, line + re_len + 1);
-		//ex[strlen(ex) - 1] = '\0';
+		ex[strlen(ex) - 1] = '\0';
 		uint32_t rt,rp;
 		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
