@@ -354,7 +354,7 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   //TODO();
 	bool illegal;
   int re = eval(0, nr_token - 1, &illegal);
-	*result = 0x80000000 + re;
+	*result = 0x100000000 + re;
 
   return 0;
 }
