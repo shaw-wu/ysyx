@@ -205,8 +205,36 @@ static int eval(int st, int en, bool* illegal){
 	//数字
 	else if(st == en){
 		int num;
-		sscanf(tokens[st].str,"%d",&num);
+		sscanf(tokens[en].str,"%d",&num);
 		return num;
+	}
+	//负号
+	else if(tokens[st].type == '-'){
+		int neg = 1;
+		for(int k = st + 1; k <= en; k++){
+			if(tokens[k].type == '+' || \
+				 tokens[k].type == '*' || \
+				 tokens[k].type == '/' || \
+				 tokens[k].type == TK_RPARENT){
+				Log("Illegal expration:negative sign");
+				*illegal = true;
+				assert(NULL);
+			}
+			if(tokens[k].type == '-'){
+				neg++;
+			}
+			else{
+				if(neg % 2){
+					return -1 * eval(k, en, illegal);
+				}
+				else{
+					return eval(k, en, illegal);
+				}
+			}
+		}
+		Log("Illegal expration:negative sign");
+		*illegal = true;
+		assert(NULL);
 	}
 	//括号
 	else if(check_parentheses(st, en, illegal) == true){
@@ -226,8 +254,11 @@ static int eval(int st, int en, bool* illegal){
 					ind++;
 					break;	
 				case '-' : 
-					symbol[ind] = i;
-					ind++;
+					//筛选负号,只有'-'前的符号为')'和[:digital:]时才是减号
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG){ 
+						symbol[ind] = i;
+						ind++;
+					}
 					break;	
 				case '*' : 
 					symbol[ind] = i;
