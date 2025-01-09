@@ -314,7 +314,7 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		free(symbol);
-		if(op == -1){
+		if(op == -1 && ind != 0){
 			if(op_temp != -1){
 				op = op_temp;
 			}
