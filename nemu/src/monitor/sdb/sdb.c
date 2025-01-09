@@ -200,6 +200,7 @@ static int cmd_et(char *args) {
 		else{
 			fprintf(log, "%u != %s(= %u)\n", rp, ex, rt);
 		}
+		memset(line, '\0', 65536);
 	}
 	fclose(fp);
 	fclose(log);
