@@ -194,28 +194,7 @@ static bool make_token(char *e) {
 }
 static bool check_parentheses(int st, int en, bool* illegal);
 
-//static uint32_t to_complement(uint32_t x){
-//	if(x > 0x80000000){
-//		x = (~x + 1) | 0x80000000;
-//	}
-//	else if(x ==0x80000000){
-//		x = 0;
-//	}	
-//	return x;
-//};
-//
-//static uint32_t to_original(uint32_t x){
-//	if(x > 0x80000000){
-//		x = ~(x - 1) | 0x80000000;
-//	}
-//	else if(x ==0x80000000){
-//		x = 0;
-//	}	
-//	return x;
-//}
-
-//static uint32_t overflow = 0;
-static uint32_t eval(int st, int en, bool* illegal){
+static long eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
 	}
@@ -225,8 +204,8 @@ static uint32_t eval(int st, int en, bool* illegal){
 	}
 	//数字
 	else if(st == en){
-		uint32_t num;
-		sscanf(tokens[st].str,"%u",&num);
+		long num;
+		sscanf(tokens[st].str,"%ld",&num);
 		return num;
 	}
 	//括号
@@ -318,71 +297,13 @@ static uint32_t eval(int st, int en, bool* illegal){
 			}
 		}
 
-		uint32_t val1 = eval(st, op - 1, illegal);
-		uint32_t val2 = eval(op + 1, en, illegal);
-		//uint32_t res,sign;
-		//uint64_t over_res;
+		long val1 = eval(st, op - 1, illegal);
+		long val2 = eval(op + 1, en, illegal);
 		switch(tokens[op].type){
-			case '+' : 
-			//	val1 = to_complement(val1);
-			//	val2 = to_complement(val2);
-			//	res = val1 + val2; 
-			//	if(over_res > 0xffffffff){
-			//		overflow = 1;
-			//	}
-			//	else{
-			//		overflow = 0;
-			//	}
-			//	res = to_original(res);
-			//	return res;
-			  return val1 + val2;
-			case '-' : 
-			//	if(val2 > 0x80000000){
-			//		val2 = val2 & 0x7fffffff;
-			//	}
-			//	else{
-			//		val2 = val2 | 0x80000000;
-			//	}
-			//	val1 = to_complement(val1);
-			//	val2 = to_complement(val2);
-			//	res = val1 + val2; 
-			/*if((val1 < 0x80000000 && val2 < 0x80000000 && res >= 0x80000000) || \
-			val1 > 0x80000000 && val2 > 0x80000000 && res <= 0x80000000)){*/
-			//		overflow = 1;
-			//	}
-			//	else{
-			//		overflow = 0;
-			//	}
-			//	res = to_original(res);
-			//	return res;
-			  return val1 - val2;
-			case '*' : 
-			//	sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
-			//	val1 = val1 & 0x7fffffff;
-			//	val2 = val2 & 0x7fffffff;
-			//	multi_res = ()val1 * val2;
-			//	res = multi_res & 0x000000007fffffff;
-			//	if(multi_res >= 0xffffffff){
-			//		overflow = 1;
-			//	}
-			//	else{
-			//		overflow = 0;
-			//	}
-			//	if(overflow == 0 && res != 0){
-			//		res = res | sign;
-			//	}
-			//	return res;
-			  return val1 * val2;
+			case '+' : return val1 + val2;
+			case '-' : return val1 - val2;
+			case '*' : return val1 * val2;
 			case '/' : 
-			//	sign = (val1 & 0x80000000) ^ (val2 & 0x80000000);
-			//	val1 = val1 & 0x7fffffff;
-			//	val2 = val2 & 0x7fffffff;
-			//	res = val1 / val2;
-			//	if(res != 0){
-			//		res = res | sign;
-			//	}
-			//	overflow = 0;
-			//	return res;
 			  if(!val2){
 					assert(val2);
 				}
@@ -432,15 +353,8 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
 	bool illegal;
-  *result = eval(0, nr_token - 1, &illegal);
-//	uint32_t t = eval(0, nr_token - 1, &illegal);
-//	if(!overflow){
-//		*result = to_original(t);
-//	}
-//	else{
-//		*result = t;
-//	}
-	//printf("result = %d, illegal = %s\n", *result, illegal ? "true" : "false");
+  long re = eval(0, nr_token - 1, &illegal);
+	*result = 0x100000000 + re;
 
   return 0;
 }
