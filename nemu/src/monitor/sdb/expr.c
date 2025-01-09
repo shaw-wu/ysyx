@@ -194,7 +194,7 @@ static bool make_token(char *e) {
 }
 static bool check_parentheses(int st, int en, bool* illegal);
 
-static long eval(int st, int en, bool* illegal){
+static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
 	}
@@ -204,8 +204,8 @@ static long eval(int st, int en, bool* illegal){
 	}
 	//数字
 	else if(st == en){
-		long num;
-		sscanf(tokens[st].str,"%ld",&num);
+		int num;
+		sscanf(tokens[st].str,"%d",&num);
 		return num;
 	}
 	//括号
@@ -297,8 +297,8 @@ static long eval(int st, int en, bool* illegal){
 			}
 		}
 
-		long val1 = eval(st, op - 1, illegal);
-		long val2 = eval(op + 1, en, illegal);
+		int val1 = eval(st, op - 1, illegal);
+		int val2 = eval(op + 1, en, illegal);
 		switch(tokens[op].type){
 			case '+' : return val1 + val2;
 			case '-' : return val1 - val2;
@@ -353,8 +353,8 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
 	bool illegal;
-  long re = eval(0, nr_token - 1, &illegal);
-	*result = 0x100000000 + re;
+  int re = eval(0, nr_token - 1, &illegal);
+	*result = 0x10000 + re;
 
   return 0;
 }
