@@ -26,6 +26,7 @@ static int buf_i = 0; /*wxz*/
 static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
+"#include <stdint.h>\n"
 "int main() { "
 "  uint32_t result = %s; "
 "  printf(\"%%u\", result); "
