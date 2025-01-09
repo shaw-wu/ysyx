@@ -196,7 +196,7 @@ static int eval(int st, int en, bool* illegal){
 	//负号
 	else if(tokens[st].type == '-'){
 		int neg = 1;
-		for(int k = st + 1; k <= en; k++){
+		for(int k = st + 1; k < en; k++){
 			if(tokens[k].type == '+' || \
 				 tokens[k].type == '*' || \
 				 tokens[k].type == '/' || \
