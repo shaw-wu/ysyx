@@ -192,14 +192,10 @@ static bool make_token(char *e) {
 
   return true;
 }
-static bool check_parentheses(int st, int en, bool* illegal);
+static bool check_parentheses(int st, int en);
 
-static int eval(int st, int en, bool* illegal){
-	if(*illegal == true){
-		return 1;
-	}
+static int eval(int st, int en){
 	if(st > en){
-		*illegal = true;
 		return 1;
 	}
 	//数字
@@ -209,12 +205,11 @@ static int eval(int st, int en, bool* illegal){
 		return num;
 	}
 	//括号
-	else if(check_parentheses(st, en, illegal) == true){
-		return eval(st + 1, en - 1, illegal);
+	else if(check_parentheses(st, en) == true){
+		return eval(st + 1, en - 1);
 	}
 	//其他
 	else{
-		if(*illegal == true) return 1;
 		int *symbol = (int*)malloc((en - st + 1) * sizeof(int));
 		int ind = 0;
 		int i;
@@ -281,8 +276,8 @@ static int eval(int st, int en, bool* illegal){
 				continue;
 			}
 			else{																		/*防御性编程 : 我也不知道会不会有这种情况*/
-				*illegal = true;
 				free(symbol);
+				assert(NULL);
 				return 1;
 			}
 		}
@@ -292,13 +287,13 @@ static int eval(int st, int en, bool* illegal){
 				op = op_temp;
 			}
 			else {
-				*illegal = true;
+				assert(NULL);
 				return 1;
 			}
 		}
 
-		int val1 = eval(st, op - 1, illegal);
-		int val2 = eval(op + 1, en, illegal);
+		int val1 = eval(st, op - 1);
+		int val2 = eval(op + 1, en);
 		switch(tokens[op].type){
 			case '+' : return val1 + val2;
 			case '-' : return val1 - val2;
@@ -309,13 +304,13 @@ static int eval(int st, int en, bool* illegal){
 				}
 		    return val1 / val2;	
 			default : 
-				*illegal = true;
+				assert(NULL);
 				return 1;
 		}
 	}
 }
 
-static bool check_parentheses(int st, int en, bool* illegal){
+static bool check_parentheses(int st, int en){
 	if(tokens[st].type != TK_LPARENT || tokens[en].type != TK_RPARENT){
 		return false;
 	}
@@ -344,16 +339,15 @@ static bool check_parentheses(int st, int en, bool* illegal){
 
 }
 
-word_t expr(char *e, bool *success, uint32_t *result) {
+word_t expr(char *e, uint32_t *result) {
   if (!make_token(e)) {
-    *success = false;
+		assert(NULL);
     return 0;
   }
 
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
-	bool illegal;
-  int re = eval(0, nr_token - 1, &illegal);
+  int re = eval(0, nr_token - 1);
 	*result = 0x100000000 + re;
 
   return 0;

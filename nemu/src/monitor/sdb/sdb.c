@@ -177,23 +177,19 @@ static int cmd_x(char *args) {
 
 /*wxz*/
 static int cmd_et(char *args) {
-	//char* arg = strtok(NULL," ");
-	//char* arg = args;
-	bool suc = true;
 	FILE *fp = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/gen-expr.log", "r");
 	FILE *log = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/test.log", "w");
 	assert(fp != NULL);
 	char line[65536 + 16] = {};
 	while(fgets(line, sizeof(line), fp) != NULL){
 	  char ex[65536] = {};
-		//memset(ex, '\0', 65536);
 		char* result = strtok(line, " ");
 		int re_len = strlen(result);
 		strcpy(ex, line + re_len + 1);
 		ex[strlen(ex) - 1] = '\0';
 		uint32_t rt,rp;
 		sscanf(result, "%u", &rt);
-		expr(ex, &suc, &rp);
+		expr(ex, &rp);
 		if(rp == rt){
 			fprintf(log, "%u = %s\n", rp, ex);
 		}
