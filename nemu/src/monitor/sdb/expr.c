@@ -351,15 +351,9 @@ static int eval(int st, int en, bool* illegal){
 				*illegal = true;
 				return 1;
 			}
-			int k = st + 1;
-			for(; k <= en; k++){
-				if(tokens[k].type != '-'){
-					break;
-				}
-			}
 			int coe0 = 1;
-			negative(&coe0, st, en);
-			return coe0 * eval(k, en, illegal);
+			int st0 = negative(&coe0, st, en);
+			return coe0 * eval(st0, en, illegal);
 			
 		}
 	}
