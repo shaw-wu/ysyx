@@ -180,13 +180,14 @@ static bool make_token(char *e) {
 static bool check_parentheses(int st, int en, bool* illegal);
 
 static int negative(int* coe, int st, int en){
+	int k = st;
 	if(tokens[st].type == '-'){
 		int neg = 1;
 		if(st == en){
 		  Log("Illegal expration:negative sign");
 		  assert(NULL);
 		}
-		for(int k = st + 1; k <= en; k++){
+		for(k = st + 1; k <= en; k++){
 			if(tokens[k].type == '+' || \
 				 tokens[k].type == '*' || \
 				 tokens[k].type == '/' || \
@@ -212,7 +213,7 @@ static int negative(int* coe, int st, int en){
 	else{
 		*coe = 1;
 	}
-	return 0;
+	return k;
 }
 
 static int eval(int st, int en, bool* illegal){
@@ -326,11 +327,11 @@ static int eval(int st, int en, bool* illegal){
 		if(op != -1){
 			int coe1 = 1;//系数,用于处理负号
 		  int	coe2 = 1;
-			negative(&coe1, st, op - 1);
-			negative(&coe2, op + 1, en);
+			int st1 = negative(&coe1, st, op - 1);
+			int st2 = negative(&coe2, op + 1, en);
 			
-			int val1 = coe1 * eval(st, op - 1, illegal);
-			int val2 = coe2 * eval(op + 1, en, illegal);
+			int val1 = coe1 * eval(st1, op - 1, illegal);
+			int val2 = coe2 * eval(st2, en, illegal);
 			switch(tokens[op].type){
 				case '+' : return val1 + val2;
 				case '-' : return val1 - val2;
