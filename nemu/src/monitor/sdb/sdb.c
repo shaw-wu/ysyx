@@ -197,7 +197,7 @@ static int cmd_et(char *args) {
 			fprintf(log, "%u = %s", rp, ex);
 		}
 		else{
-			fprintf(log, "(=%u)%u != %s\n",rt,  rp, ex);
+			fprintf(log, "(=%u)%u != %s",rt,  rp, ex);
 		}
 	}
 	fclose(fp);
