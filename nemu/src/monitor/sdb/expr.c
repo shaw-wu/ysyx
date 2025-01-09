@@ -383,7 +383,9 @@ static uint32_t eval(int st, int en, bool* illegal){
 			//	}
 			//	overflow = 0;
 			//	return res;
-			  assert(val2);
+			  if(!val2){
+					assert(val2);
+				}
 		    return val1 / val2;	
 			default : 
 				*illegal = true;
