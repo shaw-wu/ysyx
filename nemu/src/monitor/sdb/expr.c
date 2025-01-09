@@ -200,14 +200,14 @@ static int negative(int* coe, int st, int en){
 			else{
 				if(neg % 2){
 					*coe = -1;;
+					break;
 				}
 				else{
 					*coe = 1;
+					break;
 				}
 			}
 		}
-		Log("Illegal expration:negative sign");
-		assert(NULL);
 	}
 	else{
 		*coe = 1;
