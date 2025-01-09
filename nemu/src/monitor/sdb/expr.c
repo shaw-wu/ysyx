@@ -324,9 +324,8 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		
-		int coe1,coe2;
-		//int coe1 = 1;
-	  //int	coe2 = 1;//系数,用于处理负号
+		int coe1 = 1;//系数,用于处理负号
+	  int	coe2 = 1;
 		negative(&coe1, st, op - 1);
 		negative(&coe2, op + 1, en);
 		
