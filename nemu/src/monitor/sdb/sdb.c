@@ -59,6 +59,8 @@ static int cmd_info(char *args);/*wxz*/
 
 static int cmd_x(char *args);/*wxz*/
 
+static int cmd_etn(char *args);/*wxz*/
+
 static int cmd_et(char *args);/*wxz*/
 
 static int cmd_help(char *args);
@@ -74,7 +76,8 @@ static struct {
   { "si", "Single Excute", cmd_si },/*wxz*/
   { "info", "Print information of regs(with sub-cmd r) or watch(with sub-cmd w).", cmd_info },/*wxz*/
   { "x", "Constantly print N of 4 bytes,start address is value of expression.", cmd_x},/*wxz*/
-  { "et", "Constantly print N of 4 bytes,start address is value of expression.", cmd_et},/*wxz*/
+  { "etn", "Expression test.", cmd_etn},/*wxz*/
+  { "et", "Expression test.", cmd_et},/*wxz*/
 
   /* TODO: Add more commands */
 
@@ -181,6 +184,19 @@ static int cmd_x(char *args) {
 	return 0;
 }
 
+/*wxz*/
+static int cmd_etn(char *args) {
+	char* arg = strtok(NULL," ");
+	char ex[65536] = {};
+	memset(ex, '\0',  65536);
+	strcpy(ex, arg);
+	uint32_t result;
+	bool suc = true;
+	expr(ex, &suc, &result);
+	printf("%u = %s\n", result, ex);
+
+	return 0;
+}
 /*wxz*/
 static int cmd_et(char *args) {
 	//char* arg = strtok(NULL," ");
