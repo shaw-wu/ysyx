@@ -42,9 +42,9 @@ static struct rule {
   {"\\(" , TK_LPARENT},   // left brackets
   {"\\)" , TK_RPARENT},   // right brackets
   {"\\*" , '*'},         // multiple
-  {"\\/"   , '/'},         // division
+  {"\\/" , '/'},         // division
   {"\\+" , '+'},         // plus
-  {"\\-"   , '-'},         // minus
+  {"\\-" , '-'},         // minus
   {"=="  , TK_EQ},       // equal
   {"[[:digit:]]+" , TK_DIG},      // digital 
 };
@@ -174,21 +174,6 @@ static bool make_token(char *e) {
       return false;
     }
   }
-
-	//printf("nr_token: %d\n",nr_token);
-	//printf("position: %d\n",position);
-	/*
-	for(int k = 0; k < nr_token; k++){
-		printf("%s",tokens[k].str);
-	}
-	*/
-	//printf("\n");
-	/*
-	for(int k = 0; k < nr_token; k++){
-		printf("(%d)",tokens[k].type);
-	}
-	printf("\n");
-	*/
 
   return true;
 }
