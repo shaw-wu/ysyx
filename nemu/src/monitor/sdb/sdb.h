@@ -18,6 +18,6 @@
 
 #include <common.h>
 
-word_t expr(char *e, uint32_t *result);
+word_t expr(char *e, bool *success, uint32_t *result);
 
 #endif

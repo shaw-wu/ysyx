@@ -42,9 +42,9 @@ static struct rule {
   {"\\(" , TK_LPARENT},   // left brackets
   {"\\)" , TK_RPARENT},   // right brackets
   {"\\*" , '*'},         // multiple
-  {"\\/" , '/'},         // division
+  {"\\/"   , '/'},         // division
   {"\\+" , '+'},         // plus
-  {"\\-" , '-'},         // minus
+  {"\\-"   , '-'},         // minus
   {"=="  , TK_EQ},       // equal
   {"[[:digit:]]+" , TK_DIG},      // digital 
 };
@@ -175,12 +175,31 @@ static bool make_token(char *e) {
     }
   }
 
+	//printf("nr_token: %d\n",nr_token);
+	//printf("position: %d\n",position);
+	/*
+	for(int k = 0; k < nr_token; k++){
+		printf("%s",tokens[k].str);
+	}
+	*/
+	//printf("\n");
+	/*
+	for(int k = 0; k < nr_token; k++){
+		printf("(%d)",tokens[k].type);
+	}
+	printf("\n");
+	*/
+
   return true;
 }
-static bool check_parentheses(int st, int en);
+static bool check_parentheses(int st, int en, bool* illegal);
 
-static int eval(int st, int en){
+static int eval(int st, int en, bool* illegal){
+	if(*illegal == true){
+		return 1;
+	}
 	if(st > en){
+		*illegal = true;
 		return 1;
 	}
 	//数字
@@ -190,11 +209,12 @@ static int eval(int st, int en){
 		return num;
 	}
 	//括号
-	else if(check_parentheses(st, en) == true){
-		return eval(st + 1, en - 1);
+	else if(check_parentheses(st, en, illegal) == true){
+		return eval(st + 1, en - 1, illegal);
 	}
 	//其他
 	else{
+		if(*illegal == true) return 1;
 		int *symbol = (int*)malloc((en - st + 1) * sizeof(int));
 		int ind = 0;
 		int i;
@@ -261,8 +281,8 @@ static int eval(int st, int en){
 				continue;
 			}
 			else{																		/*防御性编程 : 我也不知道会不会有这种情况*/
+				*illegal = true;
 				free(symbol);
-				assert(NULL);
 				return 1;
 			}
 		}
@@ -272,13 +292,13 @@ static int eval(int st, int en){
 				op = op_temp;
 			}
 			else {
-				assert(NULL);
+				*illegal = true;
 				return 1;
 			}
 		}
 
-		int val1 = eval(st, op - 1);
-		int val2 = eval(op + 1, en);
+		int val1 = eval(st, op - 1, illegal);
+		int val2 = eval(op + 1, en, illegal);
 		switch(tokens[op].type){
 			case '+' : return val1 + val2;
 			case '-' : return val1 - val2;
@@ -289,13 +309,13 @@ static int eval(int st, int en){
 				}
 		    return val1 / val2;	
 			default : 
-				assert(NULL);
+				*illegal = true;
 				return 1;
 		}
 	}
 }
 
-static bool check_parentheses(int st, int en){
+static bool check_parentheses(int st, int en, bool* illegal){
 	if(tokens[st].type != TK_LPARENT || tokens[en].type != TK_RPARENT){
 		return false;
 	}
@@ -324,15 +344,16 @@ static bool check_parentheses(int st, int en){
 
 }
 
-word_t expr(char *e, uint32_t *result) {
+word_t expr(char *e, bool *success, uint32_t *result) {
   if (!make_token(e)) {
-		assert(NULL);
+    *success = false;
     return 0;
   }
 
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
-  int re = eval(0, nr_token - 1);
+	bool illegal;
+  int re = eval(0, nr_token - 1, &illegal);
 	*result = 0x100000000 + re;
 
   return 0;
