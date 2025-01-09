@@ -229,34 +229,6 @@ static int eval(int st, int en, bool* illegal){
 		sscanf(tokens[en].str,"%d",&num);
 		return num;
 	}
-	//负号
-//	else if(tokens[st].type == '-'){
-//		int neg = 1;
-//		for(int k = st + 1; k < en; k++){
-/*			if(tokens[k].type == '+' || \
-				 tokens[k].type == '*' || \
-				 tokens[k].type == '/' || \
-				 tokens[k].type == TK_RPARENT){
-				Log("Illegal expration:negative sign");
-				*illegal = true;
-				assert(NULL);
-			}*/
-//			if(tokens[k].type == '-'){
-//				neg++;
-//			}
-//			else{
-//				if(neg % 2){
-//					return -1 * eval(k, en, illegal);
-//				}
-//				else{
-//					return eval(k, en, illegal);
-//				}
-//			}
-//		}
-//		Log("Illegal expration:negative sign");
-//		*illegal = true;
-//		assert(NULL);
-//	}
 	//括号
 	else if(check_parentheses(st, en, illegal) == true){
 		return eval(st + 1, en - 1, illegal);
