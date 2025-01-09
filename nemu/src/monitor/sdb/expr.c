@@ -241,7 +241,7 @@ static int eval(int st, int en, bool* illegal){
 		int i;
 		//遍历记录所有运算符
 		for(i = st; i <= en; i++){
-			if(i == 0 || i == nr_token){
+			if(i == 0 || i == nr_token - 1){
 				continue;
 			}
 			switch(tokens[i].type){
