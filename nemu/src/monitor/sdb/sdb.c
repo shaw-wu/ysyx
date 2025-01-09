@@ -158,7 +158,7 @@ static int cmd_x(char *args) {
 		printf("0x%x : ", addr);
 	  for(int i = 0; i < len; i++){
 			if(i){
-				printf("%13s","");
+				printf("%6s","");
 			}
 			word_t w;
 			for(int j = 0; j < 4; j++){
