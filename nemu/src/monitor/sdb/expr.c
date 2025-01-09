@@ -179,6 +179,42 @@ static bool make_token(char *e) {
 }
 static bool check_parentheses(int st, int en, bool* illegal);
 
+static int negative(int* coe, int st, int en){
+	int neg = 1;
+	if(tokens[st].type == '-'){
+		if(st == en){
+		  Log("Illegal expration:negative sign");
+		  assert(NULL);
+		}
+		for(int k = st + 1; k < en; k++){
+			if(tokens[k].type == '+' || \
+				 tokens[k].type == '*' || \
+				 tokens[k].type == '/' || \
+				 tokens[k].type == TK_RPARENT){
+				Log("Illegal expration:negative sign");
+				assert(NULL);
+			}
+			if(tokens[k].type == '-'){
+				neg++;
+			}
+			else{
+				if(neg % 2){
+					*coe = -1;;
+				}
+				else{
+					*coe = 1;
+				}
+			}
+		}
+		Log("Illegal expration:negative sign");
+		assert(NULL);
+	}
+	else{
+		*coe = 1;
+	}
+	return 0;
+}
+
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
@@ -194,33 +230,33 @@ static int eval(int st, int en, bool* illegal){
 		return num;
 	}
 	//负号
-	else if(tokens[st].type == '-'){
-		int neg = 1;
-		for(int k = st + 1; k < en; k++){
-			if(tokens[k].type == '+' || \
+//	else if(tokens[st].type == '-'){
+//		int neg = 1;
+//		for(int k = st + 1; k < en; k++){
+/*			if(tokens[k].type == '+' || \
 				 tokens[k].type == '*' || \
 				 tokens[k].type == '/' || \
 				 tokens[k].type == TK_RPARENT){
 				Log("Illegal expration:negative sign");
 				*illegal = true;
 				assert(NULL);
-			}
-			if(tokens[k].type == '-'){
-				neg++;
-			}
-			else{
-				if(neg % 2){
-					return -1 * eval(k, en, illegal);
-				}
-				else{
-					return eval(k, en, illegal);
-				}
-			}
-		}
-		Log("Illegal expration:negative sign");
-		*illegal = true;
-		assert(NULL);
-	}
+			}*/
+//			if(tokens[k].type == '-'){
+//				neg++;
+//			}
+//			else{
+//				if(neg % 2){
+//					return -1 * eval(k, en, illegal);
+//				}
+//				else{
+//					return eval(k, en, illegal);
+//				}
+//			}
+//		}
+//		Log("Illegal expration:negative sign");
+//		*illegal = true;
+//		assert(NULL);
+//	}
 	//括号
 	else if(check_parentheses(st, en, illegal) == true){
 		return eval(st + 1, en - 1, illegal);
@@ -312,9 +348,13 @@ static int eval(int st, int en, bool* illegal){
 				return 1;
 			}
 		}
-
-		int val1 = eval(st, op - 1, illegal);
-		int val2 = eval(op + 1, en, illegal);
+		
+		int coe1, coe2;//系数,用于处理负号
+		negative(&coe1, st, op - 1);
+		negative(&coe2, op + 1, en);
+		
+		int val1 = coe1 * eval(st, op - 1, illegal);
+		int val2 = coe2 * eval(op + 1, en, illegal);
 		switch(tokens[op].type){
 			case '+' : return val1 + val2;
 			case '-' : return val1 - val2;
