@@ -185,6 +185,10 @@ static int cmd_et(char *args) {
 	assert(fp != NULL);
 	char line[65536 + 16] = {};
 	while(fgets(line, sizeof(line), fp) != NULL){
+		char *newline = strtok(line, "\n");
+		if(newline != NULL){
+			strcpy(line, newline);
+		}
 	  char ex[65536] = {};
 		memset(ex, '\0', 65536);
 		char* result = strtok(line, " ");
@@ -200,7 +204,6 @@ static int cmd_et(char *args) {
 		else{
 			fprintf(log, "%u != %s(= %u)\n", rp, ex, rt);
 		}
-		memset(line, '\0', 65536);
 	}
 	fclose(fp);
 	fclose(log);
