@@ -235,7 +235,6 @@ static int eval(int st, int en, bool* illegal){
 	}
 	//其他
 	else{
-		if(*illegal == true) return 1;
 		int *symbol = (int*)malloc((en - st + 1) * sizeof(int));
 		int ind = 0;
 		int i;
@@ -324,25 +323,43 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		
-		int coe1 = 1;//系数,用于处理负号
-	  int	coe2 = 1;
-		negative(&coe1, st, op - 1);
-		negative(&coe2, op + 1, en);
-		
-		int val1 = coe1 * eval(st, op - 1, illegal);
-		int val2 = coe2 * eval(op + 1, en, illegal);
-		switch(tokens[op].type){
-			case '+' : return val1 + val2;
-			case '-' : return val1 - val2;
-			case '*' : return val1 * val2;
-			case '/' : 
-			  if(!val2){
-					assert(val2);
-				}
-		    return val1 / val2;	
-			default : 
+		if(op != -1){
+			int coe1 = 1;//系数,用于处理负号
+		  int	coe2 = 1;
+			negative(&coe1, st, op - 1);
+			negative(&coe2, op + 1, en);
+			
+			int val1 = coe1 * eval(st, op - 1, illegal);
+			int val2 = coe2 * eval(op + 1, en, illegal);
+			switch(tokens[op].type){
+				case '+' : return val1 + val2;
+				case '-' : return val1 - val2;
+				case '*' : return val1 * val2;
+				case '/' : 
+				  if(!val2){
+						assert(val2);
+					}
+			    return val1 / val2;	
+				default : 
+					*illegal = true;
+					return 1;
+			}
+		}
+		else{
+			if(tokens[st].type != '-'){
 				*illegal = true;
 				return 1;
+			}
+			int k = st + 1;
+			for(; k <= en; k++){
+				if(tokens[k].type != '-'){
+					break;
+				}
+			}
+			int coe0 = 1;
+			negative(&coe0, st, en);
+			return coe0 * eval(k, en, illegal);
+			
 		}
 	}
 }
