@@ -344,23 +344,40 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 
-		int op = -1;
+		int op = -1; 	
 		int op_temp = -1;
 		for(i = ind - 1; i >= 0; i--){						/*搜索主运算符 : 从右到左*/
 			int p = symbol[i]; 
 			if(p == -1){
 				continue;
 			}
-			else if(tokens[p].type == '+' || tokens[p].type == '-'){
+			else if(tokens[p].type == TK_LAND){
 				op = p;
 				break;
 			}
-			else if(op_temp != -1){
-				continue;
+			else if(tokens[p].type == TK_EQ || tokens[p].type == TK_INEQ){
+				if(op_temp == TK_EQ || op_temp == TK_INEQ){
+					continue;
+				}
+				op = p;
+				op_temp = tokens[p].type;
+			}
+			else if(tokens[p].type == '+' || tokens[p].type == '-'){
+				if(op_temp == TK_EQ || op_temp == TK_INEQ || \
+					 op_temp == '+' || op_temp == '-'){
+					continue;
+				}
+				op = p;
+				op_temp = tokens[p].type;
 			}
 			else if(tokens[p].type == '*' || tokens[p].type == '/'){
-				op_temp = p;
-				continue;
+				if(op_temp == TK_EQ || op_temp == TK_INEQ || \
+					 op_temp == '+' || op_temp == '-' || \
+					 op_temp == '*' || op_temp == '/'){
+					continue;
+				}
+				op = p;
+				op_temp = tokens[p].type;
 			}
 			else{																		/*防御性编程 : 我也不知道会不会有这种情况*/
 				*illegal = true;
@@ -369,15 +386,15 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		free(symbol);
-		if(op == -1 && ind != 0){
-			if(op_temp != -1){
-				op = op_temp;
-			}
-			else {
-				*illegal = true;
-				return 1;
-			}
-		}
+	//	if(op == -1 && ind != 0){
+	//		if(op_temp != -1){
+	//			op = op_temp;
+	//		}
+	//		else {
+	//			*illegal = true;
+	//			return 1;
+	//		}
+	//	}
 		
 		if(op != -1){
 			int coe1 = 1;//系数,用于处理负号
