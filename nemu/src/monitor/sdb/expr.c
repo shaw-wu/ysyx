@@ -249,18 +249,18 @@ static int negative(int* coe, int st, int en){
 	return k;
 }
 
-static int dereference(int st, int en){
-	if(tokens[st].type == '*'){
-		if(st == en){
-		  Log("Illegal expration:negative sign");
-		  assert(NULL);
-		}
-		return 0;
-	}
-	else{
-		return 1;
-	}
-}
+//static int dereference(int st, int en){
+//	if(tokens[st].type == '*'){
+//		if(st == en){
+//		  Log("Illegal expration:negative sign");
+//		  assert(NULL);
+//		}
+//		return 0;
+//	}
+//	else{
+//		return 1;
+//	}
+//}
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
@@ -412,36 +412,38 @@ static int eval(int st, int en, bool* illegal){
 	//	}
 		
 		if(op != -1){
-			int coe1 = 1;//系数,用于处理负号
-		  int	coe2 = 1;
-			int st1 = negative(&coe1, st, op - 1);
-			int st2 = negative(&coe2, op + 1, en);
-			
-			int p1, p2;
-			p1 = p2 = 1;
-			if(st1 == st){
-				p1 = dereference(st, op - 1);
-			}
-			if(st2 == op + 1){
-				p2 = dereference(op + 1, st);
-			}
+		//	int coe1 = 1;//系数,用于处理负号
+		//  int	coe2 = 1;
+		//	int st1 = negative(&coe1, st, op - 1);
+		//	int st2 = negative(&coe2, op + 1, en);
+		//	
+		//	int p1, p2;
+		//	p1 = p2 = 1;
+		//	if(st1 == st){
+		//		p1 = dereference(st, op - 1);
+		//	}
+		//	if(st2 == op + 1){
+		//		p2 = dereference(op + 1, st);
+		//	}
 
-			int val1, val2;
-			if(p1){
-				val1 = coe1 * eval(st1, op - 1, illegal);
-			}
-			else{
-				vaddr_t Addr = eval(st + 1, op - 1, illegal);
-				val1 = vaddr_read(Addr, 1);
-			}
-			if(p2){
-				val2 = coe2 * eval(st2, en, illegal);
-			}
-			else{
-				vaddr_t Addr = eval(op + 1, en, illegal);
-				val2 = vaddr_read(Addr, 1);
-			}
+		//	int val1, val2;
+		//	if(p1){
+		//		val1 = coe1 * eval(st1, op - 1, illegal);
+		//	}
+		//	else{
+		//		vaddr_t Addr = eval(st + 1, op - 1, illegal);
+		//		val1 = vaddr_read(Addr, 1);
+		//	}
+		//	if(p2){
+		//		val2 = coe2 * eval(st2, en, illegal);
+		//	}
+		//	else{
+		//		vaddr_t Addr = eval(op + 1, en, illegal);
+		//		val2 = vaddr_read(Addr, 1);
+		//	}
 
+			int val1 = eval(st, op - 1, illegal);
+			int val2 = eval(op + 1, en, illegal);
 			switch(tokens[op].type){
 				case '+' : return val1 + val2;
 				case '-' : return val1 - val2;
@@ -460,14 +462,20 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		else{
-			if(tokens[st].type != '-'){
+			if(tokens[st].type != '-' || tokens[st].type != '*'){
 				*illegal = true;
+				assert(NULL);
 				return 1;
 			}
-			int coe0 = 1;
-			int st0 = negative(&coe0, st, en);
-			return coe0 * eval(st0, en, illegal);
-			
+			if(tokens[st].type == '-'){
+				int coe0 = 1;
+				int st0 = negative(&coe0, st, en);
+				return coe0 * eval(st0, en, illegal);
+			}
+			else{
+				vaddr_t Addr = eval(st + 1, en, illegal);
+				return vaddr_read(Addr, 1);
+			}
 		}
 	}
 }
