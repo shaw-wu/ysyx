@@ -161,15 +161,14 @@ static int cmd_x(char *args) {
 				printf("%6s","");
 			}
 			word_t w;
-			for(int j = 0; j < 4; j++){
-				w = vaddr_read(Addr, 1);
+			for(int j = 3; j >= 0; j--){
+				w = vaddr_read(Addr + j, 1);
 				if(w <= 0x0f) {
 					printf("0%x ", w);
 				} 
 				else {
 					printf("%x ", w);
-				} 
-	      Addr += 0x01;		
+				} 		
 			}
 			printf("\n");
 		}
