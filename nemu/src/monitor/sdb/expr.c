@@ -462,7 +462,7 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		else{
-			if(tokens[st].type != '-' || tokens[st].type != '*'){
+			if(tokens[st].type != '-' && tokens[st].type != '*'){
 				*illegal = true;
 				assert(NULL);
 				return 1;
