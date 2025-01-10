@@ -28,6 +28,8 @@ typedef struct watchpoint {
 
 } WP;
 
+extern WP *head;
+extern WP *free_;
 
 word_t expr(char *e, bool *success, uint32_t *result);
 WP* new_wp();
