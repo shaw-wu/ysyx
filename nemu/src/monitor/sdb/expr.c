@@ -22,7 +22,7 @@
 
 /*wxz*/
 enum {
-  TK_NOTYPE = 256, TK_LPARENT, TK_RPARENT, TK_EQ, TK_DIG,
+  TK_HEX = 256, TK_REG, TK_NOTYPE, TK_LPARENT, TK_RPARENT, TK_EQ, TK_INEQ, TK_LAND, TK_DIG,
 
   /* TODO: Add more token types */
 
@@ -38,6 +38,8 @@ static struct rule {
    */
 
   /*wxz*/
+	{"0x[a-f0-9A-F]+", TK_HEX},
+	{"\\$[a-zA-Z][a-zA-Z0-9]*", TK_REG},
   {" +"  , TK_NOTYPE},   // spaces
   {"\\(" , TK_LPARENT},   // left brackets
   {"\\)" , TK_RPARENT},   // right brackets
@@ -46,6 +48,8 @@ static struct rule {
   {"\\+" , '+'},         // plus
   {"\\-"   , '-'},         // minus
   {"=="  , TK_EQ},       // equal
+  {"!="  , TK_INEQ},       // inequal
+  {"\\&\\&"  , TK_LAND},       // logic and
   {"[[:digit:]]+" , TK_DIG},      // digital 
 };
 
@@ -162,6 +166,34 @@ static bool make_token(char *e) {
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
+					case TK_HEX   :
+						tokens[nr_token].type = TK_HEX;
+						assert(substr_len < 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
+						nr_token++;
+						break;
+					case TK_REG   :
+						tokens[nr_token].type = TK_REG;
+						assert(substr_len < 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
+						nr_token++;
+						break;
+					case TK_INEQ  :
+						tokens[nr_token].type = TK_INEQ;
+						assert(substr_len < 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
+						nr_token++;
+						break;
+					case TK_LAND  :
+						tokens[nr_token].type = TK_LAND;
+						assert(substr_len < 32);
+					  strncpy(tokens[nr_token].str, substr_start, substr_len);
+						tokens[nr_token].str[substr_len] = '\0';
+						nr_token++;
+						break;
           default: break; 
         }
 
@@ -227,7 +259,18 @@ static int eval(int st, int en, bool* illegal){
 	//数字
 	else if(st == en){
 		int num;
-		sscanf(tokens[en].str,"%d",&num);
+		if(tokens[en].type == TK_DIG){
+			sscanf(tokens[en].str,"%d",&num);
+		}
+		else if(tokens[en].type == TK_HEX){
+			sscanf(tokens[en].str + 2, "%x", &num);
+		}
+		else if(tokens[en].type == TK_REG){
+			bool suc = true;
+			num = isa_reg_str2val(tokens[en].str + 1, &suc);
+			assert(suc);
+		}
+		
 		return num;
 	}
 	//括号
@@ -264,6 +307,18 @@ static int eval(int st, int en, bool* illegal){
 					symbol[ind] = i;
 					ind++;
 					break;	
+				case TK_EQ : 
+					symbol[ind] = i;
+					ind++;
+					break;	
+				case TK_INEQ : 
+					symbol[ind] = i;
+					ind++;
+					break;	
+				case TK_LAND : 
+					symbol[ind] = i;
+					ind++;
+					break;	
 				default : break;
 			}
 		}	
@@ -289,23 +344,40 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 
-		int op = -1;
+		int op = -1; 	
 		int op_temp = -1;
 		for(i = ind - 1; i >= 0; i--){						/*搜索主运算符 : 从右到左*/
 			int p = symbol[i]; 
 			if(p == -1){
 				continue;
 			}
-			else if(tokens[p].type == '+' || tokens[p].type == '-'){
+			else if(tokens[p].type == TK_LAND){
 				op = p;
 				break;
 			}
-			else if(op_temp != -1){
-				continue;
+			else if(tokens[p].type == TK_EQ || tokens[p].type == TK_INEQ){
+				if(op_temp == TK_EQ || op_temp == TK_INEQ){
+					continue;
+				}
+				op = p;
+				op_temp = tokens[p].type;
+			}
+			else if(tokens[p].type == '+' || tokens[p].type == '-'){
+				if(op_temp == TK_EQ || op_temp == TK_INEQ || \
+					 op_temp == '+' || op_temp == '-'){
+					continue;
+				}
+				op = p;
+				op_temp = tokens[p].type;
 			}
 			else if(tokens[p].type == '*' || tokens[p].type == '/'){
-				op_temp = p;
-				continue;
+				if(op_temp == TK_EQ || op_temp == TK_INEQ || \
+					 op_temp == '+' || op_temp == '-' || \
+					 op_temp == '*' || op_temp == '/'){
+					continue;
+				}
+				op = p;
+				op_temp = tokens[p].type;
 			}
 			else{																		/*防御性编程 : 我也不知道会不会有这种情况*/
 				*illegal = true;
@@ -314,15 +386,15 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		free(symbol);
-		if(op == -1 && ind != 0){
-			if(op_temp != -1){
-				op = op_temp;
-			}
-			else {
-				*illegal = true;
-				return 1;
-			}
-		}
+	//	if(op == -1 && ind != 0){
+	//		if(op_temp != -1){
+	//			op = op_temp;
+	//		}
+	//		else {
+	//			*illegal = true;
+	//			return 1;
+	//		}
+	//	}
 		
 		if(op != -1){
 			int coe1 = 1;//系数,用于处理负号
@@ -341,6 +413,9 @@ static int eval(int st, int en, bool* illegal){
 						assert(val2);
 					}
 			    return val1 / val2;	
+				case TK_EQ : return val1 == val2;
+				case TK_INEQ : return val1 != val2; 
+				case TK_LAND : return val1 && val2; 
 				default : 
 					*illegal = true;
 					return 1;
