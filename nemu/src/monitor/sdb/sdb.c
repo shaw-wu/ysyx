@@ -63,6 +63,8 @@ static int cmd_etn(char *args);/*wxz*/
 
 static int cmd_et(char *args);/*wxz*/
 
+static int cmd_w(char *args);
+
 static int cmd_help(char *args);
 
 static struct {
@@ -78,6 +80,7 @@ static struct {
   { "x", "Constantly print N of 4 bytes,start address is value of expression.", cmd_x},/*wxz*/
   { "etn", "Expression test.", cmd_etn},/*wxz*/
   { "et", "Expression test.", cmd_et},/*wxz*/
+  { "w", "watchpoit.", cmd_w},/*wxz*/
 
   /* TODO: Add more commands */
 
@@ -222,6 +225,24 @@ static int cmd_et(char *args) {
 	fclose(fp);
 	fclose(log);
 
+	return 0;
+}
+
+static int cmd_w(char *args) {
+	char* arg = strtok(NULL," ");
+	char ex[65536] = {};
+	memset(ex, '\0',  65536);
+	strcpy(ex, arg);
+	WP *wp = new_wp();
+
+	strcpy(wp->expr, ex);
+	uint32_t rp;
+	bool suc = true;
+	expr(ex, &suc, &rp);
+	assert(suc);
+	wp->result = rp;
+
+	wp = NULL;
 	return 0;
 }
 

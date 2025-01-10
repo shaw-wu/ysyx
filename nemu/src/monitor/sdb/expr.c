@@ -249,18 +249,6 @@ static int negative(int* coe, int st, int en){
 	return k;
 }
 
-//static int dereference(int st, int en){
-//	if(tokens[st].type == '*'){
-//		if(st == en){
-//		  Log("Illegal expration:negative sign");
-//		  assert(NULL);
-//		}
-//		return 0;
-//	}
-//	else{
-//		return 1;
-//	}
-//}
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;

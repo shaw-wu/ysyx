@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include "../monitor/sdb/sdb.h"/*wxz*/
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -38,6 +39,27 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
+	/*wxz*/
+  WP* p = head;
+  WP* temp[32] = {};
+	int ind = 0;
+	uint32_t res[32] = {};
+	while(p){
+		bool suc = true;
+		expr(p->expr, &suc, &res[ind]);
+		assert(suc);
+		if(res[ind] != p->result){
+			nemu_state.state = NEMU_STOP;
+			temp[ind++] = p;
+		}
+		p = p->next;
+	}
+	for(int i = 0; i < ind; i++){
+		printf("\nwatch point %d : %s\n", temp[i]->NO, temp[i]->expr);
+		printf("\nOld value : %u\n", temp[i]->result);
+		printf("New value : %u\n", res[i]);//怎么定位行号?
+		temp[i]->result = res[i];
+	}
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
@@ -114,7 +136,7 @@ void cpu_exec(uint64_t n) {
   g_timer += timer_end - timer_start;
 
   switch (nemu_state.state) {
-    case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
+		case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;//NEMU_STOP:没有显示写出该状态下nemu的动作,实际上的动作是直接退到sdb_mainloop的循环里等待指令
 
     case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,
