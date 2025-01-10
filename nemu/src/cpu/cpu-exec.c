@@ -57,12 +57,12 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 		p = p->next;
 	}
 	for(int i = 0; i < ind; i++){
-		printf("\nwatch point %d : %s\n", temp[i]->NO, temp[i]->expr);
-		printf("\nOld value : %u\n", temp[i]->result);
 		uint32_t res;
 		bool suc = true;
 		expr(temp[i]->expr, &suc, &res);
 		assert(suc);
+		printf("\nwatch point %d : %s\n", temp[i]->NO, temp[i]->expr);
+		printf("\nOld value : %u\n", temp[i]->result);
 		printf("New value : %u\n", res);//怎么定位行号?
 	}
 }
