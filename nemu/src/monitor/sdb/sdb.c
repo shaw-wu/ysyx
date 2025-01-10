@@ -147,18 +147,15 @@ static int cmd_x(char *args) {
 
   int len;
 	char e[65536] = {};
-  vaddr_t addr;
 	sscanf(arg1, "%d", &len);
-	//sscanf(arg2, "%x", &addr);
 	sscanf(arg2, "%s", e);
-	//vaddr_t Addr = addr; 
 	vaddr_t Addr ;
 	bool suc = true;
 	expr(e, &suc, &Addr); 
 	assert(suc);
 
   if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
-		printf("0x%x : ", addr);
+		printf("0x%x : ", Addr);
 	  for(int i = 0; i < len; i++){
 			if(i){
 				printf("%6s","");
