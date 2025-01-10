@@ -147,32 +147,28 @@ static int cmd_x(char *args) {
 
   int len;
 	char e[65536] = {};
-  vaddr_t addr;
 	sscanf(arg1, "%d", &len);
-	//sscanf(arg2, "%x", &addr);
 	sscanf(arg2, "%s", e);
-	//vaddr_t Addr = addr; 
 	vaddr_t Addr ;
 	bool suc = true;
 	expr(e, &suc, &Addr); 
 	assert(suc);
 
   if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
-		printf("0x%x : ", addr);
+		printf("0x%x : ", Addr);
 	  for(int i = 0; i < len; i++){
 			if(i){
 				printf("%6s","");
 			}
 			word_t w;
-			for(int j = 0; j < 4; j++){
-				w = vaddr_read(Addr, 1);
+			for(int j = 3; j >= 0; j--){
+				w = vaddr_read(Addr + j, 1);
 				if(w <= 0x0f) {
 					printf("0%x ", w);
 				} 
 				else {
 					printf("%x ", w);
-				} 
-	      Addr += 0x01;		
+				} 		
 			}
 			printf("\n");
 		}

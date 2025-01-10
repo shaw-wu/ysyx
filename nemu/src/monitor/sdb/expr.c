@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <memory/vaddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -248,6 +249,18 @@ static int negative(int* coe, int st, int en){
 	return k;
 }
 
+//static int dereference(int st, int en){
+//	if(tokens[st].type == '*'){
+//		if(st == en){
+//		  Log("Illegal expration:negative sign");
+//		  assert(NULL);
+//		}
+//		return 0;
+//	}
+//	else{
+//		return 1;
+//	}
+//}
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
@@ -300,8 +313,10 @@ static int eval(int st, int en, bool* illegal){
 					}
 					break;	
 				case '*' : 
-					symbol[ind] = i;
-					ind++;
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG){
+						symbol[ind] = i;
+						ind++;
+					}
 					break;	
 				case '/' : 
 					symbol[ind] = i;
@@ -386,24 +401,11 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		free(symbol);
-	//	if(op == -1 && ind != 0){
-	//		if(op_temp != -1){
-	//			op = op_temp;
-	//		}
-	//		else {
-	//			*illegal = true;
-	//			return 1;
-	//		}
-	//	}
 		
 		if(op != -1){
-			int coe1 = 1;//系数,用于处理负号
-		  int	coe2 = 1;
-			int st1 = negative(&coe1, st, op - 1);
-			int st2 = negative(&coe2, op + 1, en);
-			
-			int val1 = coe1 * eval(st1, op - 1, illegal);
-			int val2 = coe2 * eval(st2, en, illegal);
+
+			int val1 = eval(st, op - 1, illegal);
+			int val2 = eval(op + 1, en, illegal);
 			switch(tokens[op].type){
 				case '+' : return val1 + val2;
 				case '-' : return val1 - val2;
@@ -422,14 +424,20 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		else{
-			if(tokens[st].type != '-'){
+			if(tokens[st].type != '-' && tokens[st].type != '*'){
 				*illegal = true;
+				assert(NULL);
 				return 1;
 			}
-			int coe0 = 1;
-			int st0 = negative(&coe0, st, en);
-			return coe0 * eval(st0, en, illegal);
-			
+			if(tokens[st].type == '-'){
+				int coe0 = 1;
+				int st0 = negative(&coe0, st, en);
+				return coe0 * eval(st0, en, illegal);
+			}
+			else{
+				vaddr_t Addr = eval(st + 1, en, illegal);
+				return vaddr_read(Addr, 1);
+			}
 		}
 	}
 }
