@@ -45,25 +45,22 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   struct watchpoint* p = head;
 	struct watchpoint* temp[32] = {};
 	int ind = 0;
+	uint32_t res[32] = {};
 	while(p){
-		uint32_t res;
 		bool suc = true;
-		expr(p->expr, &suc, &res);
+		expr(p->expr, &suc, &res[ind]);
 		assert(suc);
-		if(res != p->result){
+		if(res[ind] != p->result){
 			nemu_state.state = NEMU_STOP;
 			temp[ind++] = p;
 		}
 		p = p->next;
 	}
 	for(int i = 0; i < ind; i++){
-		uint32_t res;
-		bool suc = true;
-		expr(temp[i]->expr, &suc, &res);
-		assert(suc);
 		printf("\nwatch point %d : %s\n", temp[i]->NO, temp[i]->expr);
 		printf("\nOld value : %u\n", temp[i]->result);
-		printf("New value : %u\n", res);//怎么定位行号?
+		printf("New value : %u\n", res[i]);//怎么定位行号?
+		temp[i]->result = res[i];
 	}
 }
 
