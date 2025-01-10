@@ -54,6 +54,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 			nemu_state.state = NEMU_STOP;
 			temp[ind++] = p;
 		}
+		p = p->next;
 	}
 	for(int i = 0; i < ind; i++){
 		printf("\nwatch point %d : %s\n", temp[i]->NO, temp[i]->expr);
