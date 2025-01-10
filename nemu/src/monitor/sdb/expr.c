@@ -401,46 +401,8 @@ static int eval(int st, int en, bool* illegal){
 			}
 		}
 		free(symbol);
-	//	if(op == -1 && ind != 0){
-	//		if(op_temp != -1){
-	//			op = op_temp;
-	//		}
-	//		else {
-	//			*illegal = true;
-	//			return 1;
-	//		}
-	//	}
 		
 		if(op != -1){
-		//	int coe1 = 1;//系数,用于处理负号
-		//  int	coe2 = 1;
-		//	int st1 = negative(&coe1, st, op - 1);
-		//	int st2 = negative(&coe2, op + 1, en);
-		//	
-		//	int p1, p2;
-		//	p1 = p2 = 1;
-		//	if(st1 == st){
-		//		p1 = dereference(st, op - 1);
-		//	}
-		//	if(st2 == op + 1){
-		//		p2 = dereference(op + 1, st);
-		//	}
-
-		//	int val1, val2;
-		//	if(p1){
-		//		val1 = coe1 * eval(st1, op - 1, illegal);
-		//	}
-		//	else{
-		//		vaddr_t Addr = eval(st + 1, op - 1, illegal);
-		//		val1 = vaddr_read(Addr, 1);
-		//	}
-		//	if(p2){
-		//		val2 = coe2 * eval(st2, en, illegal);
-		//	}
-		//	else{
-		//		vaddr_t Addr = eval(op + 1, en, illegal);
-		//		val2 = vaddr_read(Addr, 1);
-		//	}
 
 			int val1 = eval(st, op - 1, illegal);
 			int val2 = eval(op + 1, en, illegal);
