@@ -139,7 +139,7 @@ static int cmd_info(char *args) {
 	}
 	else if(strcmp(sub_cmd, "w") == 0){
 #ifndef CONFIG_WATCHPOINT
-		printf("Please config watchpoint function\n");
+		printf("Please config watchpoint option\n");
 		return 0;
 #endif
 		if (!head){
@@ -253,7 +253,7 @@ static int cmd_et(char *args) {
 
 static int cmd_d(char *args) {
 #ifndef CONFIG_WATCHPOINT
-		printf("Please config watchpoint function\n");
+		printf("Please config watchpoint option\n");
 		return 0;
 #endif
 	char* arg = strtok(NULL," ");
@@ -278,7 +278,7 @@ static int cmd_d(char *args) {
 
 static int cmd_w(char *args) {
 #ifndef CONFIG_WATCHPOINT
-		printf("Please config watchpoint function\n");
+		printf("Please config watchpoint option\n");
 		return 0;
 #endif
 	char* arg = strtok(NULL," ");
