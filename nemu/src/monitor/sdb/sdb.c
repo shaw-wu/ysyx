@@ -170,10 +170,12 @@ static int cmd_info(char *args) {
 
 /*wxz*/
 static int cmd_x(char *args) {
-	printf("%s\n",args);
+	if(args == NULL){
+		printf("Error: No arguments provided.\n");
+		return 1;
+	}
 	char *arg1 = strtok(NULL," ");
 	char *arg2 = args + strlen(arg1) + 1;
-	printf("%s\n",arg2);
 
   int len;
 	char e[65536] = {};
