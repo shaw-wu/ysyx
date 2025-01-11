@@ -129,6 +129,9 @@ menu "Testing and Debugging"
 config WATCHPOINT
   bool "Enable watchpoint"
 	default y
+	help
+		Enable or disable watchpoint functionality in NEMU.
+		if disabled, all watchpoint-related logic will be excluded from the build.
 
 config TRACE
   bool "Enable tracer"
