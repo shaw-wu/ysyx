@@ -60,7 +60,7 @@ void free_wp(WP *wp){
 	}
 	memset(p->expr, '\0', 65536);//清除wp的内容
 	p->result = 0;
-	s = p->next;
+	s->next = p->next;
 	p->next = free_;
 	free_ = p;
 	return;
