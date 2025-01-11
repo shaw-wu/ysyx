@@ -211,6 +211,10 @@ static int cmd_x(char *args) {
 /*wxz*/
 static int cmd_etn(char *args) {
 	//char* arg = strtok(NULL," ");
+	if(args == NULL){
+		printf("Error: No expression provided.\n");
+		return 1;
+	}
 	char *arg = args;
 	char ex[65536] = {};
 	memset(ex, '\0',  65536);
