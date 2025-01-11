@@ -3,8 +3,8 @@
 #include <verilated_vcd_c.h>
 #include <nvboard.h>
 
-#define CONFIG_NVBOARD
-//#define CONFIG_WAVE
+//#define CONFIG_NVBOARD
+#define CONFIG_WAVE
 
 VerilatedContext* contextp = NULL; // 声明上下文变量
 static Vtop* top;               // 声明模块变量
