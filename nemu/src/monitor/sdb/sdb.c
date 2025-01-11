@@ -144,7 +144,7 @@ static int cmd_info(char *args) {
 			printf("Num%12sType%15sDisp%2sEnb%3sAddress%12sWhat%2s\n", space, space, space, space, space, space);
 			WP *p = head;
 			while(p){
-				printf("%-15d%-19s%-6s%-6s%-19x%-6s"\
+				printf("%-15d%-19s%-6s%-6s%-19x%-6s\n"\
 						, p->NO \
 						, noh \
 						, noh \
