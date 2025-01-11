@@ -170,13 +170,18 @@ static int cmd_info(char *args) {
 
 /*wxz*/
 static int cmd_x(char *args) {
-	char* arg1 = strtok(NULL," ");
-	char* arg2 = strtok(NULL," ");
+	if(args == NULL){
+		printf("Error: No arguments provided.\n");
+		return 1;
+	}
+	char *arg1 = strtok(NULL," ");
+	char *arg2 = args + strlen(arg1) + 1;
 
   int len;
 	char e[65536] = {};
+	memset(e, '\0', 65536);
 	sscanf(arg1, "%d", &len);
-	sscanf(arg2, "%s", e);
+	strcpy(e, arg2);
 	vaddr_t Addr ;
 	bool suc = true;
 	expr(e, &suc, &Addr); 
@@ -210,7 +215,12 @@ static int cmd_x(char *args) {
 
 /*wxz*/
 static int cmd_etn(char *args) {
-	char* arg = strtok(NULL," ");
+	//char* arg = strtok(NULL," ");
+	if(args == NULL){
+		printf("Error: No expression provided.\n");
+		return 1;
+	}
+	char *arg = args;
 	char ex[65536] = {};
 	memset(ex, '\0',  65536);
 	strcpy(ex, arg);
@@ -281,7 +291,11 @@ static int cmd_w(char *args) {
 		printf("Please config watchpoint option\n");
 		return 0;
 #endif
-	char* arg = strtok(NULL," ");
+	if(args == NULL){
+		printf("Error: No expression provided.\n");
+		return 1;
+	}
+	char *arg = args;
 	char ex[65536] = {};
 	memset(ex, '\0',  65536);
 	strcpy(ex, arg);
