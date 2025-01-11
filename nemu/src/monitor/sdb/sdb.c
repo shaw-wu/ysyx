@@ -179,7 +179,9 @@ static int cmd_x(char *args) {
 	char e[65536] = {};
 	memset(e, '\0', 65536);
 	sscanf(arg1, "%d", &len);
+	printf("%s\n",arg2);
 	sscanf(arg2, "%s", e);
+	printf("%s\n",e);
 	vaddr_t Addr ;
 	bool suc = true;
 	expr(e, &suc, &Addr); 
