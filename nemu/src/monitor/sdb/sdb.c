@@ -138,6 +138,10 @@ static int cmd_info(char *args) {
 		isa_reg_display();
 	}
 	else if(strcmp(sub_cmd, "w") == 0){
+#ifndef CONFIG_WATCHPOINT
+		printf("Please config watchpoint function\n");
+		return 0;
+#endif
 		if (!head){
 			printf("No watchpoints\n");
 		}
@@ -248,6 +252,10 @@ static int cmd_et(char *args) {
 }
 
 static int cmd_d(char *args) {
+#ifndef CONFIG_WATCHPOINT
+		printf("Please config watchpoint function\n");
+		return 0;
+#endif
 	char* arg = strtok(NULL," ");
 	int num;
 	sscanf(arg, "%d", &num);
@@ -269,6 +277,10 @@ static int cmd_d(char *args) {
 }
 
 static int cmd_w(char *args) {
+#ifndef CONFIG_WATCHPOINT
+		printf("Please config watchpoint function\n");
+		return 0;
+#endif
 	char* arg = strtok(NULL," ");
 	char ex[65536] = {};
 	memset(ex, '\0',  65536);
