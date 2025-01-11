@@ -172,6 +172,8 @@ static int cmd_info(char *args) {
 static int cmd_x(char *args) {
 	printf("%s\n",args);
 	char *arg1 = strtok(args," ");
+	printf("%s\n",arg1);
+	printf("%s\n",args + 2);
 	printf("%s\n",arg1 + 2);
 	char *arg2 = arg1 + strlen(arg1) + 1;
 	//char* arg2 = strtok(NULL," ");
