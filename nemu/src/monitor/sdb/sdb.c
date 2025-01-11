@@ -171,13 +171,9 @@ static int cmd_info(char *args) {
 /*wxz*/
 static int cmd_x(char *args) {
 	printf("%s\n",args);
-	char *arg1 = strtok(args," ");
-	printf("%s\n",arg1);
-	printf("%s\n",args + 2);
-	printf("%s\n",arg1 + 2);
-	char *arg2 = arg1 + strlen(arg1) + 1;
+	char *arg1 = strtok(NULL," ");
+	char *arg2 = args + strlen(arg1) + 1;
 	printf("%s\n",arg2);
-	//char* arg2 = strtok(NULL," ");
 
   int len;
 	char e[65536] = {};
