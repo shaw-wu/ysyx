@@ -170,8 +170,9 @@ static int cmd_info(char *args) {
 
 /*wxz*/
 static int cmd_x(char *args) {
+	printf("%s\n",args);
 	char *arg1 = strtok(NULL," ");
-	char *arg2 = args;
+	char *arg2 = args + strlen(arg1);
 	//char* arg2 = strtok(NULL," ");
 
   int len;
