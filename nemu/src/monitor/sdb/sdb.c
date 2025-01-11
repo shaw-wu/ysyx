@@ -291,7 +291,11 @@ static int cmd_w(char *args) {
 		printf("Please config watchpoint option\n");
 		return 0;
 #endif
-	char* arg = strtok(NULL," ");
+	if(args == NULL){
+		printf("Error: No expression provided.\n");
+		return 1;
+	}
+	char *arg = args;
 	char ex[65536] = {};
 	memset(ex, '\0',  65536);
 	strcpy(ex, arg);
