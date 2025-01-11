@@ -63,7 +63,13 @@ void free_wp(WP *wp){
 	}
 	memset(p->expr, '\0', 65536);//清除wp的内容
 	p->result = 0;
-	s->next = p->next;
+	//这里head不能算是链表的一部分,只是一个指向表头的指针
+	if(s == head){
+		head -> next = p->next;
+	}
+	else{
+		s->next = p->next;
+	}
 	p->next = free_;
 	free_ = p;
 	return;
