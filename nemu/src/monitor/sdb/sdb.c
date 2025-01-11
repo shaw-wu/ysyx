@@ -253,7 +253,7 @@ static int cmd_d(char *args) {
 	sscanf(arg, "%d", &num);
   WP *p = head;
 	if(!p){
-		Log("No Watchpoints\n");
+		Log("No Watchpoints");
 		return 1;
 	}
 	while(p){
@@ -261,7 +261,7 @@ static int cmd_d(char *args) {
 		p = p->next;
 	}
 	if(!p){
-		Log("Can't find watchpoint %d.\n", num);
+		Log("Can't find watchpoint %d.", num);
 		return 1;
 	}
 	free_wp(p);
