@@ -27,6 +27,7 @@ void init_wp_pool() {
     wp_pool[i].NO = i;
     wp_pool[i].next = (i == NR_WP - 1 ? NULL : &wp_pool[i + 1]);
 		memset(wp_pool[i].expr, '\0', 65536);
+		wp_pool[i].result = 0;
   }
 
   head = NULL;
@@ -58,6 +59,7 @@ void free_wp(WP *wp){
 		p = s->next;	
 	}
 	memset(p->expr, '\0', 65536);//清除wp的内容
+	p->result = 0;
 	head = p->next;
 	p->next = free_;
 	free_ = p;
