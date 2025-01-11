@@ -53,10 +53,13 @@ void free_wp(WP *wp){
 	assert(head);
 	p = s;
 
-	while(p->NO != no){
-		assert(p->next);
+	while(p){
+		if(p->NO == no) break;
 		s = p;
-		p = s->next;	
+		p = s->next;		
+	}
+	if(!p){
+		Log("Can't find watchpoint %d\n", no);
 	}
 	memset(p->expr, '\0', 65536);//清除wp的内容
 	p->result = 0;
