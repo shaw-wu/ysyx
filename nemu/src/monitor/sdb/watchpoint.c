@@ -27,6 +27,7 @@ void init_wp_pool() {
     wp_pool[i].NO = i;
     wp_pool[i].next = (i == NR_WP - 1 ? NULL : &wp_pool[i + 1]);
 		memset(wp_pool[i].expr, '\0', 65536);
+		wp_pool[i].result = 0;
   }
 
   head = NULL;
@@ -52,13 +53,23 @@ void free_wp(WP *wp){
 	assert(head);
 	p = s;
 
-	while(p->NO != no){
-		assert(p->next);
+	while(p){
+		if(p->NO == no) break;
 		s = p;
-		p = s->next;	
+		p = s->next;		
+	}
+	if(!p){
+		Log("Can't find watchpoint %d", no);
 	}
 	memset(p->expr, '\0', 65536);//清除wp的内容
-	head = p->next;
+	p->result = 0;
+	//这里head不能算是链表的一部分,只是一个指向表头的指针
+	if(s == head){
+		head = p->next;
+	}
+	else{
+		s->next = p->next;
+	}
 	p->next = free_;
 	free_ = p;
 	return;

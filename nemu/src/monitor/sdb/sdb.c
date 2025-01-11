@@ -63,6 +63,8 @@ static int cmd_etn(char *args);/*wxz*/
 
 static int cmd_et(char *args);/*wxz*/
 
+static int cmd_d(char *args);/*wxz*/
+
 static int cmd_w(char *args);
 
 static int cmd_help(char *args);
@@ -80,6 +82,7 @@ static struct {
   { "x", "Constantly print N of 4 bytes,start address is value of expression.", cmd_x},/*wxz*/
   { "etn", "Expression test.", cmd_etn},/*wxz*/
   { "et", "Expression test.", cmd_et},/*wxz*/
+  { "d", "Delete watchpoint.", cmd_d},/*wxz*/
   { "w", "watchpoit.", cmd_w},/*wxz*/
 
   /* TODO: Add more commands */
@@ -135,7 +138,29 @@ static int cmd_info(char *args) {
 		isa_reg_display();
 	}
 	else if(strcmp(sub_cmd, "w") == 0){
-		printf("noh\n");
+#ifndef CONFIG_WATCHPOINT
+		printf("Please config watchpoint option\n");
+		return 0;
+#endif
+		if (!head){
+			printf("No watchpoints\n");
+		}
+		else{
+			char* space = " ";
+			char* noh = "noh";
+			printf("Num%12sType%15sDisp%2sEnb%3sAddress%12sWhat%2s\n", space, space, space, space, space, space);
+			WP *p = head;
+			while(p){
+				printf("%-15d%-19s%-6s%-6s%-19x%-6s\n"\
+						, p->NO \
+						, noh \
+						, noh \
+						, noh \
+						, p->result \
+						, p->expr);
+				p = p->next;
+			}
+		}
 	}
 	else {
     printf("%s - %s\n", cmd_table[4].name, cmd_table[4].description);
@@ -198,8 +223,6 @@ static int cmd_etn(char *args) {
 }
 /*wxz*/
 static int cmd_et(char *args) {
-	//char* arg = strtok(NULL," ");
-	//char* arg = args;
 	bool suc = true;
 	FILE *fp = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/gen-expr.log", "r");
 	FILE *log = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/test.log", "w");
@@ -228,7 +251,36 @@ static int cmd_et(char *args) {
 	return 0;
 }
 
+static int cmd_d(char *args) {
+#ifndef CONFIG_WATCHPOINT
+		printf("Please config watchpoint option\n");
+		return 0;
+#endif
+	char* arg = strtok(NULL," ");
+	int num;
+	sscanf(arg, "%d", &num);
+  WP *p = head;
+	if(!p){
+		Log("No Watchpoints");
+		return 1;
+	}
+	while(p){
+		if(p->NO == num) break;
+		p = p->next;
+	}
+	if(!p){
+		Log("Can't find watchpoint %d.", num);
+		return 1;
+	}
+	free_wp(p);
+	return 0;
+}
+
 static int cmd_w(char *args) {
+#ifndef CONFIG_WATCHPOINT
+		printf("Please config watchpoint option\n");
+		return 0;
+#endif
 	char* arg = strtok(NULL," ");
 	char ex[65536] = {};
 	memset(ex, '\0',  65536);

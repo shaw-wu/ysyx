@@ -40,6 +40,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 	/*wxz*/
+#ifdef CONFIG_WATCHPOINT
   WP* p = head;
   WP* temp[32] = {};
 	int ind = 0;
@@ -60,6 +61,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 		printf("New value : %u\n", res[i]);//怎么定位行号?
 		temp[i]->result = res[i];
 	}
+#endif
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
