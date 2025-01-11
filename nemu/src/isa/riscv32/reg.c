@@ -43,9 +43,11 @@ void isa_reg_display() {
 
 word_t isa_reg_str2val(const char *s, bool *success) {
 	int i = 0;
+	//读取pc
 	if(strcmp(s, "pc") == 0){
 		return cpu.pc;
 	}
+	//遍历32个寄存器
 	for(; i < 32; i++){
 		if(strcmp(s, regs[i]) == 0){
 			break;
