@@ -135,7 +135,25 @@ static int cmd_info(char *args) {
 		isa_reg_display();
 	}
 	else if(strcmp(sub_cmd, "w") == 0){
-		printf("noh\n");
+		if (head){
+			printf("No watchpoints");
+		}
+		else{
+			char* space = " ";
+			char* noh = "noh";
+			printf("Num%12sType%15sDisp%2sEnb%3sAddress%12sWhat%2s\n", space, space, space, space, space, space);
+			WP *p = head;
+			while(p){
+				printf("%-15d%-19s%-6s%-6s%-19x%-6s"\
+						, p->NO \
+						, noh \
+						, noh \
+						, noh \
+						, p->result \
+						, p->expr);
+				p = p->next;
+			}
+		}
 	}
 	else {
     printf("%s - %s\n", cmd_table[4].name, cmd_table[4].description);
