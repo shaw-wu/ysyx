@@ -65,7 +65,7 @@ void free_wp(WP *wp){
 	p->result = 0;
 	//这里head不能算是链表的一部分,只是一个指向表头的指针
 	if(s == head){
-		head -> next = p->next;
+		head = p->next;
 	}
 	else{
 		s->next = p->next;
