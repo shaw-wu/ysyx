@@ -135,8 +135,8 @@ static int cmd_info(char *args) {
 		isa_reg_display();
 	}
 	else if(strcmp(sub_cmd, "w") == 0){
-		if (head){
-			printf("No watchpoints");
+		if (!head){
+			printf("No watchpoints\n");
 		}
 		else{
 			char* space = " ";
