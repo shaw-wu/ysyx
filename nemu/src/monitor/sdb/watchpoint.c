@@ -59,7 +59,7 @@ void free_wp(WP *wp){
 		p = s->next;		
 	}
 	if(!p){
-		Log("Can't find watchpoint %d\n", no);
+		Log("Can't find watchpoint %d", no);
 	}
 	memset(p->expr, '\0', 65536);//清除wp的内容
 	p->result = 0;
