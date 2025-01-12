@@ -32,12 +32,6 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 all: default
 
-#run: $(BIN)
-#	@$^
-#clean:
-#	rm -rf $(BUILD_DIR)
-#.PHONY----
-
 sim:$(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$^
