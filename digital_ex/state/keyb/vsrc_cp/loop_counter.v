@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 module loop_counter(
 	input clk,
 	input switch,

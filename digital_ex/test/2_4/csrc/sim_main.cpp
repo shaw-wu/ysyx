@@ -2,8 +2,6 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 
-#define CONFIG_WAVETRACE
-
 VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
 static Vtestbench* top;               // 声明模块变量
@@ -13,26 +11,26 @@ void sim_init(int argc, char** argv ){
 	contextp = new VerilatedContext;  
 	contextp->commandArgs(argc, argv);
 	top = new Vtestbench;                 
-#ifdef CONFIG_WAVETRACE
-	Verilated::traceEverOn(true);
-	tfp = new VerilatedVcdC;
-	top->trace(tfp, 99);
-	tfp->open("build/dump.vcd");
-#endif
+	#ifdef ENABLE_WAVEFORM
+		Verilated::traceEverOn(true);
+		tfp = new VerilatedVcdC;
+		top->trace(tfp, 99);
+		tfp->open("build/dump.vcd");
+	#endif
 }
 
 void main_loop(){
 	while(contextp->time() < sim_time && !contextp->gotFinish()){
 		contextp->timeInc(1);
 		top->eval();
-#ifdef CONFIG_WAVETRACE
+	#ifdef ENABLE_WAVEFORM
 		tfp->dump(contextp->time());
-#endif
+	#endif
 	}
 }
 
 void sim_exit(){
-#ifdef CONFIG_WAVETRACE
+#ifdef ENABLE_WAVEFORM
 	if(tfp){
 		tfp->close();
 		delete tfp;

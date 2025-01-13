@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 module Simreg#(parameter WIDTH)
 (
 	input clk,

@@ -1,5 +1,4 @@
 # Check for sanity to avoid later confusion
-
 ifneq ($(words $(CURDIR)),1)
  $(error Unsupported: GNU Make cannot build in directories containing spaces, build elsewhere: '$(CURDIR)')
 endif
@@ -12,21 +11,34 @@ export VERILATOR_ROOT
 VERILATOR = $(VERILATOR_ROOT)/bin/verilator
 endif
 
-BUILD_DIR = $(CURDIR)/build
-TOP_MODULE = testbench
 
-# Generate C++ in executable form
+######################################################################
+
+#配置选项
+TOP_MODULE = testbench
+SIM_TIME ?= 500000
+ENABLE_WAVEFORM ?= 1
+
+#目录
+BUILD_DIR = $(CURDIR)/build
+CSRC_DIR = $(CURDIR)/csrc
+VSRC_DIR = $(CURDIR)/vsrc
+
+#编译与配置标志
 VERILATOR_FLAGS += -cc --exe \
 									 -Wall \
 									 --trace \
 									 --timing \
 									 --build
+CXXFLAGS += -DSIM_TIME=$(SIM_TIME)
+ifeq ($(ENABLE_WAVEFORM), 1)
+CXXFLAGS += -DENABLE_WAVEFORM
+endif
 
-# Input files for Verilator
-CSRC_DIR = $(CURDIR)/csrc
+#源文件
 CSRC = $(wildcard $(CSRC_DIR)/*.c) $(wildcard $(CSRC_DIR)/*.cpp)
-VSRC_DIR = $(CURDIR)/vsrc
 VSRC = $(wildcard $(VSRC_DIR)/*.v)
+
 
 ######################################################################
 default: run
@@ -38,7 +50,8 @@ run:
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		-Mdir $(BUILD_DIR)/obj_dir \
 		-top-module $(TOP_MODULE) \
-		$(CSRC) $(VSRC)
+		$(CSRC) $(VSRC) \
+		-CFLAGS "$(CXXFLAGS)"
 	@echo "-- BUILD -------------------"
 	@if [ -d $(BUILD_DIR)/obj_dir ]; then \
 		echo "Running simulation"; \

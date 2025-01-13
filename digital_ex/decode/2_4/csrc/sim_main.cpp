@@ -16,10 +16,10 @@ void step_and_dump_wave(){
 	tfp->dump(contextp->time());     // 波形时间宽度设置
 }
 void sim_init(int argc, char** argv ){
-	contextp = new VerilatedContext;  // 初始化
+//	contextp = new VerilatedContext;  // 初始化
 	//tfp = new VerilatedVcdC;
-	contextp->commandArgs(argc, argv);
-	top = new Vdecode;                 // 实例化模块
+//	contextp->commandArgs(argc, argv);
+//	top = new Vdecode;                 // 实例化模块
 	nvboard_bind_all_pins(&dut);
 	nvboard_init();
 	//contextp->traceEverOn(true);      // 打开波形跟踪
@@ -27,8 +27,8 @@ void sim_init(int argc, char** argv ){
 	//tfp->open("dump.vcd");            // 创建文件
 }
 void sim_exit(){
-	step_and_dump_wave();   //
-	tfp->close();           // 关闭tfp
+//	step_and_dump_wave();   //
+//	tfp->close();           // 关闭tfp
 }
 
 int main(int argc, char** argv) {
