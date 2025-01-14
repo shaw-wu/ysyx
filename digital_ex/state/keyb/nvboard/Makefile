@@ -41,9 +41,11 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 all: default
 
 run: $(BIN)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$^
 
 clean:
 	rm -rf $(BUILD_DIR)
 
 .PHONY: default all clean run
+include ~/ysyx-workbench/Makefile
