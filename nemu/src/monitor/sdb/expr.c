@@ -222,8 +222,7 @@ static int negative(int* coe, int st, int en){
 	if(tokens[st].type == '-'){
 		int neg = 1;
 		if(st == en){
-		  Log("Illegal expration:negative sign");
-		  assert(NULL);
+			return 2;
 		}
 		//是负号的情况
 		for(k = st + 1; k <= en; k++){
@@ -231,8 +230,7 @@ static int negative(int* coe, int st, int en){
 				 tokens[k].type == '*' || \
 				 tokens[k].type == '/' || \
 				 tokens[k].type == TK_RPARENT){
-				Log("Illegal expration:negative sign");
-				assert(NULL);
+				return 2;
 			}
 			if(tokens[k].type == '-'){
 				neg++;
@@ -260,10 +258,12 @@ static int negative(int* coe, int st, int en){
 // 函数入栈顺序与优先级相反
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
+		printf("Illegal expression: [0]Haven't identify any element!\n");
 		return 1;
 	}
 	if(st > en){
 		*illegal = true;
+		printf("Illegal expression: [1]Haven't identify any element!\n");
 		return 1;
 	}
 	//数字
@@ -402,6 +402,7 @@ static int eval(int st, int en, bool* illegal){
 			}
 			else{																		/*防御性编程 : 我也不知道会不会有这种情况*/
 				*illegal = true;
+				printf("Illegal expression: [2]Haven't identify any element!\n");
 				free(symbol);
 				return 1;
 			}
@@ -420,8 +421,8 @@ static int eval(int st, int en, bool* illegal){
 				case '/' : 
 					//除零时终止
 				  if(!val2){
-						printf("Illegal exprement : divise 0!\n");
 						*illegal = true;
+						printf("Illegal expression : Divise 0!\n");
 						return 1;
 						//assert(val2);
 					}
@@ -431,6 +432,7 @@ static int eval(int st, int en, bool* illegal){
 				case TK_LAND : return val1 && val2; 
 				default : 
 					*illegal = true;
+					printf("Illegal expression: [3]Haven't identify any element!\n");
 					return 1;
 			}
 		}
@@ -438,13 +440,18 @@ static int eval(int st, int en, bool* illegal){
 		else{
 			if(tokens[st].type != '-' && tokens[st].type != '*'){
 				*illegal = true;
-				assert(NULL);
+				printf("Illegal expression: [4]Haven't identify any element!\n");
 				return 1;
 			}
 			if(tokens[st].type == '-'){
 				int coe0 = 1;
 				//负数处理
 				int st0 = negative(&coe0, st, en);
+				if(st0 == 2){
+					*illegal = true;
+					printf("Illegal expression: Negative sign is illegal!\n");
+					return 1;
+				}
 				return coe0 * eval(st0, en, illegal);
 			}
 			else{
