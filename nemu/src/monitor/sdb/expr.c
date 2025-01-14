@@ -112,10 +112,13 @@ static bool make_token(char *e) {
           case TK_NOTYPE: 
 						break;
           case TK_LPARENT : 
+						//类型
 						tokens[nr_token].type = TK_LPARENT;
 						assert(substr_len < 32);
+						//字符串
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
+						//更新下标
 						nr_token++;
 						break;
           case TK_RPARENT : 
@@ -202,6 +205,7 @@ static bool make_token(char *e) {
       }
     }
 
+		//匹配失败
     if (i == NR_REGEX) {
       printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
@@ -212,6 +216,7 @@ static bool make_token(char *e) {
 }
 static bool check_parentheses(int st, int en, bool* illegal);
 
+//负数处理,检测到的负号为单数时系数coe=-1,否则为coe=0
 static int negative(int* coe, int st, int en){
 	int k = st;
 	if(tokens[st].type == '-'){
@@ -220,6 +225,7 @@ static int negative(int* coe, int st, int en){
 		  Log("Illegal expration:negative sign");
 		  assert(NULL);
 		}
+		//是负号的情况
 		for(k = st + 1; k <= en; k++){
 			if(tokens[k].type == '+' || \
 				 tokens[k].type == '*' || \
@@ -249,6 +255,9 @@ static int negative(int* coe, int st, int en){
 	return k;
 }
 
+// 运算(处理)优先级 : 
+// 负数/解引用 -> 数字/十六进制数/寄存器引用 -> 括号 -> 乘除 -> 加减 -> 比较符(等于/不等于) -> 逻辑与
+// 函数入栈顺序与优先级相反
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
 		return 1;
@@ -260,12 +269,15 @@ static int eval(int st, int en, bool* illegal){
 	//数字
 	else if(st == en){
 		int num;
+		//数字
 		if(tokens[en].type == TK_DIG){
 			sscanf(tokens[en].str,"%d",&num);
 		}
+		//ox
 		else if(tokens[en].type == TK_HEX){
 			sscanf(tokens[en].str + 2, "%x", &num);
 		}
+		//$
 		else if(tokens[en].type == TK_REG){
 			bool suc = true;
 			num = isa_reg_str2val(tokens[en].str + 1, &suc);
@@ -283,7 +295,7 @@ static int eval(int st, int en, bool* illegal){
 		int *symbol = (int*)malloc((en - st + 1) * sizeof(int));
 		int ind = 0;
 		int i;
-		//遍历记录所有运算符
+		//遍历记录所有运算符,存储在symbol中
 		for(i = st; i <= en; i++){
 			if(i == 0 || i == nr_token - 1){
 				continue;
@@ -301,6 +313,7 @@ static int eval(int st, int en, bool* illegal){
 					}
 					break;	
 				case '*' : 
+					//筛选解引用符号,只有'*'前为')'和[:digital:]时才是减号
 					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG){
 						symbol[ind] = i;
 						ind++;
@@ -327,6 +340,7 @@ static int eval(int st, int en, bool* illegal){
 		}	
 		//检查运算符是否在括号内,在括号内则不能作为主运算符
 		//这里默认check_parentheses()功能正常,主表达式不会有括号括起来
+		//具体逻辑是遍历符号数组symbol,过程中使用count计数记录括号,遇到左括号加1,右括号减1
 		for(i = 0; i < ind; i++){				
 			int j = symbol[i];
 			int count = 0;
@@ -354,10 +368,12 @@ static int eval(int st, int en, bool* illegal){
 			if(p == -1){
 				continue;
 			}
+			//优先级最低,逻辑与,遇到即为主运算符
 			else if(tokens[p].type == TK_LAND){
 				op = p;
 				break;
 			}
+			//比较符,遇到多个比较符只将最右边的作为主运算符
 			else if(tokens[p].type == TK_EQ || tokens[p].type == TK_INEQ){
 				if(op_temp == TK_EQ || op_temp == TK_INEQ){
 					continue;
@@ -365,6 +381,7 @@ static int eval(int st, int en, bool* illegal){
 				op = p;
 				op_temp = tokens[p].type;
 			}
+			//加减,与比较符类似,并且遇到过比较符后不再将此作为主运算符
 			else if(tokens[p].type == '+' || tokens[p].type == '-'){
 				if(op_temp == TK_EQ || op_temp == TK_INEQ || \
 					 op_temp == '+' || op_temp == '-'){
@@ -373,6 +390,7 @@ static int eval(int st, int en, bool* illegal){
 				op = p;
 				op_temp = tokens[p].type;
 			}
+			//乘除,与加减类似
 			else if(tokens[p].type == '*' || tokens[p].type == '/'){
 				if(op_temp == TK_EQ || op_temp == TK_INEQ || \
 					 op_temp == '+' || op_temp == '-' || \
@@ -390,6 +408,7 @@ static int eval(int st, int en, bool* illegal){
 		}
 		free(symbol);
 		
+		//有主运算符
 		if(op != -1){
 
 			int val1 = eval(st, op - 1, illegal);
@@ -399,6 +418,7 @@ static int eval(int st, int en, bool* illegal){
 				case '-' : return val1 - val2;
 				case '*' : return val1 * val2;
 				case '/' : 
+					//除零时终止
 				  if(!val2){
 						assert(val2);
 					}
@@ -411,6 +431,7 @@ static int eval(int st, int en, bool* illegal){
 					return 1;
 			}
 		}
+		//没有运算符:考虑负数与解引用情况,是递归的末端,一轮入栈的最深处
 		else{
 			if(tokens[st].type != '-' && tokens[st].type != '*'){
 				*illegal = true;
@@ -419,10 +440,12 @@ static int eval(int st, int en, bool* illegal){
 			}
 			if(tokens[st].type == '-'){
 				int coe0 = 1;
+				//负数处理
 				int st0 = negative(&coe0, st, en);
 				return coe0 * eval(st0, en, illegal);
 			}
 			else{
+				//访存
 				vaddr_t Addr = eval(st + 1, en, illegal);
 				return vaddr_read(Addr, 1);
 			}
@@ -430,6 +453,7 @@ static int eval(int st, int en, bool* illegal){
 	}
 }
 
+//检查表达式是否被括号包着
 static bool check_parentheses(int st, int en, bool* illegal){
 	if(tokens[st].type != TK_LPARENT || tokens[en].type != TK_RPARENT){
 		return false;
@@ -466,9 +490,9 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  //TODO();
 	bool illegal;
   int re = eval(0, nr_token - 1, &illegal);
+	//有符号数转换为无符号数
 	*result = 0x100000000 + re;
 
   return 0;

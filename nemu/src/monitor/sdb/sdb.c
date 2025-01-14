@@ -59,7 +59,7 @@ static int cmd_info(char *args);/*wxz*/
 
 static int cmd_x(char *args);/*wxz*/
 
-static int cmd_etn(char *args);/*wxz*/
+static int cmd_p(char *args);/*wxz*/
 
 static int cmd_et(char *args);/*wxz*/
 
@@ -80,7 +80,7 @@ static struct {
   { "si", "Single Excute", cmd_si },/*wxz*/
   { "info", "Print information of regs(with sub-cmd r) or watch(with sub-cmd w).", cmd_info },/*wxz*/
   { "x", "Constantly print N of 4 bytes,start address is value of expression.", cmd_x},/*wxz*/
-  { "etn", "Expression test.", cmd_etn},/*wxz*/
+  { "p", "Expression test.", cmd_p},/*wxz*/
   { "et", "Expression test.", cmd_et},/*wxz*/
   { "d", "Delete watchpoint.", cmd_d},/*wxz*/
   { "w", "watchpoit.", cmd_w},/*wxz*/
@@ -135,17 +135,21 @@ static int cmd_info(char *args) {
 	char* sub_cmd = strtok(NULL," ");//only first argument available.
 
   if (strcmp(sub_cmd, "r") == 0) {
+		//打印寄存器数组
 		isa_reg_display();
 	}
 	else if(strcmp(sub_cmd, "w") == 0){
+		//对监视点操作宏包装
 #ifndef CONFIG_WATCHPOINT
 		printf("Please config watchpoint option\n");
 		return 0;
 #endif
+		//先检查监视点池里有没有工作中的监视点
 		if (!head){
 			printf("No watchpoints\n");
 		}
 		else{
+		//遍历打印的操作
 			char* space = " ";
 			char* noh = "noh";
 			printf("Num%12sType%15sDisp%2sEnb%3sAddress%12sWhat%2s\n", space, space, space, space, space, space);
@@ -174,9 +178,11 @@ static int cmd_x(char *args) {
 		printf("Error: No arguments provided.\n");
 		return 1;
 	}
+	//获取两组参数:扫描长度和起始地址
 	char *arg1 = strtok(NULL," ");
 	char *arg2 = args + strlen(arg1) + 1;
 
+	//对参数涉及的变量初始化操作,表达式求值
   int len;
 	char e[65536] = {};
 	memset(e, '\0', 65536);
@@ -187,6 +193,7 @@ static int cmd_x(char *args) {
 	expr(e, &suc, &Addr); 
 	assert(suc);
 
+	//检查地址是否溢出,访存并打印内容
   if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
 		printf("0x%x : ", Addr);
 	  for(int i = 0; i < len; i++){
@@ -214,12 +221,13 @@ static int cmd_x(char *args) {
 }
 
 /*wxz*/
-static int cmd_etn(char *args) {
-	//char* arg = strtok(NULL," ");
+static int cmd_p(char *args) {
 	if(args == NULL){
 		printf("Error: No expression provided.\n");
 		return 1;
 	}
+	//获取参数,初始化相关变量,表达式求值
+	//这里没用strtok:将整个表达式完整地摘下来
 	char *arg = args;
 	char ex[65536] = {};
 	memset(ex, '\0',  65536);
@@ -227,24 +235,26 @@ static int cmd_etn(char *args) {
 	uint32_t result;
 	bool suc = true;
 	expr(ex, &suc, &result);
-	printf("%u = %s\n", result, ex);
+	printf("%s = %u\n", ex, result);
 
 	return 0;
 }
 /*wxz*/
 static int cmd_et(char *args) {
+	//打开测试集和测试日志
 	bool suc = true;
 	FILE *fp = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/gen-expr.log", "r");
 	FILE *log = fopen("/home/shaw/ysyx-workbench/nemu/tools/gen-expr/test.log", "w");
-	assert(fp != NULL);
+	assert(fp);
+	assert(log);
+	//对测试集所在文件按行测试
 	char line[65536 + 16] = {};
-	while(fgets(line, sizeof(line), fp) != NULL){
+	while(fgets(line, sizeof(line), fp)){
 	  char ex[65536] = {};
-		//memset(ex, '\0', 65536);
 		char* result = strtok(line, " ");
 		int re_len = strlen(result);
 		strcpy(ex, line + re_len + 1);
-		ex[strlen(ex) - 1] = '\0';
+		ex[strlen(ex) - 1] = '\0'; //换行符替换成终止符
 		uint32_t rt,rp;
 		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
@@ -266,10 +276,12 @@ static int cmd_d(char *args) {
 		printf("Please config watchpoint option\n");
 		return 0;
 #endif
+  //访问监视点池,遍历链表
 	char* arg = strtok(NULL," ");
 	int num;
 	sscanf(arg, "%d", &num);
   WP *p = head;
+	//无监视点
 	if(!p){
 		Log("No Watchpoints");
 		return 1;
@@ -278,10 +290,12 @@ static int cmd_d(char *args) {
 		if(p->NO == num) break;
 		p = p->next;
 	}
+	//找不到监视点
 	if(!p){
 		Log("Can't find watchpoint %d.", num);
 		return 1;
 	}
+	//删除监视点
 	free_wp(p);
 	return 0;
 }
@@ -295,6 +309,7 @@ static int cmd_w(char *args) {
 		printf("Error: No expression provided.\n");
 		return 1;
 	}
+	//从空闲池中取出监视点为其赋值
 	char *arg = args;
 	char ex[65536] = {};
 	memset(ex, '\0',  65536);
