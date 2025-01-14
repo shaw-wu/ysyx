@@ -198,11 +198,11 @@ static int cmd_x(char *args) {
 		printf("0x%x : ", Addr);
 	  for(int i = 0; i < len; i++){
 			if(i){
-				printf("%6s","");
+				printf("%13s","");
 			}
 			word_t w;
 			for(int j = 3; j >= 0; j--){
-				w = vaddr_read(Addr + j, 1);
+				w = vaddr_read(Addr + i + j, 1);
 				if(w <= 0x0f) {
 					printf("0%x ", w);
 				} 
