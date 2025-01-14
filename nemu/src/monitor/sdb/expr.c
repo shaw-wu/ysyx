@@ -114,7 +114,11 @@ static bool make_token(char *e) {
           case TK_LPARENT : 
 						//类型
 						tokens[nr_token].type = TK_LPARENT;
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 						//字符串
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
@@ -123,77 +127,121 @@ static bool make_token(char *e) {
 						break;
           case TK_RPARENT : 
 						tokens[nr_token].type = TK_RPARENT;
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case '*'      : 
 						tokens[nr_token].type = '*';
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case '/'      : 
 						tokens[nr_token].type = '/';
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case '+'      : 
 						tokens[nr_token].type = '+';
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case '-'      : 
 						tokens[nr_token].type = '-';
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case TK_EQ    : 
 						tokens[nr_token].type = TK_EQ;
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
           case TK_DIG   : 
 						tokens[nr_token].type = TK_DIG;
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
 					case TK_HEX   :
 						tokens[nr_token].type = TK_HEX;
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
 					case TK_REG   :
 						tokens[nr_token].type = TK_REG;
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
 					case TK_INEQ  :
 						tokens[nr_token].type = TK_INEQ;
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
 						break;
 					case TK_LAND  :
 						tokens[nr_token].type = TK_LAND;
-						assert(substr_len < 32);
+						if(substr_len >= 32){
+							printf("Illegal expression: Token of position %d is overflow\n", position - substr_len);
+							return false;
+						}
+						//assert(substr_len < 32);
 					  strncpy(tokens[nr_token].str, substr_start, substr_len);
 						tokens[nr_token].str[substr_len] = '\0';
 						nr_token++;
@@ -281,7 +329,9 @@ static int eval(int st, int en, bool* illegal){
 		else if(tokens[en].type == TK_REG){
 			bool suc = true;
 			num = isa_reg_str2val(tokens[en].str + 1, &suc);
-			assert(suc);
+			if(!suc){
+				printf("Error: Can't search reg \"%s\"\n", tokens[en].str + 1);
+			}
 		}
 		
 		return num;
