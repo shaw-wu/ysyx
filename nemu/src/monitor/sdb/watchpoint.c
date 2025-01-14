@@ -21,6 +21,7 @@
 static WP wp_pool[NR_WP] = {};
 WP *head = NULL, *free_ = NULL;
 
+//初始化监视点池
 void init_wp_pool() {
   int i;
   for (i = 0; i < NR_WP; i ++) {
@@ -34,7 +35,7 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
-/* TODO: Implement the functionality of watchpoint */
+//创建监视点,从free_链表拿监视点成员出来,从free_头取出,从head头添加
 WP* new_wp(){
 	assert(free_);
 	
@@ -46,6 +47,7 @@ WP* new_wp(){
 	return p;
 }
 
+//释放监视点,从head链表取出监视点放回free_池,放回free_头
 void free_wp(WP *wp){
 	int no = wp->NO;
 	WP *p, *s;
@@ -53,6 +55,7 @@ void free_wp(WP *wp){
 	assert(head);
 	p = s;
 
+	//遍历查找
 	while(p){
 		if(p->NO == no) break;
 		s = p;
@@ -61,7 +64,8 @@ void free_wp(WP *wp){
 	if(!p){
 		Log("Can't find watchpoint %d", no);
 	}
-	memset(p->expr, '\0', 65536);//清除wp的内容
+	//清除wp的内容
+	memset(p->expr, '\0', 65536);
 	p->result = 0;
 	//这里head不能算是链表的一部分,只是一个指向表头的指针
 	if(s == head){
