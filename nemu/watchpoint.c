@@ -16,10 +16,10 @@
 #include "sdb.h"
 
 #define NR_WP 32
-
-/*wxz*/
 static WP wp_pool[NR_WP] = {};
-WP *head = NULL, *free_ = NULL;
+
+head = NULL; 
+free_ = NULL;
 
 void init_wp_pool() {
   int i;
@@ -27,7 +27,6 @@ void init_wp_pool() {
     wp_pool[i].NO = i;
     wp_pool[i].next = (i == NR_WP - 1 ? NULL : &wp_pool[i + 1]);
 		memset(wp_pool[i].expr, '\0', 65536);
-		wp_pool[i].result = 0;
   }
 
   head = NULL;
@@ -36,7 +35,7 @@ void init_wp_pool() {
 
 /* TODO: Implement the functionality of watchpoint */
 WP* new_wp(){
-	assert(free_);
+	assert(free);
 	
 	WP *p = free_;
 	free_ = p->next;
@@ -53,23 +52,13 @@ void free_wp(WP *wp){
 	assert(head);
 	p = s;
 
-	while(p){
-		if(p->NO == no) break;
+	while(p->NO != no){
+		assert(p->next);
 		s = p;
-		p = s->next;		
-	}
-	if(!p){
-		Log("Can't find watchpoint %d", no);
+		p = s->next;	
 	}
 	memset(p->expr, '\0', 65536);//清除wp的内容
-	p->result = 0;
-	//这里head不能算是链表的一部分,只是一个指向表头的指针
-	if(s == head){
-		head = p->next;
-	}
-	else{
-		s->next = p->next;
-	}
+	head = p->next;
 	p->next = free_;
 	free_ = p;
 	return;
