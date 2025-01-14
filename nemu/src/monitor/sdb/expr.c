@@ -421,6 +421,7 @@ static int eval(int st, int en, bool* illegal){
 					//除零时终止
 				  if(!val2){
 						printf("Illegal exprement : divise 0!\n");
+						*illegal = true;
 						return 1;
 						//assert(val2);
 					}
@@ -494,6 +495,9 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   /* TODO: Insert codes to evaluate the expression. */
 	bool illegal;
   int re = eval(0, nr_token - 1, &illegal);
+	if (illegal){
+		*success = false;
+	}
 	//有符号数转换为无符号数
 	*result = 0x100000000 + re;
 

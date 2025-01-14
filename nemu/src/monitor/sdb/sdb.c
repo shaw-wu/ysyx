@@ -191,7 +191,8 @@ static int cmd_x(char *args) {
 	vaddr_t Addr ;
 	bool suc = true;
 	expr(e, &suc, &Addr); 
-	assert(suc);
+	if(!suc) return 1;
+	//assert(suc);
 
 	//检查地址是否溢出,访存并打印内容
   if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
@@ -235,6 +236,7 @@ static int cmd_p(char *args) {
 	uint32_t result;
 	bool suc = true;
 	expr(ex, &suc, &result);
+	if(!suc) return 1;
 	printf("%s = %u\n", ex, result);
 
 	return 0;
@@ -258,6 +260,7 @@ static int cmd_et(char *args) {
 		uint32_t rt,rp;
 		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
+		if(!suc) return 1;
 		if(rp == rt){
 			fprintf(log, "%u = %s\n", rp, ex);
 		}
@@ -320,7 +323,7 @@ static int cmd_w(char *args) {
 	uint32_t rp;
 	bool suc = true;
 	expr(ex, &suc, &rp);
-	assert(suc);
+	if(!suc) return 1;
 	wp->result = rp;
 
 	wp = NULL;
