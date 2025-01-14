@@ -192,7 +192,6 @@ static int cmd_x(char *args) {
 	bool suc = true;
 	expr(e, &suc, &Addr); 
 	if(!suc) {
-		printf("!");
 		return 1;
 	}
 	//assert(suc);
