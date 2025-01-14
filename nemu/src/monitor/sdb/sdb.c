@@ -191,7 +191,9 @@ static int cmd_x(char *args) {
 	vaddr_t Addr ;
 	bool suc = true;
 	expr(e, &suc, &Addr); 
-	assert(suc);
+	if(!suc) {
+		return 1;
+	}
 
 	//检查地址是否溢出,访存并打印内容
   if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
@@ -235,6 +237,9 @@ static int cmd_p(char *args) {
 	uint32_t result;
 	bool suc = true;
 	expr(ex, &suc, &result);
+	if(!suc) {
+		return 1;
+	}
 	printf("%s = %u\n", ex, result);
 
 	return 0;
@@ -258,6 +263,9 @@ static int cmd_et(char *args) {
 		uint32_t rt,rp;
 		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
+		if(!suc) {
+			return 1;
+		}
 		if(rp == rt){
 			fprintf(log, "%u = %s\n", rp, ex);
 		}
@@ -283,7 +291,7 @@ static int cmd_d(char *args) {
   WP *p = head;
 	//无监视点
 	if(!p){
-		Log("No Watchpoints");
+		printf("No Watchpoints\n");
 		return 1;
 	}
 	while(p){
@@ -292,18 +300,19 @@ static int cmd_d(char *args) {
 	}
 	//找不到监视点
 	if(!p){
-		Log("Can't find watchpoint %d.", num);
+		printf("Can't find watchpoint %d.\n", num);
 		return 1;
 	}
 	//删除监视点
 	free_wp(p);
+	
 	return 0;
 }
 
 static int cmd_w(char *args) {
 #ifndef CONFIG_WATCHPOINT
 		printf("Please config watchpoint option\n");
-		return 0;
+		return 1;
 #endif
 	if(args == NULL){
 		printf("Error: No expression provided.\n");
@@ -315,12 +324,18 @@ static int cmd_w(char *args) {
 	memset(ex, '\0',  65536);
 	strcpy(ex, arg);
 	WP *wp = new_wp();
+	if(!wp){
+		return 1;
+	}
 
 	strcpy(wp->expr, ex);
 	uint32_t rp;
 	bool suc = true;
 	expr(ex, &suc, &rp);
-	assert(suc);
+	//printf("%d\n",suc);
+	if(!suc) {
+		return 1;
+	}
 	wp->result = rp;
 
 	wp = NULL;

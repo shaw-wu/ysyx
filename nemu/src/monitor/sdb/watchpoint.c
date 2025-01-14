@@ -37,7 +37,10 @@ void init_wp_pool() {
 
 //创建监视点,从free_链表拿监视点成员出来,从free_头取出,从head头添加
 WP* new_wp(){
-	assert(free_);
+	if(!free_){
+		printf("Error: Empty pointer free_\n");
+		return NULL;
+	}
 	
 	WP *p = free_;
 	free_ = p->next;
@@ -52,7 +55,10 @@ void free_wp(WP *wp){
 	int no = wp->NO;
 	WP *p, *s;
 	s = head;
-	assert(head);
+	if(!head){
+		printf("Error: Empty pointer head\n");
+		return;
+	}
 	p = s;
 
 	//遍历查找
