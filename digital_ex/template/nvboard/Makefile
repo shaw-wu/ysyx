@@ -44,6 +44,11 @@ run: $(BIN)
 	@$^
 
 clean:
-	rm -rf $(BUILD_DIR)
+	@if [ -d $(BUILD_DIR) ]; then \
+		echo "Cleaning build directory.";
+		rm -rf $(BUILD_DIR); \
+	fi
+	echo "Make build directory."
+	@mkdir -p $(BUILD_DIR)
 
 .PHONY: default all clean run
