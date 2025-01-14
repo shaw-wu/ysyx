@@ -238,7 +238,9 @@ static int cmd_p(char *args) {
 	uint32_t result;
 	bool suc = true;
 	expr(ex, &suc, &result);
-	if(!suc) return 1;
+	if(!suc) {
+		return 1;
+	}
 	printf("%s = %u\n", ex, result);
 
 	return 0;
@@ -262,7 +264,9 @@ static int cmd_et(char *args) {
 		uint32_t rt,rp;
 		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
-		if(!suc) return 1;
+		if(!suc) {
+			return 1;
+		}
 		if(rp == rt){
 			fprintf(log, "%u = %s\n", rp, ex);
 		}
@@ -325,7 +329,10 @@ static int cmd_w(char *args) {
 	uint32_t rp;
 	bool suc = true;
 	expr(ex, &suc, &rp);
-	if(!suc) return 1;
+	printf("%d\n",suc);
+	if(!suc) {
+		return 1;
+	}
 	wp->result = rp;
 
 	wp = NULL;
