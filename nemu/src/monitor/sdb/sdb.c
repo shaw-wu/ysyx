@@ -176,7 +176,7 @@ static int cmd_info(char *args) {
 static int cmd_x(char *args) {
 	if(args == NULL){
 		printf("Error: No arguments provided.\n");
-		return 1;
+		return -1;
 	}
 	//获取两组参数:扫描长度和起始地址
 	char *arg1 = strtok(NULL," ");
@@ -192,7 +192,7 @@ static int cmd_x(char *args) {
 	bool suc = true;
 	expr(e, &suc, &Addr); 
 	if(!suc) {
-		return 1;
+		return -1;
 	}
 
 	//检查地址是否溢出,访存并打印内容
@@ -226,7 +226,7 @@ static int cmd_x(char *args) {
 static int cmd_p(char *args) {
 	if(args == NULL){
 		printf("Error: No expression provided.\n");
-		return 1;
+		return -1;
 	}
 	//获取参数,初始化相关变量,表达式求值
 	//这里没用strtok:将整个表达式完整地摘下来
@@ -238,7 +238,7 @@ static int cmd_p(char *args) {
 	bool suc = true;
 	expr(ex, &suc, &result);
 	if(!suc) {
-		return 1;
+		return -1;
 	}
 	printf("%s = %u\n", ex, result);
 
@@ -264,7 +264,7 @@ static int cmd_et(char *args) {
 		sscanf(result, "%u", &rt);
 		expr(ex, &suc, &rp);
 		if(!suc) {
-			return 1;
+			return -1;
 		}
 		if(rp == rt){
 			fprintf(log, "%u = %s\n", rp, ex);
@@ -291,8 +291,8 @@ static int cmd_d(char *args) {
   WP *p = head;
 	//无监视点
 	if(!p){
-		Log("No Watchpoints");
-		return 1;
+		printf("No Watchpoints\n");
+		return -1;
 	}
 	while(p){
 		if(p->NO == num) break;
@@ -300,22 +300,23 @@ static int cmd_d(char *args) {
 	}
 	//找不到监视点
 	if(!p){
-		Log("Can't find watchpoint %d.", num);
-		return 1;
+		printf("Can't find watchpoint %d.\n", num);
+		return -1;
 	}
 	//删除监视点
 	free_wp(p);
+	
 	return 0;
 }
 
 static int cmd_w(char *args) {
 #ifndef CONFIG_WATCHPOINT
 		printf("Please config watchpoint option\n");
-		return 0;
+		return -1;
 #endif
 	if(args == NULL){
 		printf("Error: No expression provided.\n");
-		return 1;
+		return -1;
 	}
 	//从空闲池中取出监视点为其赋值
 	char *arg = args;
@@ -323,6 +324,9 @@ static int cmd_w(char *args) {
 	memset(ex, '\0',  65536);
 	strcpy(ex, arg);
 	WP *wp = new_wp();
+	if(!wp){
+		return -1;
+	}
 
 	strcpy(wp->expr, ex);
 	uint32_t rp;
@@ -330,7 +334,7 @@ static int cmd_w(char *args) {
 	expr(ex, &suc, &rp);
 	//printf("%d\n",suc);
 	if(!suc) {
-		return 1;
+		return -1;
 	}
 	wp->result = rp;
 
