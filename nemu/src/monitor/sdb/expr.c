@@ -493,7 +493,7 @@ word_t expr(char *e, bool *success, uint32_t *result) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-	bool illegal;
+	bool illegal = false;
   int re = eval(0, nr_token - 1, &illegal);
 	if (illegal){
 		*success = false;

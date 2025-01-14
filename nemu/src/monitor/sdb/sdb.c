@@ -194,7 +194,6 @@ static int cmd_x(char *args) {
 	if(!suc) {
 		return 1;
 	}
-	//assert(suc);
 
 	//检查地址是否溢出,访存并打印内容
   if(Addr >= 0x80000000 && Addr <= 0x87ffffff) {	
