@@ -44,6 +44,7 @@ VSRC = $(wildcard $(VSRC_DIR)/*.v)
 default: run
 
 run:
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "-- VERILATE ----------------"
 	@echo "Input Verilog sources: $(VSRC)"
 	@echo "Input C/C++ sources: $(CSRC)"
@@ -79,3 +80,4 @@ clean :
 		rm -rf $(BUILD_DIR); \
 	fi
 	@mkdir -p $(BUILD_DIR)
+include ~/ysyx-workbench/Makefile
