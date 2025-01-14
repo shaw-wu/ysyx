@@ -68,7 +68,7 @@ void free_wp(WP *wp){
 	memset(p->expr, '\0', 65536);
 	p->result = 0;
 	//这里head不能算是链表的一部分,只是一个指向表头的指针
-	if(s == head){
+	if(s == p){
 		head = p->next;
 	}
 	else{
