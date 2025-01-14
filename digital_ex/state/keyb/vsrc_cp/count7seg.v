@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 module count7seg(
 	input clk,
 	input [7:0] count,

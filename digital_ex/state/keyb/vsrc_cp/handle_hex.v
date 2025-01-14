@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 module handle_hex(
 	input clk,
 	input cond,
