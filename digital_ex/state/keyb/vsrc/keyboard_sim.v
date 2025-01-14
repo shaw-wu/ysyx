@@ -75,7 +75,7 @@ initial begin /* clock driver */
 end
 
 initial begin
-		$monitor("data = %b, ready = %b, nextdata_n = %b, overflow = %b, hex0= %b, hexq=1= %b", data, ready, nextdata_n, overflow, hex0, hex1);
+		$monitor("data = %b, ready = %b, nextdata_n = %b, overflow = %b, \nhex0= %b, hex1 = %b, hex2 = %b, hex3 = %b, hex4 = %b, hex5 = %b, wshift = %b, wctrl = %b", data, ready, nextdata_n, overflow, hex0, hex1, hex2, hex3, hex4, hex5, wshift, wctrl);
     clrn = 1'b0;  #20;
     clrn = 1'b1;  #20;
     model.kbd_sendcode(8'h1C); // press 'A'

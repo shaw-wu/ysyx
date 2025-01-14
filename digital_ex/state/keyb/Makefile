@@ -15,7 +15,7 @@ endif
 ######################################################################
 
 #配置选项
-TOP_MODULE = keyboard_sim 
+TOP_MODULE = keyboard_sim
 SIM_TIME ?= 50000000
 ENABLE_WAVEFORM ?= 1
 
@@ -54,7 +54,8 @@ run:
 		-CFLAGS "$(CXXFLAGS)"
 	@echo "-- BUILD -------------------"
 	@if [ -d $(BUILD_DIR)/obj_dir ]; then \
-		echo "Running simulation"; \
+		echo "Running simulation at $(BUILD_DIR)/obj_dir"; \
+		ls -l $(BUILD_DIR)/obj_dir/"V$(TOP_MODULE)"; \
 		$(BUILD_DIR)/obj_dir/"V$(TOP_MODULE)"; \
 		echo "--  RUN  -------------------"; \
 	fi

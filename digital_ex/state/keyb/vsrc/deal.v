@@ -65,6 +65,7 @@ reg [7:0] count;
 
 encoder ec(
 	.x(code),
+	.wshift(wshift),
 	.y(ascii_code)
 );
 
