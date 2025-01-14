@@ -191,7 +191,10 @@ static int cmd_x(char *args) {
 	vaddr_t Addr ;
 	bool suc = true;
 	expr(e, &suc, &Addr); 
-	if(!suc) return 1;
+	if(!suc) {
+		printf("!");
+		return 1;
+	}
 	//assert(suc);
 
 	//检查地址是否溢出,访存并打印内容
