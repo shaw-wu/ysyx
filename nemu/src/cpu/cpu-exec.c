@@ -51,7 +51,6 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 		if(!suc) {
 			return;
 		}
-		assert(suc);
 		if(res[ind] != p->result){
 			nemu_state.state = NEMU_STOP;
 			temp[ind++] = p;
