@@ -420,7 +420,9 @@ static int eval(int st, int en, bool* illegal){
 				case '/' : 
 					//除零时终止
 				  if(!val2){
-						assert(val2);
+						printf("Illegal exprement : divise 0!\n");
+						return 1;
+						//assert(val2);
 					}
 			    return val1 / val2;	
 				case TK_EQ : return val1 == val2;
