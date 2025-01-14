@@ -329,7 +329,7 @@ static int cmd_w(char *args) {
 	uint32_t rp;
 	bool suc = true;
 	expr(ex, &suc, &rp);
-	printf("%d\n",suc);
+	//printf("%d\n",suc);
 	if(!suc) {
 		return 1;
 	}
