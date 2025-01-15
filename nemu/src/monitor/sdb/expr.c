@@ -269,8 +269,7 @@ static int negative(int* coe, int st, int en){
 	if(tokens[st].type == '-'){
 		int neg = 1;
 		if(st == en){
-				assert(0);
-			return 2;
+			return -2;
 		}
 		//是负号的情况
 		for(k = st + 1; k <= en; k++){
@@ -278,7 +277,7 @@ static int negative(int* coe, int st, int en){
 				 tokens[k].type == '*' || \
 				 tokens[k].type == '/' || \
 				 tokens[k].type == TK_RPARENT){
-				return 2;
+				return -2;
 			}
 			else if(tokens[k].type == '-'){
 				neg++;
@@ -496,7 +495,7 @@ static int eval(int st, int en, bool* illegal){
 				int coe0 = 1;
 				//负数处理
 				int st0 = negative(&coe0, st, en);
-				if(st0 == 2){
+				if(st0 == -2){
 					*illegal = true;
 					printf("Illegal expression: Negative sign is illegal!\n");
 					return 1;
