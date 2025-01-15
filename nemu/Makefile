@@ -53,6 +53,7 @@ LDFLAGS += $(CFLAGS_BUILD)
 include $(NEMU_HOME)/scripts/config.mk
 
 count:
+	@make clean
 	@echo "Code line count:"
 	@find . \( -name "*.c" -o -name "*.h" \) | xargs grep -v '^[[:space:]]*$$' | wc -l
 
