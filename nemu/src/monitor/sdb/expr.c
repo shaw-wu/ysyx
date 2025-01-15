@@ -346,7 +346,7 @@ static int eval(int st, int en, bool* illegal){
 		int i;
 		//遍历记录所有运算符,存储在symbol中
 		for(i = st; i <= en; i++){
-			if(i == st || i == en - 1){
+			if(i == st || i == en){
 				continue;
 			}
 			switch(tokens[i].type){
