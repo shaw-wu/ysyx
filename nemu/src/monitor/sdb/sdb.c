@@ -206,7 +206,7 @@ static int cmd_x(char *args) {
 			}
 			word_t w;
 			for(int j = 3; j >= 0; j--){
-				w = vaddr_read(Addr + i + j, 1);
+				w = vaddr_read(Addr + i * 4 + j, 1);
 				if(w <= 0x0f) {
 					printf("0%x ", w);
 				} 
