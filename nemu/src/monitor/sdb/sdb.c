@@ -218,7 +218,7 @@ static int cmd_x(char *args) {
 		}
 	} 
 	else{
-		printf("Address overflow.[0x80000000, ox87ffffff]\n");
+		printf("Address overflow.[0x80000000, 0x87ffffff]\n");
 	}
 
 	return 0;

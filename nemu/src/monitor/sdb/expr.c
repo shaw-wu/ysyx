@@ -1,6 +1,5 @@
 /***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
-*
+* Copyright (c) 2014-2022 Zihao Yu, Nanjing University *
 * NEMU is licensed under Mulan PSL v2.
 * You can use this software according to the terms and conditions of the Mulan PSL v2.
 * You may obtain a copy of Mulan PSL v2 at:
@@ -507,6 +506,11 @@ static int eval(int st, int en, bool* illegal){
 			else{
 				//访存
 				vaddr_t Addr = eval(st + 1, en, illegal);
+				if(Addr < 0x80000000 || Addr > 0x87ffffff){
+					*illegal = true;
+					printf("Address overflow.[0x80000000, 0x87ffffff]\n");
+					return 1;
+				}
 				return vaddr_read(Addr, 1);
 			}
 		}
