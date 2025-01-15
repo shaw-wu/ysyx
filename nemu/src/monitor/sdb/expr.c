@@ -355,15 +355,15 @@ static int eval(int st, int en, bool* illegal){
 					ind++;
 					break;	
 				case '-' : 
-					//筛选负号,只有'-'前的符号为')'和[:digital:]时才是减号
-					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG){ 
+					//筛选负号,只有'-'前的符号为')','$','0x'和[:digital:]时才是减号
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX || (tokens[i-1].type == '*' && strlen(tokens[i-1].str) > 1)){ 
 						symbol[ind] = i;
 						ind++;
 					}
 					break;	
 				case '*' : 
 					//筛选解引用符号,只有'*'前为')'和[:digital:]时才是减号
-					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG){
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX){
 						symbol[ind] = i;
 						ind++;
 					}
