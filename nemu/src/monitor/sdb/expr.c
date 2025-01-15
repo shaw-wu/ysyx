@@ -269,6 +269,7 @@ static int negative(int* coe, int st, int en){
 	if(tokens[st].type == '-'){
 		int neg = 1;
 		if(st == en){
+				assert(0);
 			return 2;
 		}
 		//是负号的情况
@@ -277,7 +278,6 @@ static int negative(int* coe, int st, int en){
 				 tokens[k].type == '*' || \
 				 tokens[k].type == '/' || \
 				 tokens[k].type == TK_RPARENT){
-				assert(0);
 				return 2;
 			}
 			else if(tokens[k].type == '-'){
