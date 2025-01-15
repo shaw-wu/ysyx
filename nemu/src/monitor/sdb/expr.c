@@ -279,19 +279,18 @@ static int negative(int* coe, int st, int en){
 				 tokens[k].type == TK_RPARENT){
 				return 2;
 			}
-			if(tokens[k].type == '-'){
+			else if(tokens[k].type == '-'){
 				neg++;
 			}
 			else{
-				if(neg % 2){
-					*coe = -1;;
-					break;
-				}
-				else{
-					*coe = 1;
-					break;
-				}
+				break;
 			}
+		}
+		if(neg % 2){
+			*coe = -1;;
+		}
+		else{
+			*coe = 1;
 		}
 	}
 	else{
