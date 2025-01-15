@@ -52,11 +52,6 @@ LDFLAGS += $(CFLAGS_BUILD)
 # Include rules for menuconfig
 include $(NEMU_HOME)/scripts/config.mk
 
-count:
-	@make clean
-	@echo "Code line count:"
-	@find . \( -name "*.c" -o -name "*.h" \) | xargs grep -v '^[[:space:]]*$$' | wc -l
-
 ifdef CONFIG_TARGET_AM
 include $(AM_HOME)/Makefile
 LINKAGE += $(ARCHIVES)
