@@ -355,15 +355,15 @@ static int eval(int st, int en, bool* illegal){
 					ind++;
 					break;	
 				case '-' : 
-					//筛选负号,只有'-'前的符号为')','$','0x',解引用'*'和[:digital:]时才是减号
-					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX || (tokens[i-1].type == '*' && strlen(tokens[i-1].str) > 1)){ 
+					//筛选负号,只有'-'前的符号为')','$','0x',解引用'*',[:digital:]以及'-'不在子表达式第一个元素位置时才是减号
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX || (tokens[i-1].type == '*' && strlen(tokens[i-1].str) > 1) || i != st){ 
 						symbol[ind] = i;
 						ind++;
 					}
 					break;	
 				case '*' : 
-					//筛选乘号,只有'-'前的符号为')','$','0x',解引用'*'和[:digital:]时才是乘号
-					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX || (tokens[i-1].type == '*' && strlen(tokens[i-1].str) > 1)){ 
+					//筛选乘号,只有'-'前的符号为')','$','0x',解引用'*',[:digital:]以及'*'不在子表达式第一个元素位置时才是乘号
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX || (tokens[i-1].type == '*' && strlen(tokens[i-1].str) > 1) || i != st){ 
 						symbol[ind] = i;
 						ind++;
 					}
