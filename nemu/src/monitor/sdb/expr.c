@@ -277,6 +277,7 @@ static int negative(int* coe, int st, int en){
 				 tokens[k].type == '*' || \
 				 tokens[k].type == '/' || \
 				 tokens[k].type == TK_RPARENT){
+				assert(0);
 				return 2;
 			}
 			else if(tokens[k].type == '-'){
