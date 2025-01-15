@@ -301,7 +301,7 @@ static int negative(int* coe, int st, int en){
 }
 
 // 运算(处理)优先级 : 
-// 负数/解引用 -> 数字/十六进制数/寄存器引用 -> 括号 -> 乘除 -> 加减 -> 比较符(等于/不等于) -> 逻辑与
+// 数字/十六进制数/寄存器引用 -> 负数/解引用 -> 括号 -> 乘除 -> 加减 -> 比较符(等于/不等于) -> 逻辑与
 // 函数入栈顺序与优先级相反
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
@@ -362,7 +362,7 @@ static int eval(int st, int en, bool* illegal){
 					}
 					break;	
 				case '*' : 
-					//筛选乘号,只有'-'前的符号为')','$','0x',解引用'*'和[:digital:]时才是乘号号
+					//筛选乘号,只有'-'前的符号为')','$','0x',解引用'*'和[:digital:]时才是乘号
 					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX || (tokens[i-1].type == '*' && strlen(tokens[i-1].str) > 1)){ 
 						symbol[ind] = i;
 						ind++;
@@ -485,7 +485,7 @@ static int eval(int st, int en, bool* illegal){
 					return 1;
 			}
 		}
-		//没有运算符:考虑负数与解引用情况,是递归的末端,一轮入栈的最深处
+		//没有运算符:考虑负数与解引用情况
 		else{
 			if(tokens[st].type != '-' && tokens[st].type != '*'){
 				*illegal = true;
