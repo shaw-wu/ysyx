@@ -19,6 +19,7 @@
 #include <readline/history.h>
 #include <memory/vaddr.h>
 #include "sdb.h"
+#include "utils.h"
 
 static int is_batch_mode = false;
 
@@ -50,6 +51,7 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
+	nemu_state.state = NEMU_QUIT;//quit
   return -1;
 }
 
@@ -204,7 +206,7 @@ static int cmd_x(char *args) {
 			}
 			word_t w;
 			for(int j = 3; j >= 0; j--){
-				w = vaddr_read(Addr + i + j, 1);
+				w = vaddr_read(Addr + i * 4 + j, 1);
 				if(w <= 0x0f) {
 					printf("0%x ", w);
 				} 
@@ -216,7 +218,7 @@ static int cmd_x(char *args) {
 		}
 	} 
 	else{
-		printf("Address overflow.[0x80000000, ox87ffffff]\n");
+		printf("Address overflow.[0x80000000, 0x87ffffff]\n");
 	}
 
 	return 0;

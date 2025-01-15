@@ -1,6 +1,5 @@
 /***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
-*
+* Copyright (c) 2014-2022 Zihao Yu, Nanjing University *
 * NEMU is licensed under Mulan PSL v2.
 * You can use this software according to the terms and conditions of the Mulan PSL v2.
 * You may obtain a copy of Mulan PSL v2 at:
@@ -270,7 +269,7 @@ static int negative(int* coe, int st, int en){
 	if(tokens[st].type == '-'){
 		int neg = 1;
 		if(st == en){
-			return 2;
+			return -2;
 		}
 		//是负号的情况
 		for(k = st + 1; k <= en; k++){
@@ -278,21 +277,20 @@ static int negative(int* coe, int st, int en){
 				 tokens[k].type == '*' || \
 				 tokens[k].type == '/' || \
 				 tokens[k].type == TK_RPARENT){
-				return 2;
+				return -2;
 			}
-			if(tokens[k].type == '-'){
+			else if(tokens[k].type == '-'){
 				neg++;
 			}
 			else{
-				if(neg % 2){
-					*coe = -1;;
-					break;
-				}
-				else{
-					*coe = 1;
-					break;
-				}
+				break;
 			}
+		}
+		if(neg % 2){
+			*coe = -1;;
+		}
+		else{
+			*coe = 1;
 		}
 	}
 	else{
@@ -302,7 +300,7 @@ static int negative(int* coe, int st, int en){
 }
 
 // 运算(处理)优先级 : 
-// 负数/解引用 -> 数字/十六进制数/寄存器引用 -> 括号 -> 乘除 -> 加减 -> 比较符(等于/不等于) -> 逻辑与
+// 数字/十六进制数/寄存器引用 -> 负数/解引用 -> 括号 -> 乘除 -> 加减 -> 比较符(等于/不等于) -> 逻辑与
 // 函数入栈顺序与优先级相反
 static int eval(int st, int en, bool* illegal){
 	if(*illegal == true){
@@ -347,7 +345,7 @@ static int eval(int st, int en, bool* illegal){
 		int i;
 		//遍历记录所有运算符,存储在symbol中
 		for(i = st; i <= en; i++){
-			if(i == 0 || i == nr_token - 1){
+			if(i == st || i == en){
 				continue;
 			}
 			switch(tokens[i].type){
@@ -356,15 +354,15 @@ static int eval(int st, int en, bool* illegal){
 					ind++;
 					break;	
 				case '-' : 
-					//筛选负号,只有'-'前的符号为')'和[:digital:]时才是减号
-					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG){ 
+					//筛选负号,只有'-'前的符号为')','$','0x',解引用'*'和[:digital:]时才是减号
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX || (tokens[i-1].type == '*' && strlen(tokens[i-1].str) > 1)){ 
 						symbol[ind] = i;
 						ind++;
 					}
 					break;	
 				case '*' : 
-					//筛选解引用符号,只有'*'前为')'和[:digital:]时才是减号
-					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG){
+					//筛选乘号,只有'-'前的符号为')','$','0x',解引用'*'和[:digital:]时才是乘号
+					if(tokens[i-1].type == TK_RPARENT || tokens[i-1].type == TK_DIG || tokens[i-1].type == TK_REG || tokens[i-1].type == TK_HEX || (tokens[i-1].type == '*' && strlen(tokens[i-1].str) > 1)){ 
 						symbol[ind] = i;
 						ind++;
 					}
@@ -486,7 +484,7 @@ static int eval(int st, int en, bool* illegal){
 					return 1;
 			}
 		}
-		//没有运算符:考虑负数与解引用情况,是递归的末端,一轮入栈的最深处
+		//没有运算符:考虑负数与解引用情况
 		else{
 			if(tokens[st].type != '-' && tokens[st].type != '*'){
 				*illegal = true;
@@ -497,7 +495,7 @@ static int eval(int st, int en, bool* illegal){
 				int coe0 = 1;
 				//负数处理
 				int st0 = negative(&coe0, st, en);
-				if(st0 == 2){
+				if(st0 == -2){
 					*illegal = true;
 					printf("Illegal expression: Negative sign is illegal!\n");
 					return 1;
@@ -507,6 +505,11 @@ static int eval(int st, int en, bool* illegal){
 			else{
 				//访存
 				vaddr_t Addr = eval(st + 1, en, illegal);
+				if(Addr < 0x80000000 || Addr > 0x87ffffff){
+					*illegal = true;
+					printf("Address overflow.[0x80000000, 0x87ffffff]\n");
+					return 1;
+				}
 				return vaddr_read(Addr, 1);
 			}
 		}

@@ -45,6 +45,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 	int i = 0;
 	//读取pc
 	if(strcmp(s, "pc") == 0){
+		*success = true;
 		return cpu.pc;
 	}
 	//遍历32个寄存器
@@ -54,6 +55,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 		}
 	}
 	if(i < 32){
+		*success = true;
 		return gpr(i);
 	}
 	else{
