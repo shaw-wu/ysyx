@@ -322,6 +322,7 @@ static int eval(int st, int en, bool* illegal){
 		//ox
 		else if(tokens[en].type == TK_HEX){
 			sscanf(tokens[en].str + 2, "%x", &num);
+			printf("%d\n", num);
 		}
 		//$
 		else if(tokens[en].type == TK_REG){
