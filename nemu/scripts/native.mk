@@ -44,8 +44,8 @@ gdb: run-env
 count:
 	@echo "Code line count:"
 	@find . \( -name "*.c" -o -name "*.h" \) | xargs grep -v '^[[:space:]]*$$' | wc -l
-	@echo "Pre code line count:"
-	@echo "20578"
+	@echo "Mine line count"
+	@echo $$(( $$(find . \( -name "*.c" -o -name "*.h" \) -exec cat {} + | awk 'NF > 0' | wc -l) - 20578 ))
 
 clean-tools = $(dir $(shell find ./tools -maxdepth 2 -mindepth 2 -name "Makefile"))
 $(clean-tools):
