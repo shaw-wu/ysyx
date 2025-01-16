@@ -477,7 +477,7 @@ static int eval(int st, int en, bool* illegal){
 					}
 					if(val1 == 0x80000000 && val2 == -1){
 						*illegal = true;
-						printf("Illegal expression : Dividion overflow!\n");
+						printf("Illegal expression : Division overflow!\n");
 						return 1;
 					}
 			    return val1 / val2;	
