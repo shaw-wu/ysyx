@@ -475,6 +475,11 @@ static int eval(int st, int en, bool* illegal){
 						return 1;
 						//assert(val2);
 					}
+					if(val1 == 0x80000000 && val2 == -1){
+						*illegal = true;
+						printf("Illegal expression : Dividion overflow!\n");
+						return 1;
+					}
 			    return val1 / val2;	
 				case TK_EQ : return val1 == val2;
 				case TK_INEQ : return val1 != val2; 
