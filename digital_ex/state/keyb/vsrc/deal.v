@@ -112,7 +112,8 @@ always @(posedge clk) begin
 	//{8'hf0, 8'hxx, 8'hf0, 8'hxx}, {8'hxx, k, 8'hf0, k}, {8'hxx, 8'hxx, 8'hxx, 8'hf0}
 	//分别表示为:
 	//松开a,松开b;松开a;松开a
-	if(((fifo_code[2] == fifo_code[0] || fifo_code[3] == 8'hf0) && fifo_code[1] == 8'hf0) || fifo_code[0] == 8'hf0) begin
+	//if(((fifo_code[2] == fifo_code[0] || fifo_code[3] == 8'hf0) && fifo_code[1] == 8'hf0) || fifo_code[0] == 8'hf0) begin
+	if(fifo_code[0] == 8'hf0 || fifo_code[1] == 8'hf0) begin
 		hex0 <= 7'b111_1111;
 		hex1 <= 7'b111_1111;
 		hex2 <= 7'b111_1111;
