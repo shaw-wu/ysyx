@@ -202,7 +202,7 @@ static int cmd_x(char *args) {
 		printf("0x%x : ", Addr);
 	  for(int i = 0; i < len; i++){
 			if(i){
-				printf("%15s","");
+				printf("%13s","");
 			}
 			word_t w;
 			for(int j = 3; j >= 0; j--){
