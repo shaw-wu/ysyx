@@ -127,7 +127,9 @@ static int cmd_si(char *args) {
 		}
 	}
 	else {
-		cpu_exec((uint64_t)*arg - 48);//0 - ASCII 48 
+		int n;
+		sscanf(arg, "%d", &n);
+		cpu_exec(n);
 	}
 	return 0;
 }
