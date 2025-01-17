@@ -157,7 +157,7 @@ static int cmd_info(char *args) {
 			printf("Num%12sType%15sDisp%2sEnb%3sAddress%12sWhat%2s\n", space, space, space, space, space, space);
 			WP *p = head;
 			while(p){
-				printf("%-15d%-19s%-6s%-6s%-19x%-6s\n"\
+				printf("%-15d%-19s%-6s%-6s0x%-19x%-6s\n"\
 						, p->NO \
 						, noh \
 						, noh \
@@ -202,7 +202,7 @@ static int cmd_x(char *args) {
 		printf("0x%x : ", Addr);
 	  for(int i = 0; i < len; i++){
 			if(i){
-				printf("%13s","");
+				printf("%15s","");
 			}
 			word_t w;
 			for(int j = 3; j >= 0; j--){
@@ -242,7 +242,7 @@ static int cmd_p(char *args) {
 	if(!suc) {
 		return 1;
 	}
-	printf("%s = %u\n", ex, result);
+	printf("%s = 0x%x\n", ex, result);
 
 	return 0;
 }
