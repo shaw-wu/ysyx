@@ -103,9 +103,13 @@ decoder dc4(
 );
 
 //键码缓冲fifo,用于表示按键状态
-reg [7:0] fifo_code[3:0];
+//reg [7:0] fifo_code[3:0];
+//always @(negedge nextdata_n) begin
+//	fifo_code <= {fifo_code[2], fifo_code[1], fifo_code[0], code};
+//end
+reg [7:0] fifo_code[1:0];
 always @(negedge nextdata_n) begin
-	fifo_code <= {fifo_code[2], fifo_code[1], fifo_code[0], code};
+	fifo_code <= {fifo_code[0], code};
 end
 
 always @(posedge clk) begin
