@@ -275,6 +275,7 @@ static int cmd_et(char *args) {
 		}
 		else{
 			fprintf(log, "%u != %s(=%u)\n", rp, ex, rt);
+			assert(0);
 		}
 	}
 	fclose(fp);
