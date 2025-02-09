@@ -127,7 +127,9 @@ static int cmd_si(char *args) {
 		}
 	}
 	else {
-		cpu_exec((uint64_t)*arg - 48);//0 - ASCII 48 
+		int n;
+		sscanf(arg, "%d", &n);
+		cpu_exec(n);
 	}
 	return 0;
 }
@@ -157,7 +159,7 @@ static int cmd_info(char *args) {
 			printf("Num%12sType%15sDisp%2sEnb%3sAddress%12sWhat%2s\n", space, space, space, space, space, space);
 			WP *p = head;
 			while(p){
-				printf("%-15d%-19s%-6s%-6s%-19x%-6s\n"\
+				printf("%-15d%-19s%-6s%-6s0x%-19x%-6s\n"\
 						, p->NO \
 						, noh \
 						, noh \
@@ -242,7 +244,7 @@ static int cmd_p(char *args) {
 	if(!suc) {
 		return 1;
 	}
-	printf("%s = %u\n", ex, result);
+	printf("%s = 0x%x\n", ex, result);
 
 	return 0;
 }
@@ -273,6 +275,7 @@ static int cmd_et(char *args) {
 		}
 		else{
 			fprintf(log, "%u != %s(=%u)\n", rp, ex, rt);
+			assert(0);
 		}
 	}
 	fclose(fp);

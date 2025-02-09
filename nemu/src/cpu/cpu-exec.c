@@ -52,6 +52,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 			return;
 		}
 		if(res[ind] != p->result){
+			//只有在运行状态(NEMU_RUNNING)下才会停下
 			if(nemu_state.state == NEMU_RUNNING){
 				nemu_state.state = NEMU_STOP;
 			}
@@ -61,8 +62,8 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 	}
 	for(int i = 0; i < ind; i++){
 		printf("\nwatch point %d : %s\n", temp[i]->NO, temp[i]->expr);
-		printf("\nOld value : %u\n", temp[i]->result);
-		printf("New value : %u\n", res[i]);//怎么定位行号?
+		printf("\nOld value : 0x%x\n", temp[i]->result);
+		printf("New value : 0x%x\n", res[i]);//怎么定位行号?
 		temp[i]->result = res[i];
 	}
 #endif

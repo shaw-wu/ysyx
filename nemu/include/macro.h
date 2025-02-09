@@ -29,6 +29,7 @@
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 
 // macro concatenation
+// 宏拼接,多级包装防止出现复杂情况无法正确预处理
 #define concat_temp(x, y) x ## y
 #define concat(x, y) concat_temp(x, y)
 #define concat3(x, y, z) concat(concat(x, y), z)
@@ -37,6 +38,7 @@
 
 // macro testing
 // See https://stackoverflow.com/questions/26099745/test-if-preprocessor-symbol-is-defined-inside-macro
+// 通过宏定义实现分支选择:contain_comma(见<__P_DEF>宏)自带逗号,选择a,否则选择b
 #define CHOOSE2nd(a, b, ...) b
 #define MUX_WITH_COMMA(contain_comma, a, b) CHOOSE2nd(contain_comma a, b)
 #define MUX_MACRO_PROPERTY(p, macro, a, b) MUX_WITH_COMMA(concat(p, macro), a, b)
@@ -46,6 +48,7 @@
 #define __P_ONE_1  X,
 #define __P_ZERO_0 X,
 // define some selection functions based on the properties of BOOLEAN macro
+// 对添加相应前缀对marco状态进行分支选择
 #define MUXDEF(macro, X, Y)  MUX_MACRO_PROPERTY(__P_DEF_, macro, X, Y)
 #define MUXNDEF(macro, X, Y) MUX_MACRO_PROPERTY(__P_DEF_, macro, Y, X)
 #define MUXONE(macro, X, Y)  MUX_MACRO_PROPERTY(__P_ONE_, macro, X, Y)
@@ -83,7 +86,9 @@
 // NOTE2: each element in the container can be a tuple
 #define MAP(c, f) c(f)
 
+//低位全1,1的位数为想要取的长度:hi-lo+1
 #define BITMASK(bits) ((1ull << (bits)) - 1)
+//右移后过滤
 #define BITS(x, hi, lo) (((x) >> (lo)) & BITMASK((hi) - (lo) + 1)) // similar to x[hi:lo] in verilog
 #define SEXT(x, len) ({ struct { int64_t n : len; } __x = { .n = x }; (uint64_t)__x.n; })
 

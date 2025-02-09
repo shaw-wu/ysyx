@@ -124,6 +124,23 @@ config CC_ASAN
   default n
 endmenu
 
+menu "Preprocess-only options"
+
+config CC_E_P
+	bool "Do not generate #line directives."
+	default y
+
+choice
+	prompt "Macros and source code"
+	default CC_E_dD
+config CC_E_dD
+	bool "Output all #define macros along with the preprocessed source code ."
+config CC_E_dM
+	bool "Only output all defined macros (#define), without showing the source code ."
+endchoice
+
+endmenu
+
 menu "Testing and Debugging"
 
 config WATCHPOINT

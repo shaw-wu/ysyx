@@ -30,10 +30,10 @@ void isa_reg_display() {
 	for(j = 0; j < 8; j++){
 		for(; i < (j + 1) * 4; i++){
 			if(strcmp(regs[i], "s10") == 0 || strcmp(regs[i], "s11") == 0) {
-				printf("%s : %-15u", regs[i], cpu.gpr[i]);
+				printf("%s : 0x%-15x", regs[i], cpu.gpr[i]);
 			}
 			else {
-				printf("%s  : %-15u", regs[i], cpu.gpr[i]);
+				printf("%s  : 0x%-15x", regs[i], cpu.gpr[i]);
 			}
 	}
 		printf("\n");

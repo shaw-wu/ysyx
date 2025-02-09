@@ -468,7 +468,7 @@ static int eval(int st, int en, bool* illegal){
 				case '*' : return val1 * val2;
 				case '/' : 
 					//除零时终止
-				  if(!val2){
+				  if(val2 == 0){
 						*illegal = true;
 						printf("Illegal expression : Divise 0!\n");
 						return 1;
