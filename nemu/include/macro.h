@@ -86,7 +86,9 @@
 // NOTE2: each element in the container can be a tuple
 #define MAP(c, f) c(f)
 
+//低位全1,1的位数为想要取的长度:hi-lo+1
 #define BITMASK(bits) ((1ull << (bits)) - 1)
+//右移后过滤
 #define BITS(x, hi, lo) (((x) >> (lo)) & BITMASK((hi) - (lo) + 1)) // similar to x[hi:lo] in verilog
 #define SEXT(x, len) ({ struct { int64_t n : len; } __x = { .n = x }; (uint64_t)__x.n; })
 

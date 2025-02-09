@@ -31,6 +31,7 @@ __attribute__((always_inline))
 static inline void pattern_decode(const char *str, int len,
     uint64_t *key, uint64_t *mask, uint64_t *shift) {
   uint64_t __key = 0, __mask = 0, __shift = 0;
+//macro64(i),从高位到低位依次匹配指令,__key关键字,__mask掩码,__shift转移码(末尾?数量)
 #define macro(i) \
   if ((i) >= len) goto finish; \
   else { \
@@ -54,6 +55,7 @@ static inline void pattern_decode(const char *str, int len,
   panic("pattern too long");
 #undef macro
 finish:
+	//去掉末尾?
   *key = __key >> __shift;
   *mask = __mask >> __shift;
   *shift = __shift;
