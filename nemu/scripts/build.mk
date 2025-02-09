@@ -25,13 +25,18 @@ INCLUDES = $(addprefix -I, $(INC_PATH))
 CFLAGS  := -O2 -MMD -Wall -Werror $(INCLUDES) $(CFLAGS)
 LDFLAGS := -O2 $(LDFLAGS)
 
-PREPROCESS_OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.i)
+PREPROCESS_OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.i) $(CXXSRC:%.cc=$(OBJ_DIR)/%.i)
+PREPROCESS_CFLAGS = -E $(if $(CONFIG_CC_E_P), -P,) $(if $(CONFIG_CC_E_dD), -dD,) $(if $(CONFIG_CC_E_dM), -dM,) 
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o) $(CXXSRC:%.cc=$(OBJ_DIR)/%.o)
 
 # Compilation patterns
 $(OBJ_DIR)/%.i: %.c
 	@mkdir -p $(dir $@)
-	@$(CC) -E $< -o $@
+	$(CC) $(PREPROCESS_CFLAGS) $(INCLUDES) $< -o $@
+
+$(OBJ_DIR)/%.i: %.cc
+	@mkdir -p $(dir $@)
+	$(CC) $(PREPROCESS_CFLAGS) $(INCLUDES) $< -o $@
 
 $(OBJ_DIR)/%.o: %.c
 	@echo + CC $<

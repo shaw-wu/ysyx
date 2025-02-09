@@ -118,14 +118,27 @@ config CC_DEBUG
   bool "Enable debug information"
   default n
 
-config CC_E
-	bool "Run the preprocessor only; do not compile, assemble or link."
-	default n
-
 config CC_ASAN
   depends on MODE_SYSTEM
   bool "Enable address sanitizer"
   default n
+endmenu
+
+menu "Preprocess-only options"
+
+config CC_E_P
+	bool "Do not generate #line directives."
+	default y
+
+choice
+	prompt "Macros and source code"
+	default CC_E_dD
+config CC_E_dD
+	bool "Output all #define macros along with the preprocessed source code ."
+config CC_E_dM
+	bool "Only output all defined macros (#define), without showing the source code ."
+endchoice
+
 endmenu
 
 menu "Testing and Debugging"
