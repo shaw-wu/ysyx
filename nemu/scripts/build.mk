@@ -25,9 +25,14 @@ INCLUDES = $(addprefix -I, $(INC_PATH))
 CFLAGS  := -O2 -MMD -Wall -Werror $(INCLUDES) $(CFLAGS)
 LDFLAGS := -O2 $(LDFLAGS)
 
+PREPROCESS_OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.i)
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o) $(CXXSRC:%.cc=$(OBJ_DIR)/%.o)
 
 # Compilation patterns
+$(OBJ_DIR)/%.i: %.c
+	@mkdir -p $(dir $@)
+	@$(CC) -E $< -o $@
+
 $(OBJ_DIR)/%.o: %.c
 	@echo + CC $<
 	@mkdir -p $(dir $@)
@@ -45,7 +50,7 @@ $(OBJ_DIR)/%.o: %.cc
 
 # Some convenient rules
 
-.PHONY: app clean
+.PHONY: app clean preonly
 
 app: $(BINARY)
 
@@ -55,3 +60,5 @@ $(BINARY):: $(OBJS) $(ARCHIVES)
 
 clean:
 	-rm -rf $(BUILD_DIR)
+
+preonly: $(PREPROCESS_OBJS)
