@@ -21,7 +21,7 @@
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
-#define JMPO(x) s->dnpc += (x - 4)
+#define JMPO(x) s->dnpc += (uint32_t)((int32_t)x - (int32_t)4)
 #define JMP(x) s->dnpc = x
 
 enum {
