@@ -136,6 +136,7 @@ static int cmd_si(char *args) {
 
 /*wxz*/
 static int cmd_info(char *args) {
+		printf("qaaa\n");
 	char* sub_cmd = strtok(NULL," ");//only first argument available.
 
   if (strcmp(sub_cmd, "r") == 0) {
@@ -171,7 +172,6 @@ static int cmd_info(char *args) {
 		}
 	}
 	else {
-		printf("qaaa\n");
     printf("%s - %s\n", cmd_table[4].name, cmd_table[4].description);
 	}
 	return 0;
