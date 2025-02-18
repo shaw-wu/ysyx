@@ -137,13 +137,14 @@ static int cmd_si(char *args) {
 /*wxz*/
 static int cmd_info(char *args) {
 	char* sub_cmd = strtok(NULL," ");//only first argument available.
-		printf("qaaa\n");
 
   if (strcmp(sub_cmd, "r") == 0) {
+		printf("qaaa\n");
 		//打印寄存器数组
 		isa_reg_display();
 	}
 	else if(strcmp(sub_cmd, "w") == 0){
+		printf("qaa\n");
 		//对监视点操作宏包装
 #ifndef CONFIG_WATCHPOINT
 		printf("Please config watchpoint option\n");
@@ -172,6 +173,7 @@ static int cmd_info(char *args) {
 		}
 	}
 	else {
+		printf("qa\n");
     printf("%s - %s\n", cmd_table[4].name, cmd_table[4].description);
 	}
 	return 0;
