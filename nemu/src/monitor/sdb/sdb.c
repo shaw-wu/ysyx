@@ -136,8 +136,8 @@ static int cmd_si(char *args) {
 
 /*wxz*/
 static int cmd_info(char *args) {
-		printf("qaaa\n");
 	char* sub_cmd = strtok(NULL," ");//only first argument available.
+		printf("qaaa\n");
 
   if (strcmp(sub_cmd, "r") == 0) {
 		//打印寄存器数组
