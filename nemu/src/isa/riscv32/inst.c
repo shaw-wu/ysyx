@@ -21,7 +21,7 @@
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
-#define SHIFT(x) s->dnpc = s->dnpc + ( x > 0x80000000 ? x - 0x100000000 : x) - 4
+#define SHIFT(x) s->dnpc += x - 4
 #define JMP(x) s->dnpc = x
 
 enum {
