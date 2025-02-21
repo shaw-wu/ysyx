@@ -54,7 +54,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 		printf("%x\n",s->pc + *imm);
 		printf("%x\n",i);
 		for(int p = 0; p < 12; p++){
-			uint32_t bit = *imm & (4096 >> p);
+			uint32_t bit = (*imm >> p) & 1;
 			printf("%d", bit);
 		}
 		printf("\n");
