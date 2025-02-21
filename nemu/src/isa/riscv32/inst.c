@@ -52,6 +52,11 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   }
 	if(type == TYPE_B){
 		printf("%x\n",s->pc + *imm);
+		for(int p = 0; p < 13; p++){
+			uint32_t bit = (i >> p) & 1;
+			printf("%d", bit);
+		}
+		printf("\n");
 		printf("%x\n",i);
 		for(int p = 0; p < 13; p++){
 			uint32_t bit = (*imm >> p) & 1;
