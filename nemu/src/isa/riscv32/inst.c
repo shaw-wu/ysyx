@@ -50,22 +50,6 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     case TYPE_B: src1R(); src2R(); immB(); break;
     case TYPE_R: src1R(); src2R()				 ; break;
   }
-	if(type == TYPE_B){
-		printf("%x\n",s->pc + *imm);
-		for(int p = 0; p < 32; p++){
-			uint32_t bit = (i >> p) & 1;
-			printf("%d", bit);
-		}
-		printf("\n");
-		printf("%x\n",i);
-		for(int p = 0; p < 13; p++){
-			uint32_t bit = (*imm >> p) & 1;
-			printf("%d", bit);
-		}
-		printf("\n");
-		printf("%d\n",*imm);
-	}
-	assert(1);
 }
 
 static int decode_exec(Decode *s) {
