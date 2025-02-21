@@ -52,7 +52,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   }
 	if(type == TYPE_B){
 		printf("%x\n",i);
-		printf("%u\n",*imm);
+		printf("%d\n",*imm);
 	}
 	assert(1);
 }
