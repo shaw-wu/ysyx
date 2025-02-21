@@ -21,7 +21,7 @@
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
-#define SHIFT(x) s->dnpc = s->pc + x
+#define SHIFT(x) s->dnpc = (uint32_t)((int32_t)s->pc + (int32_t)x)
 #define JMP(x) s->dnpc = x
 
 enum {
