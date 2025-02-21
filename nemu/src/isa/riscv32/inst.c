@@ -51,6 +51,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     case TYPE_R: src1R(); src2R()				 ; break;
   }
 	if(type == TYPE_B){
+		printf("%x\n",i);
 		printf("%u\n",*imm);
 	}
 	assert(1);
