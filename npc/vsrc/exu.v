@@ -1,6 +1,7 @@
 module ysyx_25010009_exu #(XLEN = 32, IMM_LEN = 32, RS_LEN = 5, OP_LEN = 7, TYPE_LEN = 3) (
-	input clk.
+	input clk,
 	input rst,
+	input [31:0] inst_code.
 	input [IMM_LEN-1:0] imm,
 	input [RS_LEN-1:0] rd,
 	input [RS_LEN-1:0] rs1,

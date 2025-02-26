@@ -14,7 +14,7 @@ module ysyx_25020009_idu #(XLEN = 32, NR_INST = 1, IMM_LEN = 32, RS_LEN = 5, OP_
 	input en
 );
 
-typedef enum wire [TYPE_LEN-1:0] {
+typedef enum [TYPE_LEN-1:0] {
 	TYPE_R : 0,
 	TYPE_I : 1,
 	TYPE_S : 2,
@@ -27,7 +27,7 @@ wire [IMM_LEN-1:0] _imm;
 wire [RS_LEN-1:0] _rd;
 wire [RS_LEN-1:0] _rs1;
 wire [RS_LEN-1:0] _rs2;
-wire [31:0] _inst_code,
+wire [31:0] _inst_code;
 wire _illegal;
 wire _unimpl;
 wire [31:0] inst_code_3;
@@ -123,7 +123,6 @@ ysyx_25020009_muxkeyWithdefault #(1, XLEN, 1) s3 (
 	.lut({32'h00000000, 1})
 );
 
-
 assign _inst_code = inst_code_3 | inst_code_7;
 assign type = _inst_code[31:29];
 
@@ -134,11 +133,8 @@ assign _imm = (type == TYPE_I) ? {(inst[31] ? 20'b1 : 20'b0), inst[31:20]} :
 						  (type == TYPE_U) ? {inst[31:12], 12'b0} :
 						  (type == TYPE_J) ? {inst[31], inst[19:12], inst[20], inst[30:21], 12'b0} :
 							32'b0;
-
-always @(*) begin
-	_rd = inst[11:7];
-	_rs1 = inst[19:15];
-	_rs2 = inst[24:20];
-	end
+assign _rd = inst[11:7];
+assign _rs1 = inst[19:15];
+assign _rs2 = inst[24:20];
 
 endmodule
