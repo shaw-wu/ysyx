@@ -1,4 +1,4 @@
-module ysyx_25010009_ALU #(XLEN = 32, AR_LEN = 5) (
+module ysyx_25010009_ALU #(XLEN = 32, AR_LEN = 4) (
 	input [AR_LEN-1:0] code,
 	input [XLEN-1:0] x1,
 	input [XLEN-1:0] x2,
@@ -32,30 +32,31 @@ assign xor_ = x1 ^ x2;
 assign sll  = x1 << x2[4:0] 
 assign srl  = x1 >> x2[4:0];
 assign sra  = $signed(x1) >>> x2[4:0];
+assign lt   = $signed(x1) < $signed(x2);
 assign ltu  = x1 < x2;
+assign ge   = $signed(x1) >= $signed(x2);
 assign geu  = x1 >= x2;
-assign ne   = x1 == x2;
-assign eq   = x1 != x2;
 
 ysyx_25010009_MuxKeyWithDefault #(1, AR_LEN, XLEN) i0 (
 	.out(res),
 	.key(code),
 	.default_out({XLEN{1'b0}}),
-	.lut({0'b00000, add,
-				0'b00001, sub,
-				0'b00010, mul,
-				0'b00011, div,
-				0'b00100, remu,
-				0'b00101, and_,
-				0'b00110, or_,
-				0'b00111, xor_,
-				0'b01000, sll,
-				0'b01001, srl,
-				0'b01010, sra,
-				0'b01011, ltu,
-				0'b01100, geu,
-				0'b01101, eq,
-				0'b01110, ne})
+	.lut({4'b0000, add,
+				4'b0001, sub,
+				4'b0010, mul,
+				4'b0011, div,
+				4'b0100, remu,
+				4'b0101, and_,
+				4'b0110, or_,
+				4'b0111, xor_,
+				4'b1000, sll,
+				4'b1001, srl,
+				4'b1010, sra,
+				4'b1011, lt,
+				4'b1100, ltu,
+				4'b1101, ge,
+				4'b1110, geu
+			)
 );
 
 endmodule
