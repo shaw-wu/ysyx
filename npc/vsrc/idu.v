@@ -1,14 +1,14 @@
-module ysyx_25020009_idu #(XLEN = 32, NR_INST = 1, IMM_LEN = 32, RS_LEN = 5, OP_LEN = 7, TYPE_LEN = 3, NR_FUNCT3 = 1, NR_FUNCT7 = 1) (
+module ysyx_25020009_idu #(XLEN = 32, CODE_LEN = 9, IMM_LEN = 32, RS_LEN = 5, OP_LEN = 7, TYPE_LEN = 3, NR_FUNCT3 = 1, NR_FUNCT7 = 1) (
 	input clk,
 	input rst,
 	input [XLEN-1:0] inst,
-	input [64*NR_FUNCT3] funct3_lut,
-	input [64*NR_FUNCT7] funct7_lut,
+	input [(XLEN + CODE_LEN)*NR_FUNCT3-1:0] funct3_lut,
+	input [(XLEN + CODE_LEN)*NR_FUNCT7-1:0] funct7_lut,
 	output [IMM_LEN-1:0] imm,
 	output [RS_LEN-1:0] rd,
 	output [RS_LEN-1:0] rs1,
 	output [RS_LEN-1:0] rs2,
-	output [31:0] inst_code,
+	output [CODE_LEN-1:0] inst_code,
 	output illegal,
 	output unimpl,
 	input en
@@ -27,15 +27,16 @@ wire [IMM_LEN-1:0] _imm;
 wire [RS_LEN-1:0] _rd;
 wire [RS_LEN-1:0] _rs1;
 wire [RS_LEN-1:0] _rs2;
-wire [31:0] _inst_code;
+wire [CODE_LEN-1:0] _inst_code;
 wire _illegal;
 wire _unimpl;
-wire [31:0] inst_code_3;
-wire [31:0] inst_code_7;
+wire [CODE_LEN-1:0] inst_code_3;
+wire [CODE_LEN-1:0] inst_code_7;
 type_t type;
 
 //输出信号时钟同步(imm,rd,rs1,rs2,inst_code,illegal,unimpl)
-Reg #(IMM_LEN, 32'b0) i0 (
+
+ysyx_25010009_Reg #(IMM_LEN, {IMM_LEN{1'b0}}) i0 (
 	.clk(clk),
 	.rst(rst),
 	.din(_imm),
@@ -43,7 +44,7 @@ Reg #(IMM_LEN, 32'b0) i0 (
 	.wen(en)
 );
 
-Reg #(RS_LEN, 5'b0) i1 (
+ysyx_25010009_Reg #(RS_LEN, {RS_LEN{1'b0}}) i1 (
 	.clk(clk),
 	.rst(rst),
 	.din(_rd),
@@ -51,7 +52,7 @@ Reg #(RS_LEN, 5'b0) i1 (
 	.wen(en)
 );
 
-Reg #(RS_LEN, 5'b0) i2 (
+ysyx_25010009_Reg #(RS_LEN, {RS_LEN{1'b0}}) i2 (
 	.clk(clk),
 	.rst(rst),
 	.din(_rs1),
@@ -59,7 +60,7 @@ Reg #(RS_LEN, 5'b0) i2 (
 	.wen(en)
 );
 
-Reg #(RS_LEN, 5'b0) i3 (
+ysyx_25010009_Reg #(RS_LEN, {RS_LEN{1'b0}}) i3 (
 	.clk(clk),
 	.rst(rst),
 	.din(_rs2),
@@ -67,7 +68,7 @@ Reg #(RS_LEN, 5'b0) i3 (
 	.wen(en)
 );
 
-Reg #(32, 32'b0) i4 (
+ysyx_25010009_Reg #(CODE_LEN, {CODE_LEN{1'b0}}) i4 (
 	.clk(clk),
 	.rst(rst),
 	.din(_inst_code),
@@ -75,7 +76,7 @@ Reg #(32, 32'b0) i4 (
 	.wen(en)
 );
 
-Reg #(1, 0) i5 (
+ysyx_25010009_Reg #(1, 0) i5 (
 	.clk(clk),
 	.rst(rst),
 	.din(_illegal),
@@ -83,7 +84,7 @@ Reg #(1, 0) i5 (
 	.wen(en)
 );
 
-Reg #(1, 0) i6 (
+ysyx_25010009_Reg #(1, 0) i6 (
 	.clk(clk),
 	.rst(rst),
 	.din(_unimpl),
@@ -94,33 +95,33 @@ Reg #(1, 0) i6 (
 //识别指令,使用两种不同类型的掩码funct7和funct3对指令进行位选,然后通过funct*_lut得到指令编码inst_code
 //illegal指示译码过程错误,unimpl指示指令未识别或未实现
 //type信息在指令编码高三位
-ysyx_25020009_MuxKeyWithDefault #(NR_FUNCT3, XLEN, 32) s0 (
+ysyx_25020009_MuxKeyWithDefault #(NR_FUNCT3, XLEN, CODE_LEN) s0 (
 	.out(inst_code_3),
 	.key(inst&32'h0000707f),
-	.default_out(32'b0),
+	.default_out({CODE_LEN{1'b0}}),
 	.lut(funct3_lut)
 );
 
-ysyx_25020009_MuxKeyWithDefault #(NR_FUNC7, XLEN, 32) s1 (
+ysyx_25020009_MuxKeyWithDefault #(NR_FUNC7, XLEN, CODE_LEN) s1 (
 	.out(inst_code_7),
 	.key(inst&32'hfe00707f),
-	.default_out(32'b0),
+	.default_out({CODE_LEN[1'b0]}),
 	.lut(funct7_lut)
 );
 
-ysyx_25020009_muxkeyWithdefault #(1, XLEN, 1) s2 (
+ysyx_25020009_muxkeyWithdefault #(2, CODE_LEN, 1) s2 (
 	.out(_illegal),
-	.key(inst_code_3|inst_code_7|{32{_unimpl}}),
+	.key(inst_code_3|inst_code_7),
 	.default_out(1),
 	.lut({inst_code_3, 0,
-				inst_code_7, 0,	})
+				inst_code_7, 0 })
 );
 
-ysyx_25020009_muxkeyWithdefault #(1, XLEN, 1) s3 (
+ysyx_25020009_muxkeyWithdefault #(1, CODE_LEN, 1) s3 (
 	.out(_unimpl),
 	.key(inst_code_3|inst_code_7),
 	.default_out(0),
-	.lut({32'h00000000, 1})
+	.lut({{CODE_LEN{1'b0}}, 1})
 );
 
 assign _inst_code = inst_code_3 | inst_code_7;
