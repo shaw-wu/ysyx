@@ -1,30 +1,35 @@
-module ysyx_25010009_ifu #(XLEN = 32, MBASE = 32'h80000000, PMEN = 32'b0) (
+module ysyx_25010009_ifu #(
+	parameter DATA_WIDTH = 32,
+	parameter ADDR_WIDTH = 32,
+	parameter PC_INIT    = 32'h8000_0000
+)(
 	input clk,
-	input rst.
-	input [XLEN-1:0] pc,
-	input [XLEN-1:0] data,
-	output [XLEN-1:0] haddr,
-	output [XLEN-1:0] inst,
-	output [XLEN-1:0] snpc,
-	input en
+	input rst,
+	//irom
+	input  [DATA_WIDTH-1:0] finst,
+	output [ADDR_WIDTH-1:0] addr,
+	//idu
+	output     [DATA_WIDTH-1:0] inst,
+	output reg [ADDR_WIDTH-1:0] pc  ,
+	output		 [ADDR_WIDTH-1:0] snpc,
+	input      [ADDR_WIDTH-1:0] dnpc,
+	//exu
+  /*verilator lint_off UNUSED*/
+	input									 is_RAW_control,
+	input [ADDR_WIDTH-1:0] exu_dnpc
 );
 
-wire [XLEN-1:0] _inst;
+always @(posedge clk or posedge rst) begin
+	if(rst) begin
+		pc <= PC_INIT;
+	end else begin
+		pc <= exu_dnpc;
+	end
+end
 
-ysyx_25010009_Reg #(XLEN, 32'h00000000) i0 (
-	.clk(clk),
-	.rst(rst),
-	.din(pc+4),
-	.dout(snpc),
-	.wen(en)
-);
+assign addr = pc;
 
-ysyx_25010009_Guest2Host #(XLEN, MBASE, PMEM) s0 (
-	.paddr(pc),
-  .haddr(haddr)
-);
-
-assign _inst = data;
-assign inst = _inst;
+assign inst = finst;
+assign dnpc = pc + 4;
 
 endmodule

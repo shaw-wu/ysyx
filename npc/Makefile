@@ -1,6 +1,6 @@
-TOP_NAME = topp
+TOP_NAME = ysyx_25010009_top
 NXDC_FILE = $(shell pwd)/constr/top.nxdc
-INC_PATH ?=
+INC_PATH = $(shell pwd)/sim/include
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += --cc --build --trace
@@ -17,6 +17,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILE)
 
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.cpp")
+CSRCS += $(shell find $(abspath ./sim/irom) -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
@@ -31,12 +32,6 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
 all: default
-
-#run: $(BIN)
-#	@$^
-#clean:
-#	rm -rf $(BUILD_DIR)
-#.PHONY----
 
 sim:$(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!

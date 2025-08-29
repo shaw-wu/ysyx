@@ -1,26 +1,29 @@
-`timescale 1ns/1ps
+`timescale 1ns /1ps
 module testbench;
-	reg [1:0] x;
-	reg e;
-	wire [3:0] y;
+/* verilator lint_off UNUSED*/
+reg [31:0] pc;
+reg [127:0] history;
+reg [31:0] history_length;
+wire [31:0] hash_pc_ghr;
 
-decode l(
-	.x(x),
-	.e(e),
-	.y(y)
+hash_pc_ghr h(
+    .pc						 (pc						 ),
+    .history			 (history			 ),
+    .history_length(history_length),
+		.hash_pc_ghr	 (hash_pc_ghr	 )
 );
 
 initial begin
-	e = 1;
-	$monitor("At time %0t: x = %b, e = %b, y = %b", $time, x, e, y);
-	#20 x = 2'b00;
-	#20 x = 2'b01;
-	#20 e = 0;
-	#20 x = 2'b10;
-	#20 e = 1;
-	#20 x = 2'b11;
-	#20 e = 0;
-	#100;
+	pc = 32'h800024ac;
+	history = 128'h65aa9555556;
+	history_length = 32'h20;
+	#1
+	pc = 32'h800024b0;
+	history = 128'h65aa9555556;
+	history_length = 32'h20;
+	#1
+	$finish;
 end
 
 endmodule
+

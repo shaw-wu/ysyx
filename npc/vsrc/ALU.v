@@ -1,62 +1,87 @@
-module ysyx_25010009_ALU #(XLEN = 32, AR_LEN = 4) (
-	input [AR_LEN-1:0] code,
-	input [XLEN-1:0] x1,
-	input [XLEN-1:0] x2,
-	output [XLEN-1:0] res
+`timescale 1ns / 1ps
+module ysyx_25010009_ALU #(
+	parameter DATA_WIDTH  = 32, 
+	parameter OPSEL_WIDTH = 4
+)(
+	input  [OPSEL_WIDTH-1:0] sel,
+	input  [DATA_WIDTH -1:0] ina,
+	input  [DATA_WIDTH -1:0] inb,
+	output [DATA_WIDTH -1:0] out
 );
 
-wire [XLEN-1:0] add;
-wire [XLEN-1:0] sub;
-wire [XLEN-1:0] mul;
-wire [XLEN-1:0] div;
-wire [XLEN-1:0] remu;
-wire [XLEN-1:0] and_;
-wire [XLEN-1:0] or_;
-wire [XLEN-1:0] xor_;
-wire [XLEN-1:0] sll;
-wire [XLEN-1:0] srl;
-wire [XLEN-1:0] sra;
-wire [XLEN-1:0] ltu;
-wire [XLEN-1:0] geu;
-wire [XLEN-1:0] eq;
-wire [XLEN-1:0] ne;
+wire [DATA_WIDTH-1:0] and_;
+wire [DATA_WIDTH-1:0] or_ ;
+wire [DATA_WIDTH-1:0] xor_;
+wire [DATA_WIDTH-1:0] eq  ;
+wire [DATA_WIDTH-1:0] ne  ;
+wire [DATA_WIDTH-1:0] lt  ;
+wire [DATA_WIDTH-1:0] ge  ;
+wire [DATA_WIDTH-1:0] ltu ;
+wire [DATA_WIDTH-1:0] geu ;
+wire [DATA_WIDTH-1:0] cla_out  ;
+wire [DATA_WIDTH-1:0] shift_out;
 
-assign add  = x1 + x2;
-assign sub  = x1 - x2;
-assign mul  = x1 * x2;
-assign div  = x1 / x2;
-assign remu = x1 % x2;
-assign and_ = x1 & x2;
-assign or_  = x1 | x2;
-assign xor_ = x1 ^ x2;
-assign sll  = x1 << x2[4:0] 
-assign srl  = x1 >> x2[4:0];
-assign sra  = $signed(x1) >>> x2[4:0];
-assign lt   = $signed(x1) < $signed(x2);
-assign ltu  = x1 < x2;
-assign ge   = $signed(x1) >= $signed(x2);
-assign geu  = x1 >= x2;
-
-ysyx_25010009_MuxKeyWithDefault #(1, AR_LEN, XLEN) i0 (
-	.out(res),
-	.key(code),
-	.default_out({XLEN{1'b0}}),
-	.lut({4'b0000, add,
-				4'b0001, sub,
-				4'b0010, mul,
-				4'b0011, div,
-				4'b0100, remu,
-				4'b0101, and_,
-				4'b0110, or_,
-				4'b0111, xor_,
-				4'b1000, sll,
-				4'b1001, srl,
-				4'b1010, sra,
-				4'b1011, lt,
-				4'b1100, ltu,
-				4'b1101, ge,
-				4'b1110, geu
-			)
+//shift
+wire [1:0] shift_sel;
+assign shift_sel = (sel == 4'b0110) ? 2'b01 :
+									 (sel == 4'b0111) ? 2'b10 :
+								   (sel == 4'b1000) ? 2'b11 :
+									 2'b00;	 
+ysyx_25010009_SHIFT shift_0(
+	.a    (ina      ),
+	.shamt(inb[4:0] ),
+	.sel  (shift_sel),
+	.out	(shift_out)
 );
+
+//cla
+wire [DATA_WIDTH-1:0] cla_a, cla_b;
+wire [DATA_WIDTH-1:0] cla_cout;
+wire									overflow;
+wire							    is_sub;
+wire								  cin;
+assign cla_a  = ina; 
+assign cla_b  = {DATA_WIDTH{is_sub}} ^ inb; 
+assign is_sub = (sel == 4'b0010) || (sel == 4'b1011) || 
+							  (sel == 4'b1100) || (sel == 4'b1101) || 
+							  (sel == 4'b1110); 
+assign cin    = is_sub;
+assign overflow = (ina[DATA_WIDTH-1] == cla_b[DATA_WIDTH-1]) && (cla_out[DATA_WIDTH-1] != ina[DATA_WIDTH-1]);
+ysyx_25010009_CLA cla_0(
+	.a   (cla_a   ),
+	.b   (cla_b   ),
+	.cin (cin     ),
+	.sum (cla_out ),
+	.cout(cla_cout)
+);
+
+assign and_ = ina & inb;
+assign or_  = ina | inb;
+assign xor_ = ina ^ inb;
+assign eq   = {{(DATA_WIDTH-1){1'b0}}, ~|(ina ^ inb)}; 
+assign ne   = {{(DATA_WIDTH-1){1'b0}},  |(ina ^ inb)};
+assign lt   =   cla_out[DATA_WIDTH-1] ^ overflow; 
+assign ge   = ~(cla_out[DATA_WIDTH-1] ^ overflow); 
+assign ltu  = ~ cla_cout; 
+assign geu  =   cla_cout; 
+
+reg [DATA_WIDTH-1:0] result;
+always @(*) begin
+	case(sel)
+		4'b0001, 4'b0010: result = cla_out;
+		4'b0011         : result = and_		;	
+		4'b0100         : result = or_		;	
+		4'b0101         : result = xor_   ;	
+		4'b0110, 4'b0111, 4'b1000: result = shift_out;	
+		4'b1001         : result = eq     ;	
+		4'b1010         : result = ne     ;	
+		4'b1011         : result = lt     ;	
+		4'b1100         : result = ge     ;	
+		4'b1101         : result = ltu    ;	
+		4'b1110         : result = geu    ;	
+		default: result = {DATA_WIDTH{1'b0}};
+	endcase
+end
+assign out = result;
 
 endmodule

@@ -1,3 +1,4 @@
+#include "irom.h"
 #include "Vtopp.h"
 #include "verilated.h"
 #include <stdio.h>
@@ -6,49 +7,67 @@
 #include "verilated_vcd_c.h"
 #include <nvboard.h>
 
+static int sim_time = 500000;
 static TOP_NAME dut;
 void nvboard_bind_all_pins(TOP_NAME* top);
 
-/*
+VerilatedContext* contextp = NULL; // 上下文变量
+VerilatedVcdC* tfp = NULL;         // 波形变量
+																	 //
+void sim_init(int argc, char** argv ){
+	contextp = new VerilatedContext;  
+	contextp->commandArgs(argc, argv);
+	top = new Vtestbench;                 
+	FILE *coe = fopen("/home/shaw/ysyx-workbench/npc/sim/irom/inst.coe", "r");
+	road_rom(coe);
+	fclose(coe);
+	#ifdef ENABLE_WAVEFORM
+		Verilated::traceEverOn(true);
+		tfp = new VerilatedVcdC;
+		top->trace(tfp, 99);
+		tfp->open("build/dump.vcd");
+	#endif
+	#ifdef ENABLE_NVBOARD
+	nvboard_bind_all_pins(&dut);
+	nvboard_init();
+	#endif
+}
+
 static void single_cycle() {
   dut.clk = 0; dut.eval();
   dut.clk = 1; dut.eval();
 }
-*/
+
+void main_loop(){
+	while(contextp->time() < sim_time && !contextp->gotFinish()){
+		contextp->timeInc(1);
+		single_cycle();
+		top->eval();
+	#ifdef ENABLE_WAVEFORM
+		tfp->dump(contextp->time());
+	#endif
+	#ifdef ENABLE_NVBOARD
+		nvboard_update();
+	#endif
+	}
+}
+
+void sim_exit(){
+#ifdef ENABLE_WAVEFORM
+	if(tfp){
+		tfp->close();
+		delete tfp;
+	}
+#endif
+#ifdef ENABLE_NVBOARD
+	nvboard_quit();
+	delete top;
+	delete contextp;
+}
 
 int main(int argc, char** argv) {
-  VerilatedContext* contextp = new VerilatedContext;
-  contextp->commandArgs(argc, argv);
-  Vtopp* top = new Vtopp{contextp};
-  
-	nvboard_bind_all_pins(&dut);
-	nvboard_init();
-
- /* VerilatedVcdC* tfp = new VerilatedVcdC;
-	contextp->traceEverOn(true);
-	top->trace(tfp, 0);
-	tfp->open("wave.vcd");
-	*/
-//	while (!contextp->gotFinish()) {
-	while (1) {
-		/*int a = rand() & 1;
-		int b = rand() & 1;
-		top->a = a;
-		top->b = b;
-		top->eval();
-//		printf("a = %d, b = %d ,f = %d\n", a, b, top->f);
-		
-		tfp->dump(contextp->time());
-		contextp->timeInc(1);
-
-		assert(top->f == (a ^ b));*/
-		//single_cycle();
-		dut.eval();
-		nvboard_update();
-	}
-	nvboard_quit();
-  delete top;
-	//tfp->close();
-  delete contextp;
+	sim_init(argc, argv);
+	main_loop();
+	sim_exit();
 	return 0;
 }
