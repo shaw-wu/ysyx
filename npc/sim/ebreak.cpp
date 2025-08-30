@@ -4,7 +4,7 @@
 #include <cassert>
 
 void is_ebreak(int ebreak){
-	assert(0);
+	assert(!ebreak);
   if(ebreak) stop_sim = 1; 
 	return;
 }
