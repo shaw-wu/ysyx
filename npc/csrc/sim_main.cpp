@@ -41,7 +41,9 @@ void sim_init(int argc, char** argv ){
 	#endif
 	for(int i = 0; i < RESET_TIME; i++){
 		single_cycle();
+		printf("clk:%d\n",dut->clk);
 		single_cycle();
+		printf("clk:%d\n",dut->clk);
 	}
 	dut->rst = 0;
 }
