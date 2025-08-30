@@ -1,4 +1,4 @@
-module SHIFT (
+module ysyx_25010009_SHIFT (
 	input [31:0] a    ,
 	input [4 :0] shamt,
 	input	[1 :0] sel	,
