@@ -26,9 +26,11 @@ void sim_init(int argc, char** argv ){
 	contextp->commandArgs(argc, argv);
 	dut = new Vysyx_25010009_top;                 
 	dut->rst = 1;
+
 	FILE *coe = fopen("/home/shaw/ysyx-workbench/npc/sim/irom/inst.coe", "r");
 	load_rom(coe);
 	fclose(coe);
+
 	#ifdef ENABLE_WAVEFORM
 		Verilated::traceEverOn(true);
 		tfp = new VerilatedVcdC;
@@ -39,17 +41,15 @@ void sim_init(int argc, char** argv ){
 	nvboard_bind_all_pins(dut);
 	nvboard_init();
 	#endif
-	for(int i = 0; i < RESET_TIME; i++){
-		single_cycle();
-		printf("clk:%d\n",dut->clk);
-	}
-	dut->rst = 0;
+
 }
 
 void main_loop(){
+	int i = 0;
 	while(contextp->time() < sim_time && !contextp->gotFinish()){
 		contextp->timeInc(1);
 		single_cycle();
+		if(i == RESET_TIME) dut->rst = 0;
 	#ifdef ENABLE_WAVEFORM
 		tfp->dump(contextp->time());
 	#endif
