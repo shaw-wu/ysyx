@@ -5,7 +5,7 @@
 static uint32_t ROM[ROM_SIZE];
 
 void load_rom(FILE *fp){
-	char line[9] = {};
+	char line[10] = {};
 	int i;
 	printf("0\n");
 	assert(fp);
