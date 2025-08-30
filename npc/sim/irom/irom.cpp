@@ -7,8 +7,7 @@ static uint32_t ROM[ROM_SIZE];
 void load_rom(FILE *fp){
 	char line[10] = {};
 	int i;
-	printf("0\n");
-	assert(fp);
+	printf("load coe\n");
 	while(fgets(line, sizeof(line), fp)){
 		uint32_t inst;
 		sscanf(line, "%08x", &inst);
