@@ -21,8 +21,9 @@ always @(posedge clk or posedge rst) begin
 		for(integer i = 1; i < DATA_WIDTH; i=i+1) begin
 			rf[i] = 32'b0;
 		end
+	end else begin
+		if (wen) rf[waddr] <= wdata;
 	end
-	if (wen) rf[waddr] <= wdata;
 end
 
 assign rdata1 = rf[raddr1];
