@@ -18,6 +18,7 @@ module ysyx_25010009_idu #(
 	input  [ADDR_WIDTH -1:0] snpc	  ,
 	input  [ADDR_WIDTH -1:0] dnpc	  ,
 	//exu
+	output                   exu_ebreak,
 	output [ADDR_WIDTH -1:0] exu_snpc,
 	output [ADDR_WIDTH -1:0] exu_dnpc,
 	output [ADDR_WIDTH -1:0] exu_pc	 ,
@@ -93,6 +94,7 @@ wire srl	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b00000
 wire sra	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0100000));//
 wire or_	 = ((opcode == 7'b0110011) && (funct3 == 3'b110) && (funct7 == 7'b0000000));//
 wire and_	 = ((opcode == 7'b0110011) && (funct3 == 3'b111) && (funct7 == 7'b0000000));//
+assign exu_ebreak = inst == 32'h00100073;
                                                                                       
 wire [FUNCT3_WIDTH-1:0] funct3;
 wire [FUNCT7_WIDTH-1:0] funct7;

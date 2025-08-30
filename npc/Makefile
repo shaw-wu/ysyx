@@ -19,6 +19,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILE)
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.cpp")
 CSRCS += $(shell find $(abspath ./sim/irom) -name "*.cpp")
+CSRCS += $(shell find $(abspath ./sim) -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
