@@ -9,7 +9,7 @@
 #define ENABLE_WAVEFORM
 #define RESET_TIME 10
 
-static int sim_time = 500000;
+static int sim_time = 5000;
 static TOP_NAME* dut;
 void nvboard_bind_all_pins(TOP_NAME* top);
 
