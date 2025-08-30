@@ -13,7 +13,7 @@ void load_rom(FILE *fp){
 		uint32_t inst;
 		sscanf(line, "%8x", &inst);
 		ROM[i++] = inst;
-	  printf("inst:%u, ROM[i]:%u\n", inst, ROM[i-1]);
+	  printf("inst:%8x, ROM[i]:%8x\n", inst, ROM[i-1]);
 	}
 	return;
 }
