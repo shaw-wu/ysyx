@@ -16,7 +16,12 @@ module ysyx_25010009_RegisterFile #(
 
 reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
+	if(rst) begin
+		for(integer i = 1; i < DATA_WIDTH; i=i+1) begin
+			rf[i] = 32'b0;
+		end
+	end
 	if (wen) rf[waddr] <= wdata;
 end
 
