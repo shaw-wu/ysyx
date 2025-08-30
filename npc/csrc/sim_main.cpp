@@ -17,26 +17,14 @@ VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
 																	 //
 static void single_cycle() {
-  dut->clk = 0; dut->eval();
-	#ifdef ENABLE_WAVEFORM
-		tfp->dump(contextp->time());
-	#endif
-	#ifdef ENABLE_NVBOARD
-		nvboard_update();
-	#endif
-  dut->clk = 1; dut->eval();
-	#ifdef ENABLE_WAVEFORM
-		tfp->dump(contextp->time());
-	#endif
-	#ifdef ENABLE_NVBOARD
-		nvboard_update();
-	#endif
+  dut->clk = ~dut->clk & 1; dut->eval();
 }
 
 void sim_init(int argc, char** argv ){
 	contextp = new VerilatedContext;  
 	contextp->commandArgs(argc, argv);
 	dut = new Vysyx_25010009_top;                 
+	dut->clk = 0;
 	dut->rst = 1;
 
 	FILE *coe = fopen("/home/shaw/ysyx-workbench/npc/sim/irom/inst.coe", "r");
@@ -63,6 +51,12 @@ void main_loop(){
 		single_cycle();
 		if(i < RESET_TIME) i++;
 		if(i == RESET_TIME) dut->rst = 0;
+	#ifdef ENABLE_WAVEFORM
+		tfp->dump(contextp->time());
+	#endif
+	#ifdef ENABLE_NVBOARD
+		nvboard_update();
+	#endif
 	}
 }
 
