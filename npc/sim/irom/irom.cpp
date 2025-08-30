@@ -17,7 +17,7 @@ void load_rom(FILE *fp){
 	return;
 }
 
-uint32_t read_irom(uint32_t vaddr){
+extern uint32_t read_irom(uint32_t vaddr){
 	printf("2\n");
 	uint32_t paddr = vaddr >> 2;	
 	return ROM[paddr];
