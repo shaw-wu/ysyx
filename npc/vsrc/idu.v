@@ -56,44 +56,44 @@ localparam FUNCT7_EN = 31;
 localparam TYPE_WIDTH = 3 ;
 
 //decode
-wire lui   =  (opcode == 7'b0110111)                        ;
-wire auipc =  (opcode == 7'b0010111)                        ;
-wire jal	 =  (opcode == 7'b1101111)                        ;
-wire jalr	 = ((opcode == 7'b1100111) && (funct3 == 3'b000)) ;
-wire beq	 = ((opcode == 7'b1100011) && (funct3 == 3'b000)) ;
-wire bne	 = ((opcode == 7'b1100011) && (funct3 == 3'b001)) ;
-wire blt	 = ((opcode == 7'b1100011) && (funct3 == 3'b100)) ;
-wire bge	 = ((opcode == 7'b1100011) && (funct3 == 3'b101)) ;
-wire bltu	 = ((opcode == 7'b1100011) && (funct3 == 3'b110)) ;
-wire bgeu	 = ((opcode == 7'b1100011) && (funct3 == 3'b111)) ;
-wire lb		 = ((opcode == 7'b0000011) && (funct3 == 3'b000)) ;
-wire lh		 = ((opcode == 7'b0000011) && (funct3 == 3'b001)) ;
-wire lw		 = ((opcode == 7'b0000011) && (funct3 == 3'b010)) ;
-wire lbu	 = ((opcode == 7'b0000011) && (funct3 == 3'b100)) ;
-wire lhu	 = ((opcode == 7'b0000011) && (funct3 == 3'b101)) ;
-wire sb		 = ((opcode == 7'b0100011) && (funct3 == 3'b000)) ;
-wire sh		 = ((opcode == 7'b0100011) && (funct3 == 3'b001)) ;
-wire sw		 = ((opcode == 7'b0100011) && (funct3 == 3'b010)) ;
+wire lui   =  (opcode == 7'b0110111)                        ;//
+wire auipc =  (opcode == 7'b0010111)                        ;//
+wire jal	 =  (opcode == 7'b1101111)                        ;//
+wire jalr	 = ((opcode == 7'b1100111) && (funct3 == 3'b000)) ;//
+wire beq	 = ((opcode == 7'b1100011) && (funct3 == 3'b000)) ;//
+wire bne	 = ((opcode == 7'b1100011) && (funct3 == 3'b001)) ;//
+wire blt	 = ((opcode == 7'b1100011) && (funct3 == 3'b100)) ;//
+wire bge	 = ((opcode == 7'b1100011) && (funct3 == 3'b101)) ;//
+wire bltu	 = ((opcode == 7'b1100011) && (funct3 == 3'b110)) ;//
+wire bgeu	 = ((opcode == 7'b1100011) && (funct3 == 3'b111)) ;//
+wire lb		 = ((opcode == 7'b0000011) && (funct3 == 3'b000)) ;//
+wire lh		 = ((opcode == 7'b0000011) && (funct3 == 3'b001)) ;//
+wire lw		 = ((opcode == 7'b0000011) && (funct3 == 3'b010)) ;//
+wire lbu	 = ((opcode == 7'b0000011) && (funct3 == 3'b100)) ;//
+wire lhu	 = ((opcode == 7'b0000011) && (funct3 == 3'b101)) ;//
+wire sb		 = ((opcode == 7'b0100011) && (funct3 == 3'b000)) ;//
+wire sh		 = ((opcode == 7'b0100011) && (funct3 == 3'b001)) ;//
+wire sw		 = ((opcode == 7'b0100011) && (funct3 == 3'b010)) ;//
 wire addi	 = ((opcode == 7'b0010011) && (funct3 == 3'b000)) ;
-wire slti	 = ((opcode == 7'b0010011) && (funct3 == 3'b010)) ;
-wire sltiu = ((opcode == 7'b0010011) && (funct3 == 3'b011)) ;
-wire xori	 = ((opcode == 7'b0010011) && (funct3 == 3'b100)) ;
-wire ori	 = ((opcode == 7'b0010011) && (funct3 == 3'b110)) ;
-wire andi	 = ((opcode == 7'b0010011) && (funct3 == 3'b111)) ;
-wire slli  = ((opcode == 7'b0010011) && (funct3 == 3'b001) && (funct7 == 7'b0000000));
-wire srli  = ((opcode == 7'b0010011) && (funct3 == 3'b101) && (funct7 == 7'b0000000));
-wire srai	 = ((opcode == 7'b0010011) && (funct3 == 3'b101) && (funct7 == 7'b0100000));
-wire add	 = ((opcode == 7'b0110011) && (funct3 == 3'b000) && (funct7 == 7'b0000000));
-wire sub	 = ((opcode == 7'b0110011) && (funct3 == 3'b000) && (funct7 == 7'b0100000));
-wire sll	 = ((opcode == 7'b0110011) && (funct3 == 3'b001) && (funct7 == 7'b0000000));
-wire slt	 = ((opcode == 7'b0110011) && (funct3 == 3'b010) && (funct7 == 7'b0000000));
-wire sltu	 = ((opcode == 7'b0110011) && (funct3 == 3'b011) && (funct7 == 7'b0000000));
-wire xor_	 = ((opcode == 7'b0110011) && (funct3 == 3'b100) && (funct7 == 7'b0000000));
-wire srl	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0000000));
-wire sra	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0100000));
-wire or_	 = ((opcode == 7'b0110011) && (funct3 == 3'b110) && (funct7 == 7'b0000000));
-wire and_	 = ((opcode == 7'b0110011) && (funct3 == 3'b111) && (funct7 == 7'b0000000));
-
+wire slti	 = ((opcode == 7'b0010011) && (funct3 == 3'b010)) ;//
+wire sltiu = ((opcode == 7'b0010011) && (funct3 == 3'b011)) ;//
+wire xori	 = ((opcode == 7'b0010011) && (funct3 == 3'b100)) ;//
+wire ori	 = ((opcode == 7'b0010011) && (funct3 == 3'b110)) ;//
+wire andi	 = ((opcode == 7'b0010011) && (funct3 == 3'b111)) ;//
+wire slli  = ((opcode == 7'b0010011) && (funct3 == 3'b001) && (funct7 == 7'b0000000));//
+wire srli  = ((opcode == 7'b0010011) && (funct3 == 3'b101) && (funct7 == 7'b0000000));//
+wire srai	 = ((opcode == 7'b0010011) && (funct3 == 3'b101) && (funct7 == 7'b0100000));//
+wire add	 = ((opcode == 7'b0110011) && (funct3 == 3'b000) && (funct7 == 7'b0000000));//
+wire sub	 = ((opcode == 7'b0110011) && (funct3 == 3'b000) && (funct7 == 7'b0100000));//
+wire sll	 = ((opcode == 7'b0110011) && (funct3 == 3'b001) && (funct7 == 7'b0000000));//
+wire slt	 = ((opcode == 7'b0110011) && (funct3 == 3'b010) && (funct7 == 7'b0000000));//
+wire sltu	 = ((opcode == 7'b0110011) && (funct3 == 3'b011) && (funct7 == 7'b0000000));//
+wire xor_	 = ((opcode == 7'b0110011) && (funct3 == 3'b100) && (funct7 == 7'b0000000));//
+wire srl	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0000000));//
+wire sra	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0100000));//
+wire or_	 = ((opcode == 7'b0110011) && (funct3 == 3'b110) && (funct7 == 7'b0000000));//
+wire and_	 = ((opcode == 7'b0110011) && (funct3 == 3'b111) && (funct7 == 7'b0000000));//
+                                                                                      
 wire [FUNCT3_WIDTH-1:0] funct3;
 wire [FUNCT7_WIDTH-1:0] funct7;
 wire [OPCODE_WIDTH-1:0] opcode;
