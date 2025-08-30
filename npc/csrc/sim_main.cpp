@@ -50,7 +50,7 @@ void main_loop(){
 		contextp->timeInc(1);
 		single_cycle();
 		printf("i = %d\n", i);
-		if(i == RESET_TIME) dut->rst = 0;
+		if(i++ == RESET_TIME) dut->rst = 0;
 	#ifdef ENABLE_WAVEFORM
 		tfp->dump(contextp->time());
 	#endif
