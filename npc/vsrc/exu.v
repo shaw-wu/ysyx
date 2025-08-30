@@ -83,4 +83,6 @@ assign lsu_memwr	= memwr ;
 assign lsu_memre  = memre ;
 assign lsu_regwr  = regwr ;
 
+assign lsu_ebreak = ebreak;
+
 endmodule
