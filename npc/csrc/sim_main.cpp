@@ -18,7 +18,19 @@ VerilatedVcdC* tfp = NULL;         // 波形变量
 																	 //
 static void single_cycle() {
   dut->clk = 0; dut->eval();
+	#ifdef ENABLE_WAVEFORM
+		tfp->dump(contextp->time());
+	#endif
+	#ifdef ENABLE_NVBOARD
+		nvboard_update();
+	#endif
   dut->clk = 1; dut->eval();
+	#ifdef ENABLE_WAVEFORM
+		tfp->dump(contextp->time());
+	#endif
+	#ifdef ENABLE_NVBOARD
+		nvboard_update();
+	#endif
 }
 
 void sim_init(int argc, char** argv ){
@@ -49,15 +61,8 @@ void main_loop(){
 	while(contextp->time() < sim_time && !contextp->gotFinish()){
 		contextp->timeInc(1);
 		single_cycle();
-		printf("i = %d\n", i);
 		if(i < RESET_TIME) i++;
 		if(i == RESET_TIME) dut->rst = 0;
-	#ifdef ENABLE_WAVEFORM
-		tfp->dump(contextp->time());
-	#endif
-	#ifdef ENABLE_NVBOARD
-		nvboard_update();
-	#endif
 	}
 }
 
