@@ -17,14 +17,14 @@ VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
 																	 //
 static void single_cycle() {
-  dut->clk = ~dut->clk; dut->eval();
+  dut->clk = 0; dut->eval();
+  dut->clk = 1; dut->eval();
 }
 
 void sim_init(int argc, char** argv ){
 	contextp = new VerilatedContext;  
 	contextp->commandArgs(argc, argv);
 	dut = new Vysyx_25010009_top;                 
-	dut->clk = 0;
 	dut->rst = 1;
 	FILE *coe = fopen("/home/shaw/ysyx-workbench/npc/sim/irom/inst.coe", "r");
 	load_rom(coe);
@@ -42,8 +42,6 @@ void sim_init(int argc, char** argv ){
 	for(int i = 0; i < RESET_TIME; i++){
 		single_cycle();
 		printf("clk:%d\n",dut->clk);
-		single_cycle();
-		printf("clk:%d\n",dut->clk);
 	}
 	dut->rst = 0;
 }
@@ -51,7 +49,6 @@ void sim_init(int argc, char** argv ){
 void main_loop(){
 	while(contextp->time() < sim_time && !contextp->gotFinish()){
 		contextp->timeInc(1);
-		single_cycle();
 		single_cycle();
 		dut->eval();
 	#ifdef ENABLE_WAVEFORM
