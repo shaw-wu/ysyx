@@ -11,9 +11,10 @@ void load_rom(FILE *fp){
 	assert(fp);
 	while(fgets(line, sizeof(line), fp)){
 		uint32_t inst;
+	  printf("0%u\n", ROM[i]);
 		sscanf(line, "%8x", &inst);
+	  printf("1%u\n", ROM[i]);
 		ROM[i++] = inst;
-	  printf("%u\n", ROM[i]);
 	}
 	return;
 }
