@@ -15,6 +15,7 @@ void load_rom(FILE *fp){
 		sscanf(line, "%8x", &inst);
 	  printf("1%u\n", ROM[i]);
 		ROM[i++] = inst;
+	  printf("2%u\n", ROM[i]);
 	}
 	return;
 }
