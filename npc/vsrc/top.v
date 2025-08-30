@@ -4,10 +4,13 @@ module ysyx_25010009_top #(
 	parameter ADDR_WIDTH   = 32, 
 	parameter DATA_WIDTH   = 32,
 	parameter RS_WIDTH     = 5 , 
+	parameter FUNCT3_WIDTH = 3 , 
+	parameter FUNCT7_WIDTH = 7 , 
 	parameter OPCODE_WIDTH = 7 , 
 	parameter OPSEL_WIDTH  = 4 ,
 	parameter OPMUX_WIDTH  = 4 ,
-	parameter PCMUX_WIDTH  = 2 
+	parameter PCMUX_WIDTH  = 2 ,
+	parameter INST_BITS		 = 6 
 )(
 	input clk,
 	input rst,
@@ -46,14 +49,15 @@ wire exu_lsu_memwr 	;
 wire exu_lsu_memre 	;
 wire exu_wbu_regwr 	;
 wire [ADDR_WIDTH-1:0] exu_lsu_paddr  ;
-wire [RS_WIDTH-1:0  ] exu_wbu_gpr_rd ;
-wire [DATA_WIDTH-1:0] exu_wbu_gpr_res;
+wire [RS_WIDTH-1:0  ] exu_wbu_rd ;
+wire [DATA_WIDTH-1:0] exu_wbu_res;
+wire [ADDR_WIDTH-1:0] exu_dnpc;
 
 wire [RS_WIDTH  -1:0] wbu_rf_rd	  ;		 
 wire [DATA_WIDTH-1:0] wbu_rf_wdata;	 
 wire wbu_rf_wen; 	 
 
-ysyx_25010009_idu #(
+ysyx_25010009_ifu #(
 	.DATA_WIDTH(DATA_WIDTH),
 	.ADDR_WIDTH(ADDR_WIDTH),
 	.PC_INIT	 (PC_INIT		)
@@ -66,17 +70,20 @@ ysyx_25010009_idu #(
 	.pc		(ifu_idu_pc	 ),
 	.snpc (ifu_idu_snpc),
 	.dnpc (ifu_idu_dnpc),
-	.is_RAW_control(),
-	.exu_dnpc()
+	.is_RAW_control(1'b0),
+	.exu_dnpc(exu_dnpc )
 );
 
 ysyx_25010009_idu #(
 	.ADDR_WIDTH  (ADDR_WIDTH  ), 
 	.DATA_WIDTH  (DATA_WIDTH  ),
 	.RS_WIDTH    (RS_WIDTH    ), 
+	.FUNCT3_WIDTH(FUNCT3_WIDTH), 
+	.FUNCT7_WIDTH(FUNCT7_WIDTH), 
 	.OPCODE_WIDTH(OPCODE_WIDTH), 
 	.OPSEL_WIDTH (OPSEL_WIDTH ),
 	.OPMUX_WIDTH (OPMUX_WIDTH ),
+	.INST_BITS	 (INST_BITS		),
 	.PCMUX_WIDTH (PCMUX_WIDTH )
 ) IDU (
 	.clk		 (clk						 ),
@@ -127,16 +134,16 @@ ysyx_25010009_exu #(
 	.is_jal 			(idu_exu_is_jal 			),
 	.is_jalr			(idu_exu_is_jalr			),
 	.is_bxx 			(idu_exu_is_bxx 			),
-	.isRAW_control(idu_exu_isRAW_control),
-	.exu_dnpc			(idu_exu_dnpc					),
+	.isRAW_control(             				),
+	.exu_dnpc			(exu_dnpc						  ),
 	.lsu_pc		 		(exu_lsu_pc		 				),
 	.lsu_mwdata		(exu_lsu_mwdata				),
 	.lsu_memwr 		(exu_lsu_memwr 				),
 	.lsu_memre 		(exu_lsu_memre 				),
 	.lsu_regwr 		(exu_wbu_regwr 				),	
 	.paddr     		(exu_lsu_paddr    		),
-	.gpr_rd		 		(exu_wbu_gpr_rd				),
-	.gpr_res   		(exu_wbu_gpr_res  		)
+	.gpr_rd		 		(exu_wbu_rd						),
+	.gpr_res   		(exu_wbu_res  				)
 );
 
 ysyx_25010009_wbu #(
@@ -149,7 +156,7 @@ ysyx_25010009_wbu #(
 	.pc		   (exu_lsu_pc		 ),
 	.regwr   (exu_wbu_regwr	 ),	
 	.rd		   (exu_wbu_rd		 ),
-	.gpr_res (exu_wbu_gpr_res),  
+	.gpr_res (exu_wbu_res		 ),  
 	.rf_rd	 (wbu_rf_rd			 ),
 	.rf_wdata(wbu_rf_wdata	 ),
 	.rf_wen  (wbu_rf_wen  	 )

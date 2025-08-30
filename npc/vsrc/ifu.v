@@ -12,7 +12,7 @@ module ysyx_25010009_ifu #(
 	output     [DATA_WIDTH-1:0] inst,
 	output reg [ADDR_WIDTH-1:0] pc  ,
 	output		 [ADDR_WIDTH-1:0] snpc,
-	input      [ADDR_WIDTH-1:0] dnpc,
+	output     [ADDR_WIDTH-1:0] dnpc,
 	//exu
   /*verilator lint_off UNUSED*/
 	input									 is_RAW_control,
@@ -30,6 +30,7 @@ end
 assign addr = pc;
 
 assign inst = finst;
+assign snpc = pc + 4;
 assign dnpc = pc + 4;
 
 endmodule

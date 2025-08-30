@@ -1,14 +1,15 @@
 #include "irom.h"
-#include "Vtopp.h"
+#include "Vysyx_25010009_top.h"
 #include "verilated.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "verilated_vcd_c.h"
 #include <nvboard.h>
+#define ENABLE_WAVEFORM
 
 static int sim_time = 500000;
-static TOP_NAME dut;
+static TOP_NAME* dut;
 void nvboard_bind_all_pins(TOP_NAME* top);
 
 VerilatedContext* contextp = NULL; // 上下文变量
@@ -17,32 +18,32 @@ VerilatedVcdC* tfp = NULL;         // 波形变量
 void sim_init(int argc, char** argv ){
 	contextp = new VerilatedContext;  
 	contextp->commandArgs(argc, argv);
-	top = new Vtestbench;                 
+	dut = new Vysyx_25010009_top;                 
 	FILE *coe = fopen("/home/shaw/ysyx-workbench/npc/sim/irom/inst.coe", "r");
-	road_rom(coe);
+	load_rom(coe);
 	fclose(coe);
 	#ifdef ENABLE_WAVEFORM
 		Verilated::traceEverOn(true);
 		tfp = new VerilatedVcdC;
-		top->trace(tfp, 99);
+		dut->trace(tfp, 99);
 		tfp->open("build/dump.vcd");
 	#endif
 	#ifdef ENABLE_NVBOARD
-	nvboard_bind_all_pins(&dut);
+	nvboard_bind_all_pins(dut);
 	nvboard_init();
 	#endif
 }
 
 static void single_cycle() {
-  dut.clk = 0; dut.eval();
-  dut.clk = 1; dut.eval();
+  dut->clk = 0; dut->eval();
+  dut->clk = 1; dut->eval();
 }
 
 void main_loop(){
 	while(contextp->time() < sim_time && !contextp->gotFinish()){
 		contextp->timeInc(1);
 		single_cycle();
-		top->eval();
+		dut->eval();
 	#ifdef ENABLE_WAVEFORM
 		tfp->dump(contextp->time());
 	#endif
@@ -61,7 +62,8 @@ void sim_exit(){
 #endif
 #ifdef ENABLE_NVBOARD
 	nvboard_quit();
-	delete top;
+#endif
+	delete dut;
 	delete contextp;
 }
 

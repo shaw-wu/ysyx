@@ -2,9 +2,12 @@ module ysyx_25010009_idu #(
 	parameter ADDR_WIDTH   = 32, 
 	parameter DATA_WIDTH   = 32,
 	parameter RS_WIDTH     = 5 , 
+	parameter FUNCT3_WIDTH = 3 ,
+	parameter FUNCT7_WIDTH = 7 ,
 	parameter OPCODE_WIDTH = 7 , 
 	parameter OPSEL_WIDTH  = 4 ,
 	parameter OPMUX_WIDTH  = 4 ,
+	parameter	INST_BITS    = 6 ,
 	parameter PCMUX_WIDTH  = 2 
 ) (
 	input clk,
@@ -37,6 +40,7 @@ module ysyx_25010009_idu #(
   input  [DATA_WIDTH -1:0] rf_src2
 );
 
+
 localparam OPCODE_ST = 0;
 localparam OPCODE_EN = 6;
 localparam RD_ST     = 7;
@@ -50,7 +54,6 @@ localparam RS2_EN    = 24;
 localparam FUNCT7_ST = 25;
 localparam FUNCT7_EN = 31;
 localparam TYPE_WIDTH = 3 ;
-localparam INST_BITS  = clog2(INST_NUM);
 
 //decode
 wire [INST_BITS-1:0] decode_inst;
@@ -127,7 +130,7 @@ assign imm = (Type == TYPE_I) ? {{21{inst[31]}}, inst[30:25], inst[24:21], inst[
 						 (Type == TYPE_U) ? {inst[31:12]   , 12'b0                                       } :
 						 (Type == TYPE_J) ? {{12{inst[31]}}, inst[19:12], inst[20   ], inst[30:21], 1'b0 } :
 							32'b0;
-assign shamt = inst[RS2_EN:RS2_ST];
+assign shamt = {{(DATA_WIDTH-RS_WIDTH){1'b0}}, inst[RS2_EN:RS2_ST]};
 
 //opmux/opsel
 wire [OPMUX_WIDTH-1:0] opmux;
@@ -163,27 +166,40 @@ assign opsel = ((decode_inst == 6'd1 ) && (decode_inst == 6'd2 ) &&
 							   4'b0000;//+
 
 //src1/src2
-generate
-	if (opmux == 4'b0001) begin : rs1_rs2
-		assign src1 = rf_src1;
-		assign src2 = rf_src2;
-	end else if (opmux == 4'b0010) begin : rs1_imm
-		assign src1 = rf_src1;
-		assign src2 = imm;
-	end else if (opmux == 4'b0011) begin : pc_imm 
-		assign src1 = pc;
-		assign src2 = imm;
-	end else if (opmux == 4'b0100) begin : rs1_shamt 
-		assign src1 = rf_src1;
-		assign src2 = shamt;
-	end else if (opmux == 4'b0101) begin : imm_0
-		assign src1 = imm;
-		assign src2 = 32'd0;
-	end else begin : defult
-		assign src1 = 32'd0;
-	  assign src2 = 32'd0;
-	end	
-endgenerate
+reg [DATA_WIDTH -1:0] wire_src1;
+reg [DATA_WIDTH -1:0] wire_src2;
+
+always @(*) begin
+	case(opmux) 
+		4'b0001 : begin 
+			wire_src1 = rf_src1;
+			wire_src2 = rf_src2;
+		end
+		4'b0010 : begin
+			wire_src1 = rf_src1;
+			wire_src2 = imm;
+		end 
+		4'b0011 : begin 
+			wire_src1 = pc;
+			wire_src2 = imm;
+		end
+		4'b0100 : begin 
+			wire_src1 = rf_src1;
+			wire_src2 = shamt;
+		end 
+		4'b0101 : begin
+			wire_src1 = imm;
+			wire_src2 = 32'd0;
+		end 
+		default : begin
+			wire_src1 = 32'd0;
+	  	wire_src2 = 32'd0;
+		end
+	endcase
+end
+
+assign src1 = wire_src1;
+assign src2 = wire_src2;
 
 //other output signal
 assign rs1 = inst[RS1_EN:RS1_ST];
@@ -192,10 +208,10 @@ assign rd  = inst[RD_EN : RD_ST];
 assign is_jalr  = (decode_inst == 6'd4);
 assign is_jal   = (decode_inst == 6'd3);
 assign is_bxx   = ((decode_inst >= 6'd5 ) && (decode_inst <= 6'd10));
-assign mwdata = rf_scr2;
-assign memwr = ((decode_inst >= 16) && (decode_inst <= 18)) ? 1 : 0;
-assign memwr = ((decode_inst >= 11) && (decode_inst <= 15)) ? 1 : 0;
-assign regwr = ((decode_inst == 6'd1) && (decode_isnt == 6'd2)) ? 1 : 
+assign mwdata = rf_src2;
+assign memwr = ((decode_inst >= 15) && (decode_inst <= 18)) ? 1 : 0;
+assign memre = ((decode_inst >= 11) && (decode_inst <= 15)) ? 1 : 0;
+assign regwr = ((decode_inst == 6'd1) && (decode_inst == 6'd2)) ? 1 : 
 							 0; 
 
 assign exu_pc   = pc;

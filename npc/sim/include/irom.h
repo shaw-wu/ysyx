@@ -1,6 +1,9 @@
 #ifndef IROM_H
 #define IROM_H
 
+#include <stdint.h>
+#include <stdio.h>
+
 #define ROM_SIZE 1024
 #define ADDR_WIDTH 10
 
