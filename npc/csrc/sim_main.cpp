@@ -20,6 +20,7 @@ void sim_init(int argc, char** argv ){
 	contextp->commandArgs(argc, argv);
 	dut = new Vysyx_25010009_top;                 
 	FILE *coe = fopen("/home/shaw/ysyx-workbench/npc/sim/irom/inst.coe", "r");
+	assert(coe);
 	load_rom(coe);
 	fclose(coe);
 	#ifdef ENABLE_WAVEFORM
