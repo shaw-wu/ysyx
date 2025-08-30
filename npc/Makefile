@@ -36,7 +36,10 @@ all: default
 sim:$(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$^
-clean_bd:
-	rm -rf $(BUILD_DIR)
+cleansim:
+	@rm -rf $(BUILD_DIR)
+	@mkdir $(BUILD_DIR)
+wave:
+	@gtkwave $(BUILD_DIR)/dump.vcd
 .PHONY: default all sim clean_bd
 include ../Makefile

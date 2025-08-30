@@ -7,6 +7,7 @@
 #include "verilated_vcd_c.h"
 #include <nvboard.h>
 #define ENABLE_WAVEFORM
+#define RESET_TIME 10
 
 static int sim_time = 500000;
 static TOP_NAME* dut;
@@ -15,12 +16,17 @@ void nvboard_bind_all_pins(TOP_NAME* top);
 VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
 																	 //
+static void single_cycle() {
+  dut->clk = ~dut->clk; dut->eval();
+}
+
 void sim_init(int argc, char** argv ){
 	contextp = new VerilatedContext;  
 	contextp->commandArgs(argc, argv);
 	dut = new Vysyx_25010009_top;                 
+	dut->clk = 0;
+	dut->rst = 1;
 	FILE *coe = fopen("/home/shaw/ysyx-workbench/npc/sim/irom/inst.coe", "r");
-	assert(coe);
 	load_rom(coe);
 	fclose(coe);
 	#ifdef ENABLE_WAVEFORM
@@ -33,11 +39,8 @@ void sim_init(int argc, char** argv ){
 	nvboard_bind_all_pins(dut);
 	nvboard_init();
 	#endif
-}
-
-static void single_cycle() {
-  dut->clk = 0; dut->eval();
-  dut->clk = 1; dut->eval();
+	for(int i = 0; i < RESET_TIME; i++) single_cycle();
+	dut->rst = 0;
 }
 
 void main_loop(){
