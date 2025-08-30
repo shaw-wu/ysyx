@@ -7,6 +7,7 @@ module ysyx_25010009_exu #(
 	input clk,
 	input rst,
 	//idu
+	input										 ebreak	,
 	input  [ADDR_WIDTH -1:0] dnpc   ,
 	input  [ADDR_WIDTH -1:0] pc     ,
 	input  [DATA_WIDTH -1:0] imm    ,
@@ -26,6 +27,7 @@ module ysyx_25010009_exu #(
 	output								   isRAW_control,
 	output [ADDR_WIDTH -1:0] exu_dnpc ,
 	//lsu
+	output	 								 lsu_ebreak,
 	output [ADDR_WIDTH -1:0] lsu_pc		 ,
 	output [DATA_WIDTH -1:0] lsu_mwdata,
 	output	 								 lsu_memwr ,
@@ -80,5 +82,7 @@ assign lsu_mwdata = mwdata;
 assign lsu_memwr	= memwr ;
 assign lsu_memre  = memre ;
 assign lsu_regwr  = regwr ;
+
+assign lsu_ebreak = ebreak;
 
 endmodule

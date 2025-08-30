@@ -1,20 +1,26 @@
-#include "Vysyx_25010009_top__Dpi.h"
+#include <svdpi.h>
+#include <Vysyx_25010009_top__Dpi.h>
 #include "irom.h"
+#include <cassert>
 
-static uint32_t ROM[ROM_SIZE];
+static int ROM[ROM_SIZE];
 
 void load_rom(FILE *fp){
-	char line[8] = {};
+	char line[10] = {};
 	int i;
+	//printf("load coe\n");
 	while(fgets(line, sizeof(line), fp)){
-		uint32_t inst;
-		sscanf(line, "%8x", &inst);
+		int inst;
+		sscanf(line, "%08x", &inst);
 		ROM[i++] = inst;
+	  //printf("inst:%08x, ROM[%d]:%08x\n", inst, i-1, ROM[i-1]);
 	}
 	return;
 }
 
-uint32_t read_irom(uint32_t vaddr){
-	uint32_t paddr = vaddr >> 2;	
+int read_irom(int vaddr){
+	int paddr = (vaddr & 0x00000ffe) >> 2;	
+	//for(int i = 0; i < 4; i ++) printf("ROM[%d]:%08x\n", i, ROM[i]);
+	//printf("paddr:%d\n", paddr);
 	return ROM[paddr];
 }

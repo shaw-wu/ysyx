@@ -13,16 +13,18 @@ module ysyx_25010009_top #(
 	parameter INST_BITS		 = 6 
 )(
 	input clk,
-	input rst,
-	output [ADDR_WIDTH-1:0] irom_raddr,
-	input	 [DATA_WIDTH-1:0] irom_rdata
+	input rst
 );
+
+wire [DATA_WIDTH-1:0] irom_data;
+wire [ADDR_WIDTH-1:0] irom_addr;
 
 wire [ADDR_WIDTH-1:0] ifu_idu_inst;
 wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
 wire [ADDR_WIDTH-1:0] ifu_idu_snpc;
 wire [ADDR_WIDTH-1:0] ifu_idu_dnpc;
 
+wire                   idu_exu_ebreak; 
 wire [ADDR_WIDTH -1:0] idu_exu_snpc	 ; 
 wire [ADDR_WIDTH -1:0] idu_exu_dnpc	 ; 
 wire [ADDR_WIDTH -1:0] idu_exu_pc		 ; 
@@ -40,9 +42,10 @@ wire idu_exu_is_jal ;
 wire idu_exu_is_bxx ;
 wire [RS_WIDTH	-1:0] idu_rf_rs1		 ;
 wire [RS_WIDTH	-1:0] idu_rf_rs2		 ;
-wire [DATA_WIDTH-1:0] idu_rf_rf_src1;
-wire [DATA_WIDTH-1:0] idu_rf_rf_src2;
+wire [DATA_WIDTH-1:0] idu_rf_src1;
+wire [DATA_WIDTH-1:0] idu_rf_src2;
 
+wire exu_lsu_ebreak;
 wire [ADDR_WIDTH-1:0] exu_lsu_pc		;
 wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
 wire exu_lsu_memwr 	;
@@ -57,6 +60,13 @@ wire [RS_WIDTH  -1:0] wbu_rf_rd	  ;
 wire [DATA_WIDTH-1:0] wbu_rf_wdata;	 
 wire wbu_rf_wen; 	 
 
+ysyx_25010009_irom #(
+	.XLEN(DATA_WIDTH)
+) IROM (
+	.addr(irom_addr),
+	.inst(irom_data)
+);
+
 ysyx_25010009_ifu #(
 	.DATA_WIDTH(DATA_WIDTH),
 	.ADDR_WIDTH(ADDR_WIDTH),
@@ -64,8 +74,8 @@ ysyx_25010009_ifu #(
 ) IFU (
 	.clk(clk),
 	.rst(rst),
-	.finst(irom_rdata),
-	.addr	(irom_raddr),
+	.finst(irom_data),
+	.addr	(irom_addr),
 	.inst (ifu_idu_inst),
 	.pc		(ifu_idu_pc	 ),
 	.snpc (ifu_idu_snpc),
@@ -92,6 +102,7 @@ ysyx_25010009_idu #(
 	.pc			 (ifu_idu_pc		 ),
 	.snpc	   (ifu_idu_snpc	 ),
 	.dnpc	   (ifu_idu_dnpc	 ),
+	.exu_ebreak(idu_exu_ebreak),
 	.exu_snpc(idu_exu_snpc	 ),
 	.exu_dnpc(idu_exu_dnpc	 ),
 	.exu_pc	 (idu_exu_pc		 ),
@@ -109,8 +120,8 @@ ysyx_25010009_idu #(
 	.is_bxx  (idu_exu_is_bxx ),
 	.rs1		 (idu_rf_rs1		 ),
 	.rs2		 (idu_rf_rs2		 ),
-	.rf_src1 (idu_rf_rf_src1),
-  .rf_src2 (idu_rf_rf_src2)
+	.rf_src1 (idu_rf_src1		 ),
+  .rf_src2 (idu_rf_src2 	 )
 );
 
 ysyx_25010009_exu #(
@@ -120,6 +131,7 @@ ysyx_25010009_exu #(
 ) EXU (
 	.clk					(clk					),
 	.rst					(rst					),
+	.ebreak				(idu_exu_ebreak			  ),
 	.dnpc					(idu_exu_dnpc					),
 	.pc     			(idu_exu_pc     			),
 	.imm    			(idu_exu_imm    			),
@@ -136,6 +148,7 @@ ysyx_25010009_exu #(
 	.is_bxx 			(idu_exu_is_bxx 			),
 	.isRAW_control(             				),
 	.exu_dnpc			(exu_dnpc						  ),
+	.lsu_ebreak	  (exu_lsu_ebreak				),
 	.lsu_pc		 		(exu_lsu_pc		 				),
 	.lsu_mwdata		(exu_lsu_mwdata				),
 	.lsu_memwr 		(exu_lsu_memwr 				),
@@ -154,12 +167,28 @@ ysyx_25010009_wbu #(
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
 	.pc		   (exu_lsu_pc		 ),
+	.ebreak  (exu_lsu_ebreak ),
 	.regwr   (exu_wbu_regwr	 ),	
 	.rd		   (exu_wbu_rd		 ),
 	.gpr_res (exu_wbu_res		 ),  
 	.rf_rd	 (wbu_rf_rd			 ),
 	.rf_wdata(wbu_rf_wdata	 ),
 	.rf_wen  (wbu_rf_wen  	 )
+);
+
+ysyx_25010009_RegisterFile #(
+	.DATA_WIDTH(DATA_WIDTH),
+	.ADDR_WIDTH(RS_WIDTH  )
+) GPR (
+	.clk		 (clk						 ),
+	.rst		 (rst		    		 ),
+	.wdata	 (wbu_rf_wdata	 ),
+	.waddr	 (wbu_rf_rd			 ),
+	.raddr1	 (idu_rf_rs1		 ),
+	.raddr2	 (idu_rf_rs2		 ),
+	.rdata1	 (idu_rf_src1		 ),
+	.rdata2	 (idu_rf_src2		 ),
+	.wen		 (wbu_rf_wen		 )
 );
 
 endmodule

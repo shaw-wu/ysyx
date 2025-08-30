@@ -10,6 +10,7 @@ VERILATOR_CFLAGS += --cc --build --trace
 BUILD_DIR = $(shell pwd)/build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOP_NAME)
+INC_PATH += $(OBJ_DIR)
 
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILE)
@@ -18,6 +19,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILE)
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.cpp")
 CSRCS += $(shell find $(abspath ./sim/irom) -name "*.cpp")
+CSRCS += $(shell find $(abspath ./sim) -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
@@ -36,7 +38,10 @@ all: default
 sim:$(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$^
-clean_bd:
-	rm -rf $(BUILD_DIR)
+cleansim:
+	@rm -rf $(BUILD_DIR)
+	@mkdir $(BUILD_DIR)
+wave:
+	@gtkwave $(BUILD_DIR)/dump.vcd
 .PHONY: default all sim clean_bd
 include ../Makefile
