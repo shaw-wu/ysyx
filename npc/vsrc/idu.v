@@ -56,45 +56,43 @@ localparam FUNCT7_EN = 31;
 localparam TYPE_WIDTH = 3 ;
 
 //decode
-wire [INST_BITS-1:0] decode_inst;
-assign decode_inst =  (opcode == 7'b0110111)                        ? 6'd1  : //lui
-								      (opcode == 7'b0010111)                        ? 6'd2  : //auipc
-								      (opcode == 7'b1101111)                        ? 6'd3  : //jal
-								     ((opcode == 7'b1100111) && (funct3 == 3'b000)) ? 6'd4  : //jalr
-								     ((opcode == 7'b1100011) && (funct3 == 3'b000)) ? 6'd5  : //beq
-								     ((opcode == 7'b1100011) && (funct3 == 3'b001)) ? 6'd6  : //bne
-								     ((opcode == 7'b1100011) && (funct3 == 3'b100)) ? 6'd7  : //blt
-								     ((opcode == 7'b1100011) && (funct3 == 3'b101)) ? 6'd8  : //bge
-								     ((opcode == 7'b1100011) && (funct3 == 3'b110)) ? 6'd9  : //bltu
-								     ((opcode == 7'b1100011) && (funct3 == 3'b111)) ? 6'd10 : //bgeu
-								     ((opcode == 7'b0000011) && (funct3 == 3'b000)) ? 6'd11 : //lb
-								     ((opcode == 7'b0000011) && (funct3 == 3'b001)) ? 6'd12 : //lh
-								     ((opcode == 7'b0000011) && (funct3 == 3'b010)) ? 6'd13 : //lw
-								     ((opcode == 7'b0000011) && (funct3 == 3'b100)) ? 6'd14 : //lbu
-								     ((opcode == 7'b0000011) && (funct3 == 3'b101)) ? 6'd15 : //lhu
-								     ((opcode == 7'b0100011) && (funct3 == 3'b000)) ? 6'd16 : //sb
-								     ((opcode == 7'b0100011) && (funct3 == 3'b001)) ? 6'd17 : //sh
-								     ((opcode == 7'b0100011) && (funct3 == 3'b010)) ? 6'd18 : //sw
-								     ((opcode == 7'b0010011) && (funct3 == 3'b000)) ? 6'd19 : //addi
-								     ((opcode == 7'b0010011) && (funct3 == 3'b010)) ? 6'd20 : //slti
-								     ((opcode == 7'b0010011) && (funct3 == 3'b011)) ? 6'd21 : //sltiu
-								     ((opcode == 7'b0010011) && (funct3 == 3'b100)) ? 6'd22 : //xori
-								     ((opcode == 7'b0010011) && (funct3 == 3'b110)) ? 6'd24 : //ori
-								     ((opcode == 7'b0010011) && (funct3 == 3'b111)) ? 6'd24 : //andi
-								     ((opcode == 7'b0010011) && (funct3 == 3'b001) && (funct7 == 7'b0000000)) ? 6'd25 : //slli
-								     ((opcode == 7'b0010011) && (funct3 == 3'b101) && (funct7 == 7'b0000000)) ? 6'd26 : //srli
-								     ((opcode == 7'b0010011) && (funct3 == 3'b101) && (funct7 == 7'b0100000)) ? 6'd27 : //srai
-								     ((opcode == 7'b0110011) && (funct3 == 3'b000) && (funct7 == 7'b0000000)) ? 6'd28 : //add
-								     ((opcode == 7'b0110011) && (funct3 == 3'b000) && (funct7 == 7'b0100000)) ? 6'd29 : //sub
-								     ((opcode == 7'b0110011) && (funct3 == 3'b001) && (funct7 == 7'b0000000)) ? 6'd30 : //sll
-								     ((opcode == 7'b0110011) && (funct3 == 3'b010) && (funct7 == 7'b0000000)) ? 6'd31 : //slt
-								     ((opcode == 7'b0110011) && (funct3 == 3'b011) && (funct7 == 7'b0000000)) ? 6'd32 : //sltu
-								     ((opcode == 7'b0110011) && (funct3 == 3'b100) && (funct7 == 7'b0000000)) ? 6'd33 : //xor
-								     ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0000000)) ? 6'd34 : //srl
-								     ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0100000)) ? 6'd35 : //sra
-								     ((opcode == 7'b0110011) && (funct3 == 3'b110) && (funct7 == 7'b0000000)) ? 6'd36 : //or
-								     ((opcode == 7'b0110011) && (funct3 == 3'b111) && (funct7 == 7'b0000000)) ? 6'd37 : //and
-										 6'd0;
+wire lui   =  (opcode == 7'b0110111)                        ;
+wire auipc =  (opcode == 7'b0010111)                        ;
+wire jal	 =  (opcode == 7'b1101111)                        ;
+wire jalr	 = ((opcode == 7'b1100111) && (funct3 == 3'b000)) ;
+wire beq	 = ((opcode == 7'b1100011) && (funct3 == 3'b000)) ;
+wire bne	 = ((opcode == 7'b1100011) && (funct3 == 3'b001)) ;
+wire blt	 = ((opcode == 7'b1100011) && (funct3 == 3'b100)) ;
+wire bge	 = ((opcode == 7'b1100011) && (funct3 == 3'b101)) ;
+wire bltu	 = ((opcode == 7'b1100011) && (funct3 == 3'b110)) ;
+wire bgeu	 = ((opcode == 7'b1100011) && (funct3 == 3'b111)) ;
+wire lb		 = ((opcode == 7'b0000011) && (funct3 == 3'b000)) ;
+wire lh		 = ((opcode == 7'b0000011) && (funct3 == 3'b001)) ;
+wire lw		 = ((opcode == 7'b0000011) && (funct3 == 3'b010)) ;
+wire lbu	 = ((opcode == 7'b0000011) && (funct3 == 3'b100)) ;
+wire lhu	 = ((opcode == 7'b0000011) && (funct3 == 3'b101)) ;
+wire sb		 = ((opcode == 7'b0100011) && (funct3 == 3'b000)) ;
+wire sh		 = ((opcode == 7'b0100011) && (funct3 == 3'b001)) ;
+wire sw		 = ((opcode == 7'b0100011) && (funct3 == 3'b010)) ;
+wire addi	 = ((opcode == 7'b0010011) && (funct3 == 3'b000)) ;
+wire slti	 = ((opcode == 7'b0010011) && (funct3 == 3'b010)) ;
+wire sltiu = ((opcode == 7'b0010011) && (funct3 == 3'b011)) ;
+wire xori	 = ((opcode == 7'b0010011) && (funct3 == 3'b100)) ;
+wire ori	 = ((opcode == 7'b0010011) && (funct3 == 3'b110)) ;
+wire andi	 = ((opcode == 7'b0010011) && (funct3 == 3'b111)) ;
+wire slli  = ((opcode == 7'b0010011) && (funct3 == 3'b001) && (funct7 == 7'b0000000));
+wire srli  = ((opcode == 7'b0010011) && (funct3 == 3'b101) && (funct7 == 7'b0000000));
+wire srai	 = ((opcode == 7'b0010011) && (funct3 == 3'b101) && (funct7 == 7'b0100000));
+wire add	 = ((opcode == 7'b0110011) && (funct3 == 3'b000) && (funct7 == 7'b0000000));
+wire sub	 = ((opcode == 7'b0110011) && (funct3 == 3'b000) && (funct7 == 7'b0100000));
+wire sll	 = ((opcode == 7'b0110011) && (funct3 == 3'b001) && (funct7 == 7'b0000000));
+wire slt	 = ((opcode == 7'b0110011) && (funct3 == 3'b010) && (funct7 == 7'b0000000));
+wire sltu	 = ((opcode == 7'b0110011) && (funct3 == 3'b011) && (funct7 == 7'b0000000));
+wire xor_	 = ((opcode == 7'b0110011) && (funct3 == 3'b100) && (funct7 == 7'b0000000));
+wire srl	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0000000));
+wire sra	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0100000));
+wire or_	 = ((opcode == 7'b0110011) && (funct3 == 3'b110) && (funct7 == 7'b0000000));
+wire and_	 = ((opcode == 7'b0110011) && (funct3 == 3'b111) && (funct7 == 7'b0000000));
 
 wire [FUNCT3_WIDTH-1:0] funct3;
 wire [FUNCT7_WIDTH-1:0] funct7;
@@ -112,14 +110,14 @@ localparam TYPE_U = 4;
 localparam TYPE_J = 5;
 wire [TYPE_WIDTH-1:0] Type;
 
-assign Type =  ((decode_inst >= 6'd28) && (decode_inst <= 37))     ? TYPE_R :
-							(((decode_inst >= 6'd19) && (decode_inst <= 27)) ||
-							 ((decode_inst >= 6'd11) && (decode_inst <= 15)) ||
-							   decode_inst == 6'd4                             ) ? TYPE_I :
-							 ((decode_inst >= 6'd16) && (decode_inst <= 18))     ? TYPE_S :
-							 ((decode_inst >= 6'd5 ) && (decode_inst <= 10))     ? TYPE_B :
-							 ((decode_inst == 6'd1 ) || (decode_inst == 2 ))     ? TYPE_U :
-							   decode_inst == 6'd3                               ? TYPE_J : TYPE_R;
+assign Type =  sll || srl  || sra || add || sub || xor_ || or_ || and_ ||
+							 slt || sltu   																										 ? TYPE_R :
+							 slli  || srli  || srai || addi || xori || ori || andi || slti ||
+							 sltiu || jalr  || lb   || lh   || lw		|| lbu || lhu							 ? TYPE_I : 
+							 sb || sh || sw																										 ? TYPE_S :
+							 beq || bne || blt || bge || bltu || bgeu													 ? TYPE_B :
+							 lui || auipc																											 ? TYPE_U :
+							 jal || jalr																											 ? TYPE_J : TYPE_R;
 
 //imm/shamt
 wire [DATA_WIDTH  -1:0] imm  ;
@@ -134,36 +132,31 @@ assign shamt = {{(DATA_WIDTH-RS_WIDTH){1'b0}}, inst[RS2_EN:RS2_ST]};
 
 //opmux/opsel
 wire [OPMUX_WIDTH-1:0] opmux;
-assign opmux = (((decode_inst >= 6'd5 ) && (decode_inst <= 6'd10)) || 
-						    ((decode_inst >= 6'd28) && (decode_inst <= 6'd37))   ) ? 4'b0001 : //rs1_rs2
-							  ((decode_inst >= 6'd11) && (decode_inst <= 6'd24))     ? 4'b0010 : //rs1_imm
-							   (decode_inst == 6'd2 )																 ? 4'b0011 : //pc_imm
-							  ((decode_inst >= 6'd25) && (decode_inst <= 6'd27))     ? 4'b0100 : //rs1_shamt
-							   (decode_inst == 6'd1 )																 ? 4'b0101 : //imm_0
-									4'b0000; //rs1_rs2
-assign opsel = ((decode_inst == 6'd1 ) && (decode_inst == 6'd2 ) && 
-								(decode_inst == 6'd3 ) && (decode_inst == 6'd4 ) && 
-								(decode_inst == 6'd11) && (decode_inst == 6'd12) && 
-								(decode_inst == 6'd13) && (decode_inst == 6'd14) && 
-								(decode_inst == 6'd15) && (decode_inst == 6'd16) && 
-								(decode_inst == 6'd17) && (decode_inst == 6'd18) && 
-								(decode_inst == 6'd19) && (decode_inst == 6'd28)   ) ? 4'b0001 : //+
-							  (decode_inst == 6'd29)															 ? 4'b0010 : //-
-							 ((decode_inst == 6'd24) && (decode_inst == 6'd37))    ? 4'b0011 : //&
-							 ((decode_inst == 6'd23) && (decode_inst == 6'd36))    ? 4'b0100 : //|
-							 ((decode_inst == 6'd22) && (decode_inst == 6'd33))    ? 4'b0101 : //^
-							 ((decode_inst == 6'd25) && (decode_inst == 6'd30))    ? 4'b0110 : //<<
-							 ((decode_inst == 6'd26) && (decode_inst == 6'd34))    ? 4'b0111 : //>>u
-							 ((decode_inst == 6'd27) && (decode_inst == 6'd35))    ? 4'b1000 : //>>s
-							  (decode_inst == 6'd5 )															 ? 4'b1001 : //==
-							  (decode_inst == 6'd6 )															 ? 4'b1010 : //!=
-							 ((decode_inst == 6'd7 ) && (decode_inst == 6'd20) && 
-								(decode_inst == 6'd31)                             ) ? 4'b1011 : //<
-							  (decode_inst == 6'd8 )															 ? 4'b1100 : //>=
-							 ((decode_inst == 6'd9 ) && (decode_inst == 6'd21) && 
-							  (decode_inst == 6'd32)														 ) ? 4'b1101 : //<u
-							  (decode_inst == 6'd10)															 ? 4'b1110 : //>=u
-							   4'b0000;//+
+assign opmux = sll || srl  || sra || add || sub || xor_ || or_  || and_ ||
+							 slt || sltu ||	beq || bne || blt || bge  || bltu || bgeu		 ? 4'b0001 : //rs1_rs2
+							 addi || xori || ori || andi || slti || sltiu || lb || lh ||
+							 lw		|| lbu  || lhu || sb   || sh	 || sw									 ? 4'b0010 : //rs1_imm
+							 auipc																											 ? 4'b0011 : //pc_imm
+							 slli || srli || srai																				 ? 4'b0100 : //rs1_shamt
+							 lui																												 ? 4'b0101 : //imm_0
+							 4'b0000; //rs1_rs2
+assign opsel = add || addi || lui || auipc ||
+							 lb  || lh	 || lw	|| lbu	 ||
+							 lhu || sb	 || sh	|| sw			  ? 4'b0001 : //+
+							 sub												    ? 4'b0010 : //-
+							 and_ || andi								    ? 4'b0011 : //&
+							 or_	|| ori								    ? 4'b0100 : //|
+							 xor_	|| xori								    ? 4'b0101 : //^
+							 sll || slli								    ? 4'b0110 : //<<
+							 srl || srli								    ? 4'b0111 : //>>u
+							 sra || srai                    ? 4'b1000 : //>>s
+							 beq												    ? 4'b1001 : //==
+							 bne												    ? 4'b1010 : //!=
+							 slt || slti || blt					    ? 4'b1011 : //<
+							 bge												    ? 4'b1100 : //>=
+							 sltu || sltiu || bltu			    ? 4'b1101 : //<u
+							 bgeu												    ? 4'b1110 : //>=u
+							 4'b0000;//+
 
 //src1/src2
 reg [DATA_WIDTH -1:0] wire_src1;
@@ -205,14 +198,15 @@ assign src2 = wire_src2;
 assign rs1 = inst[RS1_EN:RS1_ST];
 assign rs2 = inst[RS2_EN:RS2_ST];
 assign rd  = inst[RD_EN : RD_ST];
-assign is_jalr  = (decode_inst == 6'd4);
-assign is_jal   = (decode_inst == 6'd3);
-assign is_bxx   = ((decode_inst >= 6'd5 ) && (decode_inst <= 6'd10));
+assign is_jalr  = jalr;
+assign is_jal   = jal;
+assign is_bxx   = beq || bne || blt || bge || bltu || bgeu;
 assign mwdata = rf_src2;
-assign memwr = ((decode_inst >= 15) && (decode_inst <= 18)) ? 1 : 0;
-assign memre = ((decode_inst >= 11) && (decode_inst <= 15)) ? 1 : 0;
-assign regwr = ((decode_inst == 6'd1) && (decode_inst == 6'd2)) ? 1 : 
-							 0; 
+assign memwr = sb || sh || sw;
+assign memre = lb || lh || lw || lbu || lhu;
+assign regwr = sll  || slli || srl || srli || sra  || srai || add || addi || sub  || lui   || auipc ||
+							 xor_ || xori	|| or_ || ori  || and_ || andi || slt || slti || sltu || sltiu || lb		||
+							 lh		|| lw		|| lbu || lhu																															;
 
 assign exu_pc   = pc;
 assign exu_snpc = snpc;
