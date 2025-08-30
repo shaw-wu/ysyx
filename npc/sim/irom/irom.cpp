@@ -20,6 +20,6 @@ void load_rom(FILE *fp){
 
 int read_irom(int vaddr){
 	printf("2\n");
-	int paddr = vaddr >> 2;	
+	int paddr = vaddr & 0x00000ffe >> 2;	
 	return ROM[paddr];
 }
