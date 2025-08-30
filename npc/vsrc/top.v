@@ -41,8 +41,8 @@ wire idu_exu_is_jal ;
 wire idu_exu_is_bxx ;
 wire [RS_WIDTH	-1:0] idu_rf_rs1		 ;
 wire [RS_WIDTH	-1:0] idu_rf_rs2		 ;
-wire [DATA_WIDTH-1:0] idu_rf_rf_src1;
-wire [DATA_WIDTH-1:0] idu_rf_rf_src2;
+wire [DATA_WIDTH-1:0] idu_rf_src1;
+wire [DATA_WIDTH-1:0] idu_rf_src2;
 
 wire [ADDR_WIDTH-1:0] exu_lsu_pc		;
 wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
@@ -117,8 +117,8 @@ ysyx_25010009_idu #(
 	.is_bxx  (idu_exu_is_bxx ),
 	.rs1		 (idu_rf_rs1		 ),
 	.rs2		 (idu_rf_rs2		 ),
-	.rf_src1 (idu_rf_rf_src1),
-  .rf_src2 (idu_rf_rf_src2)
+	.rf_src1 (idu_rf_src1		 ),
+  .rf_src2 (idu_rf_src2 	 )
 );
 
 ysyx_25010009_exu #(
@@ -168,6 +168,21 @@ ysyx_25010009_wbu #(
 	.rf_rd	 (wbu_rf_rd			 ),
 	.rf_wdata(wbu_rf_wdata	 ),
 	.rf_wen  (wbu_rf_wen  	 )
+);
+
+ysyx_25010009_RegisterFile #(
+	.DATA_WIDTH(DATA_WIDTH),
+	.ADDR_WIDTH(RS_WIDTH  )
+) GPR (
+	.clk		 (clk						 ),
+	.rst		 (rst		    		 ),
+	.wdata	 (wbu_rf_wdata	 ),
+	.waddr	 (wbu_rf_rd			 ),
+	.raddr1	 (idu_rf_rs1		 ),
+	.raddr2	 (idu_rf_rs2		 ),
+	.rdata1	 (idu_rf_src1		 ),
+	.rdata2	 (idu_rf_src2		 ),
+	.wen		 (wbu_rf_wen		 )
 );
 
 endmodule
