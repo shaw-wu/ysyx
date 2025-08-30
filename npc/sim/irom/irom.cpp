@@ -21,5 +21,6 @@ void load_rom(FILE *fp){
 int read_irom(int vaddr){
 	for(int i = 0; i < 4; i ++) printf("ROM[%d]:%08x\n", i, ROM[i]);
 	int paddr = vaddr & 0x00000ffe >> 2;	
+	printf("paddr:%d\n", paddr);
 	return ROM[paddr];
 }
