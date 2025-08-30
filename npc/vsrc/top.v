@@ -13,10 +13,11 @@ module ysyx_25010009_top #(
 	parameter INST_BITS		 = 6 
 )(
 	input clk,
-	input rst,
-	output [ADDR_WIDTH-1:0] irom_raddr,
-	input	 [DATA_WIDTH-1:0] irom_rdata
+	input rst
 );
+
+wire [DATA_WIDTH-1:0] irom_data;
+wire [ADDR_WIDTH-1:0] irom_addr;
 
 wire [ADDR_WIDTH-1:0] ifu_idu_inst;
 wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
@@ -57,6 +58,13 @@ wire [RS_WIDTH  -1:0] wbu_rf_rd	  ;
 wire [DATA_WIDTH-1:0] wbu_rf_wdata;	 
 wire wbu_rf_wen; 	 
 
+ysyx_25010009_irom #(
+	.XLEN(DATA_WIDTH)
+) IROM (
+	.addr(irom_addr),
+	.inst(irom_data)
+);
+
 ysyx_25010009_ifu #(
 	.DATA_WIDTH(DATA_WIDTH),
 	.ADDR_WIDTH(ADDR_WIDTH),
@@ -64,8 +72,8 @@ ysyx_25010009_ifu #(
 ) IFU (
 	.clk(clk),
 	.rst(rst),
-	.finst(irom_rdata),
-	.addr	(irom_raddr),
+	.finst(irom_data),
+	.addr	(irom_addr),
 	.inst (ifu_idu_inst),
 	.pc		(ifu_idu_pc	 ),
 	.snpc (ifu_idu_snpc),

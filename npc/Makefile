@@ -10,6 +10,7 @@ VERILATOR_CFLAGS += --cc --build --trace
 BUILD_DIR = $(shell pwd)/build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOP_NAME)
+INC_PATH += $(OBJ_DIR)
 
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILE)
