@@ -7,7 +7,7 @@
 #include "verilated_vcd_c.h"
 #include <nvboard.h>
 #define ENABLE_WAVEFORM
-#define RESET_TIME 1000
+#define RESET_TIME 10
 
 static int sim_time = 500000;
 static TOP_NAME* dut;
