@@ -11,9 +11,9 @@ void load_rom(FILE *fp){
 	assert(fp);
 	while(fgets(line, sizeof(line), fp)){
 		uint32_t inst;
-		sscanf(line, "%8x", &inst);
+		sscanf(line, "%08x", &inst);
 		ROM[i++] = inst;
-	  printf("inst:%8x, ROM[i]:%8x\n", inst, ROM[i-1]);
+	  printf("inst:%08x, ROM[i]:%08x\n", inst, ROM[i-1]);
 	}
 	return;
 }
