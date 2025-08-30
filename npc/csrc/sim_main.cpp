@@ -50,7 +50,6 @@ void main_loop(){
 	while(contextp->time() < sim_time && !contextp->gotFinish()){
 		contextp->timeInc(1);
 		single_cycle();
-		dut->eval();
 	#ifdef ENABLE_WAVEFORM
 		tfp->dump(contextp->time());
 	#endif
