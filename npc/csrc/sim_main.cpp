@@ -39,13 +39,17 @@ void sim_init(int argc, char** argv ){
 	nvboard_bind_all_pins(dut);
 	nvboard_init();
 	#endif
-	for(int i = 0; i < RESET_TIME; i++) single_cycle();
+	for(int i = 0; i < RESET_TIME; i++){
+		single_cycle();
+		single_cycle();
+	}
 	dut->rst = 0;
 }
 
 void main_loop(){
 	while(contextp->time() < sim_time && !contextp->gotFinish()){
 		contextp->timeInc(1);
+		single_cycle();
 		single_cycle();
 		dut->eval();
 	#ifdef ENABLE_WAVEFORM
