@@ -7,6 +7,8 @@ html:
 
 ## 1. Basic Setup and Checks
 
+#ifeq(XX,) neither null or not
+
 ### Default to create a bare-metal kernel image
 ifeq ($(MAKECMDGOALS),)
   MAKECMDGOALS  = image
@@ -48,7 +50,7 @@ endif
 ### Create the destination directory (`build/$ARCH`)
 WORK_DIR  = $(shell pwd)
 DST_DIR   = $(WORK_DIR)/build/$(ARCH)
-$(shell mkdir -p $(DST_DIR))
+$(shell mkdir -p $(DST_DIR))#mkdir -p : no error report even if exist
 
 ### Compilation targets (a binary image or archive)
 IMAGE_REL = build/$(NAME)-$(ARCH)
