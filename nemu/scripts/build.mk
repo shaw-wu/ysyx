@@ -20,7 +20,7 @@ CXX := clang++
 else
 CXX := g++
 endif
-LD := $(if CONFIG_TARGET_AM, , $(CXX))
+LD := $(CXX)
 INCLUDES = $(addprefix -I, $(INC_PATH))
 CFLAGS  := -O2 -MMD -Wall -Werror $(INCLUDES) $(CFLAGS)
 LDFLAGS := -O2 $(LDFLAGS)
@@ -60,7 +60,7 @@ $(OBJ_DIR)/%.o: %.cc
 app: $(BINARY)
 
 $(BINARY):: $(OBJS) $(ARCHIVES)
-	@echo + LD $@ $(LD)
+	@echo + LD $@ $(OBJS)
 	@$(LD) -o $@ $(OBJS) $(LDFLAGS) $(ARCHIVES) $(LIBS)
 
 clean:
