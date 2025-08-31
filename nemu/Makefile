@@ -47,13 +47,15 @@ CFLAGS_BUILD += $(if $(CONFIG_CC_DEBUG),-Og -ggdb3,)
 CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address,)
 CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
 CFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) -D__GUEST_ISA__=$(GUEST_ISA)
-LDFLAGS += $(CFLAGS_BUILD)
+LDFLAGS += $(if CONFIG_TARGET_AM , , $(CFLAGS_BUILD))
 
 # Include rules for menuconfig
 include $(NEMU_HOME)/scripts/config.mk
 
 ifdef CONFIG_TARGET_AM
 include $(AM_HOME)/Makefile
+#LDFLAGS := $(CFLAGS_BUILD)
+include $(NEMU_HOME)/scripts/native.mk
 LINKAGE += $(ARCHIVES)
 else
 # Include rules to build NEMU

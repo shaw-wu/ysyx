@@ -20,7 +20,7 @@ CXX := clang++
 else
 CXX := g++
 endif
-LD := $(CXX)
+LD := $(if CONFIG_TARGET_AM, , $(CXX))
 INCLUDES = $(addprefix -I, $(INC_PATH))
 CFLAGS  := -O2 -MMD -Wall -Werror $(INCLUDES) $(CFLAGS)
 LDFLAGS := -O2 $(LDFLAGS)
