@@ -26,8 +26,9 @@
  */
 #define MAX_INST_TO_PRINT 10
 
-//static char iringbuf[32][128] = {};
-//static int ptr = 0;
+extern int error_;
+static char iringbuf[32][128] = {};
+static int ptr = 0;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -42,7 +43,6 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
-	/*wxz*/
 #ifdef CONFIG_WATCHPOINT
   WP* p = head;
   WP* temp[32] = {};
@@ -102,8 +102,14 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #endif
 
 #ifdef CONFIG_IRINGBUF
-	//int plen = p - s->logbuf;
-	//iringbuf
+//	int plen = p - s->logbuf;
+	char tmp[128] = {};
+	sprintf(tmp, "%s", s->logbuf);
+	strcpy(iringbuf[ptr], tmp);
+	ptr = ptr % 32;
+	if(error_){
+		for(i = 0; i < ptr; i++) printf("%s", iringbuf[i]);
+	}
 #endif
 
 #endif
