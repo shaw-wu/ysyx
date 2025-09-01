@@ -33,7 +33,7 @@ extern int ptr;
   do { \
     if (!(cond)) { \
 			for(int i = 0; i < 32; i++) {\
-				if(i == ptr) printf("\33[31m%s\33[0m\n", iringbuf[i]); \
+				if(i == ptr) printf("1111\33[31m%s\33[0m\n", iringbuf[i]); \
 				else if(strlen(iringbuf[i]) == 0) continue;\
 				else printf("%s\n", iringbuf[i]); \
 			}\
