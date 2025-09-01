@@ -81,10 +81,6 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 	  p[0] = '\0'; // the upstream llvm does not support loongarch32r
 	#endif
 	
-		//char tmp[128] = {};
-		//sprintf(tmp, "%s", s->logbuf);
-		//printf("tmp:%s, s->logbuf:%s\n", tmp, s->logbuf);
-		//strcpy(iringbuf[ptr++], tmp);
 		ptr = (ptr+1) % 32;
 	#endif
 }

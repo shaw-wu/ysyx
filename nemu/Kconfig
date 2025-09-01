@@ -175,7 +175,6 @@ config ITRACE_COND
   default "true"
 
 config IRINGBUF 
-  depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
   bool "Enable instruction ring buffer"
   default y
 
