@@ -31,7 +31,10 @@ extern int ptr;
 #define Assert(cond, format, ...) \
   do { \
     if (!(cond)) { \
-			for(int i = 0; i < ptr; i++) printf("%s\n", iringbuf[i]); \
+			for(int i = 0; i < 32; i++) {\
+				if(i == ptr) printf(ANSI_FMT("%s\n", ANSI_FG_RED), iringbuf[i]); \
+				else printf("%s\n", iringbuf[i]); \
+			}\
       MUXDEF(CONFIG_TARGET_AM, printf(ANSI_FMT(format, ANSI_FG_RED) "\n", ## __VA_ARGS__), \
         (fflush(stdout), fprintf(stderr, ANSI_FMT(format, ANSI_FG_RED) "\n", ##  __VA_ARGS__))); \
       IFNDEF(CONFIG_TARGET_AM, extern FILE* log_fp; fflush(log_fp)); \
