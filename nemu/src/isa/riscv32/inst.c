@@ -83,7 +83,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 	  p[0] = '\0'; // the upstream llvm does not support loongarch32r
 	#endif
 	
-		ptr = (ptr+1) % 32;
+		ptr = (ptr+1) % IRINGBUF_DEPTH;
 	#endif
 }
 

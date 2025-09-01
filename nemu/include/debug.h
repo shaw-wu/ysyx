@@ -36,8 +36,8 @@ extern int ptr;
   do { \
     if (!(cond)) { \
 			IFDEF(CONFIG_IRINGBUF, \
-        int cur = (ptr - 1 + 32) % 32; \
-        for (int i = 0; i < 32; i++) { \
+        int cur = (ptr - 1 + IRINGBUF_DEPTH) % IRINGBUF_DEPTH; \
+        for (int i = 0; i < IRINGBUF_DEPTH; i++) { \
           if (strlen(iringbuf[i]) == 0) continue; \
           if (i == cur) \
             printf(ANSI_FMT("%s", ANSI_FG_RED) "\n", iringbuf[i]); \
