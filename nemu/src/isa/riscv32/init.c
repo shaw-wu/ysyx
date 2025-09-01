@@ -21,6 +21,29 @@
 // but it is ok since we do not access the array directly
 static const uint32_t img [] = {
   0x00000297,  // auipc t0,0
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
+  0x00000013,  // nop(addi zero, 0)
 	0x01100313,  // addi t1, zero, 17
 	0x406282b3,  // sub t0, t0, t1
   0x00028823,  // sb  zero,16(t0)
