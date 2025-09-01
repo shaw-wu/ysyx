@@ -32,6 +32,7 @@ extern int ptr;
   do { \
     if (!(cond)) { \
 			for(int i = 0; i < ptr; i++) printf("%s", iringbuf[i]); \
+			printf("2\n");\
       MUXDEF(CONFIG_TARGET_AM, printf(ANSI_FMT(format, ANSI_FG_RED) "\n", ## __VA_ARGS__), \
         (fflush(stdout), fprintf(stderr, ANSI_FMT(format, ANSI_FG_RED) "\n", ##  __VA_ARGS__))); \
       IFNDEF(CONFIG_TARGET_AM, extern FILE* log_fp; fflush(log_fp)); \
