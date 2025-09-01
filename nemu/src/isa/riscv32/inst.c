@@ -29,6 +29,25 @@ enum {
   TYPE_N, // none
 };
 
+typedef union {
+	uint32_t u;
+	int32_t i;
+} ui32_t;
+
+uint32_t i2u(int32_t i){
+	ui32_t p;
+	p.i = i;
+	return p.u;
+}
+
+int32_t u2i(uint32_t u){
+	ui32_t p;
+	p.u = u;
+	return p.i;
+}
+
+ui32_t src1_t, src2_t;
+
 #define src1R() do { *src1 = R(rs1); } while (0)
 #define src2R() do { *src2 = R(rs2); } while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
@@ -50,6 +69,8 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     case TYPE_B: src1R(); src2R(); immB(); break;
     case TYPE_R: src1R(); src2R()				 ; break;
   }
+	src1_t.u = *src1;
+	src2_t.u = *src2;
 }
 
 static int decode_exec(Decode *s) {
@@ -68,9 +89,9 @@ static int decode_exec(Decode *s) {
 	INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(rd) = src1 + imm);
 	INSTPAT("0100000 ????? ????? 000 ????? 01100 11", sub    , R, R(rd) = src1 - src2);
 	INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = src1 * src2);
-	INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div		 , R, R(rd) = (int32_t)src1 / (int32_t)src2);
+	INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div		 , R, R(rd) = i2u(src1_t.i / src2_t.i));
 	INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu	 , R, R(rd) = src1 / src2);
-	INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem 	 , R, R(rd) = (int32_t)src1 % (int32_t)src2);
+	INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem 	 , R, R(rd) = i2u(src1_t.i % src2_t.i));
 	INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu 	 , R, R(rd) = src1 % src2);
 	INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = ((int64_t)src1 * (int64_t)src2) >> 32);
 	INSTPAT("0000000 ????? ????? 001 ????? 01100 11", sll 	 , R, R(rd) = src1 << src2);
