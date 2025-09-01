@@ -108,7 +108,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 	strcpy(iringbuf[ptr], tmp);
 	ptr = ptr % 32;
 	if(error_){
-		for(i = 0; i < ptr; i++) printf("%s", iringbuf[i]);
+		for(i = 0; i < ptr; i++) log_write("%s\n", iringbuf[i]);
 	}
 #endif
 
