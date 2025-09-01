@@ -44,7 +44,6 @@ static word_t pmem_read(paddr_t addr, int len) {
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
-	printf("write len:%d\n",len);
 #ifdef CONFIG_MTRACE
 	switch(len){
 		case 1: printf("[pmem_write] addr: 0x%08x   wdata: 0x%02x\n", addr, data);break;
