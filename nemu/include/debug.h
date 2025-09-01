@@ -32,7 +32,8 @@ extern int ptr;
   do { \
     if (!(cond)) { \
 			for(int i = 0; i < 32; i++) {\
-				if(i == ptr) printf(ANSI_FMT("%s\n", ANSI_FG_RED), iringbuf[i]); \
+				if(i == ptr) printf(ANSI_FMT("%s", ANSI_FG_RED)"\n", iringbuf[i]); \
+				else if(!iringbuf[i]) continue;\
 				else printf("%s\n", iringbuf[i]); \
 			}\
       MUXDEF(CONFIG_TARGET_AM, printf(ANSI_FMT(format, ANSI_FG_RED) "\n", ## __VA_ARGS__), \
