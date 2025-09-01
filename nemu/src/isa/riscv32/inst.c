@@ -24,6 +24,9 @@
 #define SHIFT(x) s->dnpc = (uint32_t)((int32_t)s->pc + (int32_t)x)
 #define JMP(x) s->dnpc = x
 
+char iringbuf[32][128] = {};
+int ptr = 0;
+
 enum {
   TYPE_I, TYPE_U, TYPE_J, TYPE_S, TYPE_B, TYPE_R,
   TYPE_N, // none
@@ -55,6 +58,35 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     case TYPE_B: src1R(); src2R(); immB(); break;
     case TYPE_R: src1R(); src2R()				 ; break;
   }
+	#ifdef CONFIG_IRINGBUF
+	  char *p = iringbuf[ptr];
+	  p += snprintf(p, sizeof(iringbuf[ptr]), FMT_WORD ":", s->pc);//pc
+	  int ilen = s->snpc - s->pc;
+	  uint8_t *inst = (uint8_t *)&s->isa.inst.val;
+	  for (int k = ilen - 1; k >= 0; k --) {
+	    p += snprintf(p, 4, " %02x", inst[k]);//inst
+	  }
+	  int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+	  int space_len = ilen_max - ilen;
+	  if (space_len < 0) space_len = 0;
+	  space_len = space_len * 3 + 1;
+	  memset(p, ' ', space_len);
+	  p += space_len;
+	
+	#ifndef CONFIG_ISA_loongarch32r
+  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+  disassemble(p, iringbuf[ptr] + sizeof(iringbuf[ptr]) - p,
+      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
+	#else
+	  p[0] = '\0'; // the upstream llvm does not support loongarch32r
+	#endif
+	
+		//char tmp[128] = {};
+		//sprintf(tmp, "%s", s->logbuf);
+		//printf("tmp:%s, s->logbuf:%s\n", tmp, s->logbuf);
+		//strcpy(iringbuf[ptr++], tmp);
+		ptr = (ptr+1) % 32;
+	#endif
 }
 
 static int decode_exec(Decode *s) {

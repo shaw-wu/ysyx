@@ -26,8 +26,6 @@
  */
 #define MAX_INST_TO_PRINT 10
 
-char iringbuf[32][128] = {};
-int ptr = 0;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -78,12 +76,12 @@ static void exec_once(Decode *s, vaddr_t pc) {
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
-  p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
+  p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);//pc
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst.val;
   for (i = ilen - 1; i >= 0; i --) {
-    p += snprintf(p, 4, " %02x", inst[i]);
+    p += snprintf(p, 4, " %02x", inst[i]);//inst
   }
   int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
   int space_len = ilen_max - ilen;
@@ -100,17 +98,17 @@ static void exec_once(Decode *s, vaddr_t pc) {
   p[0] = '\0'; // the upstream llvm does not support loongarch32r
 #endif
 
-#ifdef CONFIG_IRINGBUF
-//	int plen = p - s->logbuf;
-	char tmp[128] = {};
-	sprintf(tmp, "%s", s->logbuf);
-	printf("tmp:%s, s->logbuf:%s\n", tmp, s->logbuf);
-	strcpy(iringbuf[ptr++], tmp);
-	ptr = ptr % 32;
-//	if(error_){
-//		for(i = 0; i < ptr; i++) log_write("%s\n", iringbuf[i]);
-//	}
-#endif
+//#ifdef CONFIG_IRINGBUF
+////	int plen = p - s->logbuf;
+//	char tmp[128] = {};
+//	sprintf(tmp, "%s", s->logbuf);
+//	printf("tmp:%s, s->logbuf:%s\n", tmp, s->logbuf);
+//	strcpy(iringbuf[ptr++], tmp);
+//	ptr = ptr % 32;
+////	if(error_){
+////		for(i = 0; i < ptr; i++) log_write("%s\n", iringbuf[i]);
+////	}
+//#endif
 
 #endif
 }
