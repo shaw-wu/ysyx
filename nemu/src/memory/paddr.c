@@ -23,6 +23,9 @@ static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
+#ifdef CONFIG_MTRACE
+extern int is_ifetch;
+#endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
@@ -30,12 +33,16 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
 #ifdef CONFIG_MTRACE
-	switch(len){
-		case 1: printf("[pmem_read] addr: 0x%08x   rdata: 0x%02x\n", addr, ret);break;
-		case 2: printf("[pmem_read] addr: 0x%08x   rdata: 0x%04x\n", addr, ret);break;
-		case 4: printf("[pmem_read] addr: 0x%08x   rdata: 0x%08x\n", addr, ret);break;
-    IFDEF(CONFIG_ISA64, case 8: printf("[pmem_read] addr: 0x%08x   rdata: 0x%016x\n", addr, ret));break;
-    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);break;
+	if(is_ifetch){
+		is_ifetch = 0;
+	} else {
+		switch(len){
+			case 1: printf("[pmem_read] addr: 0x%08x   rdata: 0x%02x\n", addr, ret);break;
+			case 2: printf("[pmem_read] addr: 0x%08x   rdata: 0x%04x\n", addr, ret);break;
+			case 4: printf("[pmem_read] addr: 0x%08x   rdata: 0x%08x\n", addr, ret);break;
+    	IFDEF(CONFIG_ISA64, case 8: printf("[pmem_read] addr: 0x%08x   rdata: 0x%016x\n", addr, ret));break;
+    	default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);break;
+		}
 	}
 #endif
   return ret;
@@ -76,7 +83,6 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-	printf("paddr_write\n");
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);

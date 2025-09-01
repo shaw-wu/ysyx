@@ -16,9 +16,13 @@
 #include <isa.h>
 #include <memory/paddr.h>
 
+#ifdef CONFIG_MTRACE
+int is_ifetch = 0;	
+#endif
 
 word_t vaddr_ifetch(vaddr_t addr, int len) {
 #ifdef CONFIG_MTRACE
+	is_ifetch = 1;
 	printf("read instrution ");
 #endif
   return paddr_read(addr, len);
