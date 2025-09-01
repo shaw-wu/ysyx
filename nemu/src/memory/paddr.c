@@ -37,6 +37,7 @@ static word_t pmem_read(paddr_t addr, int len) {
 		case 4: printf("pmem_read: addr[0x%08x], rdata[0x%08x]\n", addr, ret);
     IFDEF(CONFIG_ISA64, case 8: printf("pmem_read: addr[0x%08x], rdata[0x%016x]\n", addr, ret));
     default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);
+	}
 #endif
   return ret;
 }
@@ -49,6 +50,7 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 		case 4: printf("pmem_write: addr[0x%08x], wdata[0x%08x]\n", addr, data);
     IFDEF(CONFIG_ISA64, case 8: printf("pmem_read: addr[0x%08x], rdata[0x%016x]\n", addr, data));
     default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);
+	}
 #endif
   host_write(guest_to_host(addr), len, data);
 }
