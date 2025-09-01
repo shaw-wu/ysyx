@@ -24,8 +24,10 @@
 #define SHIFT(x) s->dnpc = (uint32_t)((int32_t)s->pc + (int32_t)x)
 #define JMP(x) s->dnpc = x
 
-char iringbuf[32][128] = {};
+#ifdef CONFIG_IRINGBUF
+char iringbuf[IRINGBUF_DEPTH][128] = {};
 int ptr = 0;
+#endif
 
 enum {
   TYPE_I, TYPE_U, TYPE_J, TYPE_S, TYPE_B, TYPE_R,

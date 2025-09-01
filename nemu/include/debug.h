@@ -20,8 +20,11 @@
 #include <stdio.h>
 #include <utils.h>
 
-extern char iringbuf[32][128];
+#ifdef CONFIG_IRINGBUF
+#define IRINGBUF_DEPTH 16
+extern char iringbuf[IRINGBUF_DEPTH][128];
 extern int ptr;
+#endif
 
 
 #define Log(format, ...) \
@@ -32,11 +35,16 @@ extern int ptr;
 #define Assert(cond, format, ...) \
   do { \
     if (!(cond)) { \
-			for(int i = 0; i < 32; i++) {\
-				if(i == ptr-1) printf(ANSI_FMT("%s", ANSI_FG_RED) "\n", iringbuf[i]); \
-				else if(strlen(iringbuf[i]) == 0) continue;\
-				else printf("%s\n", iringbuf[i]); \
-			}\
+			IFDEF(CONFIG_IRINGBUF, \
+        int cur = (ptr - 1 + 32) % 32; \
+        for (int i = 0; i < 32; i++) { \
+          if (strlen(iringbuf[i]) == 0) continue; \
+          if (i == cur) \
+            printf(ANSI_FMT("%s", ANSI_FG_RED) "\n", iringbuf[i]); \
+          else \
+            printf("%s\n", iringbuf[i]); \
+        } \
+      ) \
       MUXDEF(CONFIG_TARGET_AM, printf(ANSI_FMT(format, ANSI_FG_RED) "\n", ## __VA_ARGS__), \
         (fflush(stdout), fprintf(stderr, ANSI_FMT(format, ANSI_FG_RED) "\n", ##  __VA_ARGS__))); \
       IFNDEF(CONFIG_TARGET_AM, extern FILE* log_fp; fflush(log_fp)); \
