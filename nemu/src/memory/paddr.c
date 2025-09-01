@@ -33,11 +33,11 @@ static word_t pmem_read(paddr_t addr, int len) {
 	printf("read len:%d\n",len);
 #ifdef CONFIG_MTRACE
 	switch(len){
-		case 1: printf("[pmem_read] addr: 0x%08x   rdata: 0x%02x\n", addr, ret);
-		case 2: printf("[pmem_read] addr: 0x%08x   rdata: 0x%04x\n", addr, ret);
-		case 4: printf("[pmem_read] addr: 0x%08x   rdata: 0x%08x\n", addr, ret);
-    IFDEF(CONFIG_ISA64, case 8: printf("[pmem_read] addr: 0x%08x   rdata: 0x%016x\n", addr, ret));
-    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);
+		case 1: printf("[pmem_read] addr: 0x%08x   rdata: 0x%02x\n", addr, ret);break;
+		case 2: printf("[pmem_read] addr: 0x%08x   rdata: 0x%04x\n", addr, ret);break;
+		case 4: printf("[pmem_read] addr: 0x%08x   rdata: 0x%08x\n", addr, ret);break;
+    IFDEF(CONFIG_ISA64, case 8: printf("[pmem_read] addr: 0x%08x   rdata: 0x%016x\n", addr, ret));break;
+    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);break;
 	}
 #endif
   return ret;
