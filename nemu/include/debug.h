@@ -27,12 +27,13 @@ extern int ptr;
 #define Log(format, ...) \
     _Log(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_BLUE) "\n", \
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
+				/*if(i == ptr) printf(ANSI_FMT("%s", ANSI_FG_RED) "\n", iringbuf[i]);*/ 
 
 #define Assert(cond, format, ...) \
   do { \
     if (!(cond)) { \
 			for(int i = 0; i < 32; i++) {\
-				if(i == ptr) printf(ANSI_FMT("%s", ANSI_FG_RED) "\n", iringbuf[i]); \
+				if(i == ptr) printf("\33[31m%s\33[0m\n", iringbuf[i]); \
 				else if(strlen(iringbuf[i]) == 0) continue;\
 				else printf("%s\n", iringbuf[i]); \
 			}\
