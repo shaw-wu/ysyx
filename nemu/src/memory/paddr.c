@@ -32,10 +32,10 @@ static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
 #ifdef CONFIG_MTRACE
 	switch(len){
-		case 1: printf("pmem_read: addr[0x%08x], rdata[0x%02x]\n", addr, ret);
-		case 2: printf("pmem_read: addr[0x%08x], rdata[0x%04x]\n", addr, ret);
-		case 4: printf("pmem_read: addr[0x%08x], rdata[0x%08x]\n", addr, ret);
-    IFDEF(CONFIG_ISA64, case 8: printf("pmem_read: addr[0x%08x], rdata[0x%016x]\n", addr, ret));
+		case 1: printf("[pmem_read] addr: 0x%08x , rdata: 0x%02x\n", addr, ret);
+		case 2: printf("[pmem_read] addr: 0x%08x , rdata: 0x%04x\n", addr, ret);
+		case 4: printf("[pmem_read] addr: 0x%08x , rdata: 0x%08x\n", addr, ret);
+    IFDEF(CONFIG_ISA64, case 8: printf("[pmem_read] addr: 0x%08x , rdata: 0x%016x\n", addr, ret));
     default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);
 	}
 #endif
@@ -45,10 +45,10 @@ static word_t pmem_read(paddr_t addr, int len) {
 static void pmem_write(paddr_t addr, int len, word_t data) {
 #ifdef CONFIG_MTRACE
 	switch(len){
-		case 1: printf("pmem_write: addr[0x%08x], wdata[0x%02x]\n", addr, data);
-		case 2: printf("pmem_write: addr[0x%08x], wdata[0x%04x]\n", addr, data);
-		case 4: printf("pmem_write: addr[0x%08x], wdata[0x%08x]\n", addr, data);
-    IFDEF(CONFIG_ISA64, case 8: printf("pmem_read: addr[0x%08x], rdata[0x%016x]\n", addr, data));
+		case 1: printf("[pmem_write] addr: 0x%08x , wdata: 0x%02x\n", addr, data);
+		case 2: printf("[pmem_write] addr: 0x%08x , wdata: 0x%04x\n", addr, data);
+		case 4: printf("[pmem_write] addr: 0x%08x , wdata: 0x%08x\n", addr, data);
+    IFDEF(CONFIG_ISA64, case 8: printf("[pmem_read] addr: 0x%08x , rdata: 0x%016x\n", addr, data));
     default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);
 	}
 #endif
