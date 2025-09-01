@@ -104,7 +104,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
 //	int plen = p - s->logbuf;
 	char tmp[128] = {};
 	sprintf(tmp, "%s", s->logbuf);
-	strcpy(iringbuf[ptr], tmp);
+	printf("tmp:%s, s->logbuf:%s\n", tmp, s->logbuf);
+	strcpy(iringbuf[ptr++], tmp);
 	ptr = ptr % 32;
 //	if(error_){
 //		for(i = 0; i < ptr; i++) log_write("%s\n", iringbuf[i]);
