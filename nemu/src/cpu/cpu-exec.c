@@ -26,9 +26,8 @@
  */
 #define MAX_INST_TO_PRINT 10
 
-extern int error_;
-static char iringbuf[32][128] = {};
-static int ptr = 0;
+char iringbuf[32][128] = {};
+int ptr = 0;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -107,9 +106,9 @@ static void exec_once(Decode *s, vaddr_t pc) {
 	sprintf(tmp, "%s", s->logbuf);
 	strcpy(iringbuf[ptr], tmp);
 	ptr = ptr % 32;
-	if(error_){
-		for(i = 0; i < ptr; i++) log_write("%s\n", iringbuf[i]);
-	}
+//	if(error_){
+//		for(i = 0; i < ptr; i++) log_write("%s\n", iringbuf[i]);
+//	}
 #endif
 
 #endif
