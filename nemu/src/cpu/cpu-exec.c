@@ -26,6 +26,9 @@
  */
 #define MAX_INST_TO_PRINT 10
 
+//static char iringbuf[32][128] = {};
+//static int ptr = 0;
+
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
@@ -97,6 +100,12 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #else
   p[0] = '\0'; // the upstream llvm does not support loongarch32r
 #endif
+
+#ifdef CONFIG_IRINGBUF
+	//int plen = p - s->logbuf;
+	//iringbuf
+#endif
+
 #endif
 }
 
