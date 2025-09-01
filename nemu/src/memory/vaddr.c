@@ -16,18 +16,15 @@
 #include <isa.h>
 #include <memory/paddr.h>
 
-extern int error_;
 
 word_t vaddr_ifetch(vaddr_t addr, int len) {
   return paddr_read(addr, len);
 }
 
 word_t vaddr_read(vaddr_t addr, int len) {
-	if(addr < CONFIG_MBASE || addr >= CONFIG_MBASE + CONFIG_MSIZE) error_ = 1;
   return paddr_read(addr, len);
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data) {
-	if(addr < CONFIG_MBASE || addr >= CONFIG_MBASE + CONFIG_MSIZE) error_ = 1;
   paddr_write(addr, len, data);
 }
