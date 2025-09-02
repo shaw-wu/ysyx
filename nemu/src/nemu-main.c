@@ -15,7 +15,6 @@
 
 #include <common.h>
 
-int error_ = 0;
 void init_monitor(int, char *[]);
 void am_init_monitor();
 void engine_start();

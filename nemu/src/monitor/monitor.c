@@ -14,7 +14,10 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <ftrrace.h>
 #include <memory/paddr.h>
+
+#define FTRACE_ARGS IFDEF(CONFIG_FTRACE, have_img = true; elf_file = argv[opind+1]) 
 
 void init_rand();
 void init_log(const char *log_file);
@@ -84,7 +87,8 @@ static int parse_args(int argc, char *argv[]) {
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
-      case 1: img_file = optarg; return 0;
+      case 1: 
+				img_file = argv[opind]; FTRACE_ARGS; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");
@@ -94,7 +98,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\n");
         exit(0);
     }
-  }
+  }		
   return 0;
 }
 
