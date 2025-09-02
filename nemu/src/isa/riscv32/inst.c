@@ -154,6 +154,8 @@ static int decode_exec(Decode *s) {
   INSTPAT_END();
 
   R(0) = 0; // reset $zero to 0
+#ifdef CONFIG_FTRACE
+#endif
 
   return 0;
 }
