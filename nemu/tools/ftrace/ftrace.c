@@ -162,9 +162,9 @@ void init_ftmem(){
 			func_count++;
 		}
 	
-	  fseek(fp, str_offset + symtab[i].st_name, SEEK_SET);
+	  fseek(fp, str_offset + symtab[ind].st_name, SEEK_SET);
 	  ret = fread(sym_name[i], 63, 1, fp); // 最多读取63字节
-		printf("str_offset:0x%ld, st_name:%d, sym_name:%s\n",str_offset, symtab[i].st_name, sym_name[i]);
+		printf("str_offset:0x%ld, st_name:%d, sym_name:%s\n",str_offset, symtab[ind].st_name, sym_name[i]);
 		assert(ret == 1);
 	  sym_name[i][63] = '\0'; // 防止溢出
 	}
