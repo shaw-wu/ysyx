@@ -129,6 +129,7 @@ void init_ftmem(){
 	FILE *fp = fopen(elf_file, "rb");
 	Assert(fp, "Can not open '%s'", elf_file);
 
+	printf("3\n");
   fseek(fp, 0, SEEK_END);
   long size = ftell(fp);
 
