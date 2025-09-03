@@ -90,7 +90,7 @@ static int parse_args(int argc, char *argv[]) {
       case 'd': diff_so_file = optarg; break;
       case 1: 
 				if(!elf) {
-					img_file = argv[optind]; 
+					img_file = argv[optind++]; 
 					printf("img_file:%s\n", img_file);
 					elf = 1;
 				}
