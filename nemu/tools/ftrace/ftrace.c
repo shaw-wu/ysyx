@@ -161,7 +161,7 @@ void init_ftmem(){
 		}
 	
 	  fseek(fp, str_offset + symtab[i].st_name, SEEK_SET);
-	  ret = fread(sym_name[i], 1, 63, fp); // 最多读取63字节
+	  ret = fread(sym_name[i], 63, 1, fp); // 最多读取63字节
 		assert(ret == 1);
 	  sym_name[i][63] = '\0'; // 防止溢出
 	}
