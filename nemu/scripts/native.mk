@@ -18,7 +18,7 @@ include $(NEMU_HOME)/scripts/build.mk
 include $(NEMU_HOME)/tools/difftest.mk
 
 
-MAKEFLAGS += --print-directory --no-builtin-rules --no-builtin-variables
+#MAKEFLAGS += --print-directory --no-builtin-rules --no-builtin-variables
 
 compile_git:
 	$(call git_commit, "compile NEMU")
