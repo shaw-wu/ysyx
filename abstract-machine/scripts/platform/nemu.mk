@@ -11,7 +11,7 @@ CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
              --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
-NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt -b
+NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt 
 
 IMG := $(IMAGE).bin
 IMG_ELF := $(IMAGE).elf
@@ -26,7 +26,7 @@ image: $(IMAGE).elf
 
 run: image
 	@echo IMG=$(IMG) ELF=$(IMG_ELF)
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMG) ELF=$(IMG_ELF)
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" -b IMG=$(IMG) -e ELF=$(IMG_ELF)
 
 gdb: image
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMG) ELF=$(IMG_ELF)
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" -b IMG=$(IMG) -e ELF=$(IMG_ELF)
