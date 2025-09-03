@@ -16,7 +16,6 @@
 -include $(NEMU_HOME)/../Makefile
 include $(NEMU_HOME)/scripts/build.mk
 
-include $(NEMU_HOME)/tools/difftest.mk
 MAKEFLAGS += --print-directory --no-builtin-rules --no-builtin-variables
 
 compile_git:
@@ -37,6 +36,7 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
 	$(call git_commit, "run NEMU")
+	echo $(NEMU_EXEC)
 	$(NEMU_EXEC)
 
 gdb: run-env
