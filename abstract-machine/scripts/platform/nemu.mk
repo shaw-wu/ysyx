@@ -15,6 +15,7 @@ NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 
 IMG := $(IMAGE).bin
 IMG_ELF := $(IMAGE).elf
+IMG_ELF_WITH_OPT := "-e $(IMG_ELF)"
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 CFLAGS += -I$(AM_HOME)/am/src/platform/nemu/include
 .PHONY: $(AM_HOME)/am/src/platform/nemu/trm.c
@@ -25,7 +26,7 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" ELF=$(IMG_ELF) IMG=$(IMG)
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" ELF=$(IMG_ELF_WITH_OPT) IMG=$(IMG)
 
 gdb: image
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" ELF=$(IMG_ELF) IMG=$(IMG) 
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" ELF=$(IMG_ELF_WITH_OPT) IMG=$(IMG) 
