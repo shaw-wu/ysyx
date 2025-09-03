@@ -164,6 +164,7 @@ void init_ftmem(){
 	
 	  fseek(fp, str_offset + symtab[i].st_name, SEEK_SET);
 	  ret = fread(sym_name[i], 63, 1, fp); // 最多读取63字节
+		printf("sym_name:%s\n",sym_name[i]);
 		assert(ret == 1);
 	  sym_name[i][63] = '\0'; // 防止溢出
 	}
@@ -177,10 +178,10 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	Ft_mem[ft_ind].iscall = is_call;
 	int i;
 	for(i = 0; i < func_count; i++){
-		printf("%d : addr:0x%08x, target:0x%08x, symtab:0x%08x\n", i, addr, target, symtab[i].st_value);
+		//printf("%d : addr:0x%08x, target:0x%08x, symtab:0x%08x\n", i, addr, target, symtab[i].st_value);
 		if(target == symtab[i].st_value){
 			strcpy(Ft_mem[ft_ind].str, sym_name[i]);
-			printf("str:%s, sym_name:%s\n",Ft_mem[ft_ind].str,sym_name[i]);
+			//printf("str:%s, sym_name:%s\n",Ft_mem[ft_ind].str,sym_name[i]);
 			break;
 		} 
 	}
