@@ -7,12 +7,10 @@
 
 extern char* elf_file;
 extern bool have_img;
-extern bool is_call;
-extern bool is_ret;
-extern vaddr_t dnpc;
 
-extern Elf32_Sym* symtab = NULL; 
-extern char **sym_name = NULL;
-extern int sym_count = 0; 
+void init_ftmem();
+void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call);
+void output_ftmem();
+void free_ft();
 
 #endif

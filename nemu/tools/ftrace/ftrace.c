@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define FTMEM_SIZE 256
+
 typedef struct {
   unsigned char e_ident[16];     // 0x00
   uint16_t e_type;               // 0x10
@@ -45,15 +47,23 @@ typedef struct {
   uint16_t st_shndx;
 } Elf32_Sym;
 
-char* elf_file = "/home/shaw/ysyx-workbench/am-kernels/tests/cpu-tests/build/min3-riscv32e-nemu.elf";
+typedef struct {
+	uint32_t addr;
+	uint32_t target;
+	char str[64];
+	bool iscall;
+	bool isret;
+} ft;
+ft Ft_mem[FTMEM_SIZE] = {};
+int ft_ind = 0;
+int ft_num = 0;
+
+char* elf_file = NULL;
 bool have_img = false;
-bool is_call = false;
-bool is_ret = false;
-vaddr_t dnpc = 0;
 
 Elf32_Sym* symtab = NULL; 
 char **sym_name = NULL;
-int sym_count = 0; 
+int func_count = -1; 
 
 long check_Sh(FILE* elf, uint32_t shoff, uint16_t shentsize, uint16_t shnum, uint16_t shstrndx, long* sym_offset, uint32_t* sym_size, uint32_t* sym_entsize) {
   long offset = (long)shoff;
@@ -99,15 +109,15 @@ long check_Sh(FILE* elf, uint32_t shoff, uint16_t shentsize, uint16_t shnum, uin
   }
 
   // 如果找不到 .symtab
-  fprintf(stderr, "找不到 .symtab 节！\n");
   return -1;
 }
 
-void init_ftrace(){
+void init_ftmem(){
 	if(elf_file == NULL) {
 		Log("No elf is given");
 		return ;
 	}
+	memset(Ft_mem, 0, sizeof(Ft_mem[0])*FTMEM_SIZE);
 
 	Elf32_Ehdr head = {};
 	long str_offset = 0;
@@ -129,34 +139,95 @@ void init_ftrace(){
 
 	str_offset = check_Sh(fp, head.e_shoff, head.e_shentsize, head.e_shnum, head.e_shstrndx, &sym_offset, &sym_size, &sym_entsize);
 	
-	sym_count = (int)(sym_size / sym_entsize);
+	int sym_count = (int)(sym_size / sym_entsize);
 	symtab = (Elf32_Sym*)malloc(sym_count * sizeof(Elf32_Sym));
 	assert(symtab != NULL);
 
 	sym_name = (char**)malloc(sym_count * sizeof(char*));
 	assert(sym_name != NULL);
 	
+	int ind = 0;	
 	for (int i = 0; i < sym_count; i++) {
-		sym_name[i] = (char*)malloc(64); // 为每个名字分配 64 字节空间
-		assert(sym_name[i] != NULL);
-		memset(sym_name[i], 0, 64);
 	  fseek(fp, sym_offset + i * sizeof(Elf32_Sym), SEEK_SET);
-	  ret = fread(&symtab[i], sizeof(Elf32_Sym), 1, fp);
+	  ret = fread(&symtab[ind], sizeof(Elf32_Sym), 1, fp);
 	  assert(ret == 1);
-	
-	  fseek(fp, str_offset + symtab[i].st_name, SEEK_SET);
-	  fread(sym_name[i], 1, 63, fp); // 最多读取63字节
-	  sym_name[i][63] = '\0'; // 防止溢出
+		if((symtab[ind].st_info & 0x0f) != 2) continue;
+		else {
+			sym_name[ind] = (char*)malloc(64); // 为每个名字分配 64 字节空间
+			assert(sym_name[ind] != NULL);
+			memset(sym_name[ind], 0, 64);
+			fseek(fp, str_offset + symtab[ind].st_name, SEEK_SET);
+	  	ret = fread(sym_name[ind], 63, 1, fp); // 最多读取63字节
+			assert(ret == 1);
+	  	sym_name[ind][63] = '\0'; // 防止溢出
+			ind ++;
+			func_count++;
+		}
 	}
 }
 
+void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
+	memset(Ft_mem+ft_ind, 0, sizeof(Ft_mem[0]));
+	Ft_mem[ft_ind].addr = addr;
+	Ft_mem[ft_ind].target = target;
+	Ft_mem[ft_ind].isret = is_ret;
+	Ft_mem[ft_ind].iscall = is_call;
+	int i;
+	if(is_call){
+		for(i = 0; i < func_count; i++){
+			if(target == symtab[i].st_value){
+				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
+				break;
+			} 
+		}
+		if(i == func_count) strcpy(Ft_mem[ft_ind].str, "???");
+	}
+	if(is_ret){
+		for(i = 0; i < func_count; i++){
+			if(addr >= symtab[i].st_value && addr < (symtab[i].st_value + symtab[i].st_size)){
+				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
+				break;
+			}
+		}
+		if(i == func_count) strcpy(Ft_mem[ft_ind].str, "???");
+	}
+	if(ft_ind == FTMEM_SIZE-1) ft_ind = 0;
+	else							ft_ind++;
+	if(ft_num != FTMEM_SIZE) ft_num++;
+	return;
+}
 
+void output_ftmem(){
+	int call_count = 0;
+	int i = ft_ind != ft_num ? ft_ind : 0;
+	while(1){
+		if(Ft_mem[i].iscall){
+			printf("0x%08x: ",Ft_mem[i].addr);
+			for(int j = 0; j < call_count; j++){
+				printf(" ");
+			}
+			printf("call [%s@0x%08x]\n",Ft_mem[i].str, Ft_mem[i].target);
+			call_count++;
+		}
+		if(Ft_mem[i].isret){
+			printf("0x%08x: ",Ft_mem[i].addr);
+			for(int j = 0; j < call_count-1; j++){
+				printf(" ");
+			}
+			printf("ret  [%s]\n",Ft_mem[i].str);
+			call_count--;
+		}
+		if(i == ft_ind - 1) break;
+		if(i == FTMEM_SIZE-1) i = 0;
+		else				 i++;
+	}
+}
 
-//int main(){
-//	init_ftrace();
-//	for(int i = 0; i < sym_count; i++){
-//		printf("Symbol %d: name = %s, addr = 0x%x, size = %d\n",
-//						i, sym_name[i], symtab[i].st_value, symtab[i].st_size);
-//	}
-//	return 0;
-//}
+void free_ft(){
+	for(int i = 0; i < func_count; i++){
+		free(sym_name[i]);
+	}
+	free(sym_name);
+	free(symtab);
+}
+

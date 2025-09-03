@@ -14,10 +14,9 @@
 ***************************************************************************************/
 
 #include <isa.h>
-#include <ftrrace.h>
+#include <ftrace.h>
 #include <memory/paddr.h>
 
-#define FTRACE_ARGS IFDEF(CONFIG_FTRACE, have_img = true; elf_file = argv[opind+1]) 
 
 void init_rand();
 void init_log(const char *log_file);
@@ -78,17 +77,25 @@ static int parse_args(int argc, char *argv[]) {
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
     {"help"     , no_argument      , NULL, 'h'},
+    {"elf"      , required_argument, NULL, 'e'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhe:l:d:p:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
+      case 'e': 
+					have_img = true; 
+					elf_file = optarg;
+					printf("elf_file:%s\n", elf_file); 
+					break;
       case 1: 
-				img_file = argv[opind]; FTRACE_ARGS; return 0;
+					img_file = optarg;
+					printf("img_file:%s\n", img_file);
+					break;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");
@@ -116,6 +123,11 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Initialize memory. */
   init_mem();
+
+#ifdef CONFIG_FTRACE
+  /* Initialize ft_memory. */
+  init_ftmem();
+#endif
 
   /* Initialize devices. */
   IFDEF(CONFIG_DEVICE, init_device());

@@ -24,8 +24,20 @@
 #define Mw vaddr_write
 #define SHIFT(x) s->dnpc = (uint32_t)((int32_t)s->pc + (int32_t)x)
 #define JMP(x) s->dnpc = x
-#define FTRACE_JAL IFDEF(CONFIG_FTRACE, if(rd == 1) is_call = true, dnpc = s->dnpc)
-#define FTRACE_JALR IFDEF(CONFIG_FTRACE, if(rd == 0 && rs1 == 1) is_ret = true, if(rd == 1 ) is_call = true, dnpc = s->dnpc)
+static void ftrace_jal(vaddr_t pc, vaddr_t dnpc, int rd) {
+#ifdef CONFIG_FTRACE
+  if (rd == 1)
+    update_ftmem(pc, dnpc, false, true);
+#endif
+}
+static void ftrace_jalr(vaddr_t pc, vaddr_t dnpc, int rd, int rs1) {
+#ifdef CONFIG_FTRACE
+  if (rd == 0 && rs1 == 1)
+    update_ftmem(pc, dnpc, true, false);
+  if (rd == 1)
+    update_ftmem(pc, dnpc, false, true);
+#endif
+}
 
 #ifdef CONFIG_IRINGBUF
 char iringbuf[IRINGBUF_DEPTH][128] = {};
@@ -42,6 +54,9 @@ typedef union {
 	int32_t i;
 } ui32_t;
 
+int rs1 = 0;
+int rs2 = 0;
+
 #define src1R() do { *src1 = R(rs1); } while (0)
 #define src2R() do { *src2 = R(rs2); } while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
@@ -52,8 +67,8 @@ typedef union {
 
 static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
-  int rs1 = BITS(i, 19, 15);
-  int rs2 = BITS(i, 24, 20);
+  rs1 = BITS(i, 19, 15);
+  rs2 = BITS(i, 24, 20);
   *rd     = BITS(i, 11, 7);
   switch (type) {
     case TYPE_I: src1R();          immI(); break;
@@ -144,8 +159,8 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 000 ????? 01000 11", sb     , S, Mw(src1 + imm, 1, src2));
   INSTPAT("??????? ????? ????? 001 ????? 01000 11", sh     , S, Mw(src1 + imm, 2, src2));
   INSTPAT("??????? ????? ????? 010 ????? 01000 11", sw     , S, Mw(src1 + imm, 4, src2));
-	INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->pc + 4, SHIFT(imm), FTRACE_JAL);
-	INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->pc + 4, JMP((src1 + imm) & 0xfffffffe), FTRACE_JALR);
+	INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->pc + 4, SHIFT(imm),  ftrace_jal(s->pc, s->dnpc, rd));
+	INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->pc + 4, JMP((src1 + imm) & 0xfffffffe), ftrace_jalr(s->pc, s->dnpc, rd, rs1));
 	INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq    , B, if(src1 == src2) SHIFT(imm));
 	INSTPAT("??????? ????? ????? 101 ????? 11000 11", bge    , B, if((int32_t)src1 >= (int32_t)src2) SHIFT(imm));
 	INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu   , B, if(src1 >= src2) SHIFT(imm));
@@ -155,6 +170,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
+	if(s->pc == 0x8000000c) printf("pc:0x%08x, dnpc:0x%08x, src1:0x%08x, imm:0x%08x\n",s->pc,  s->dnpc, src1, imm);
 
   R(0) = 0; // reset $zero to 0
 

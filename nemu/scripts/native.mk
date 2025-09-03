@@ -16,7 +16,7 @@
 -include $(NEMU_HOME)/../Makefile
 include $(NEMU_HOME)/scripts/build.mk
 
-include $(NEMU_HOME)/tools/difftest.mk
+MAKEFLAGS += --print-directory --no-builtin-rules --no-builtin-variables
 
 compile_git:
 	$(call git_commit, "compile NEMU")
@@ -29,7 +29,8 @@ override ARGS += $(ARGS_DIFF)
 
 # Command to execute NEMU
 IMG ?=
-NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
+ELF ?=
+NEMU_EXEC := $(BINARY) $(ARGS) $(ELF) $(IMG)
 
 run-env: $(BINARY) $(DIFF_REF_SO)
 
