@@ -58,7 +58,7 @@ ft Ft_mem[FTMEM_SIZE] = {};
 int ft_ind = 0;
 int ft_num = 0;
 
-char* elf_file = "/home/shaw/ysyx-workbench/am-kernels/tests/cpu-tests/build/min3-riscv32e-nemu.elf";
+char* elf_file = NULL;
 bool have_img = false;
 
 Elf32_Sym* symtab = NULL; 
