@@ -89,8 +89,8 @@ static int parse_args(int argc, char *argv[]) {
       case 'd': diff_so_file = optarg; break;
       case 'e': 
 					have_img = true; 
-					printf("elf_file:%s\n", elf_file); 
 					elf_file = optarg;
+					printf("elf_file:%s\n", elf_file); 
 					break;
       case 1: 
 					img_file = optarg;
