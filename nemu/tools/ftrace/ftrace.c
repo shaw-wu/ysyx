@@ -189,7 +189,7 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	}
 	if(is_ret){
 		for(i = 0; i < func_count; i++){
-			printf("addr: 0x%08x, size: 0x%08x, value: 0x%08x, sym_name:%s\n",addr, symtab[i].st_size, symtab[i].st_value,sym_name[i]);
+			printf("addr: 0x%08x, valueend: 0x%08x, value: 0x%08x, sym_name:%s\n",addr, symtab[i].st_size + symtab[i].st_value, symtab[i].st_value,sym_name[i]);
 			if(addr >= symtab[i].st_value && addr < (symtab[i].st_value + symtab[i].st_size)){
 				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
 			}
