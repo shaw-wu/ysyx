@@ -12,6 +12,7 @@
 #
 # See the Mulan PSL v2 for more details.
 #**************************************************************************************/
+include $(NEMU_HOME)/scripts/build.mk
 
 REPO_PATH = repo
 ifeq ($(wildcard repo/spike_main),)
