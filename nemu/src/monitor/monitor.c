@@ -17,7 +17,7 @@
 #include <ftrace.h>
 #include <memory/paddr.h>
 
-#define FTRACE_ARGS IFDEF(CONFIG_FTRACE, have_img = true; elf_file = argv[optind+1]) 
+#define FTRACE_ARGS IFDEF(CONFIG_FTRACE, have_img = true; elf_file = optarg) 
 
 void init_rand();
 void init_log(const char *log_file);
@@ -90,7 +90,7 @@ static int parse_args(int argc, char *argv[]) {
       case 'd': diff_so_file = optarg; break;
       case 1: 
 				if(!elf) {
-					img_file = argv[optind++]; 
+					img_file = optarg;
 					printf("img_file:%s\n", img_file);
 					elf = 1;
 				}
