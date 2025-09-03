@@ -192,6 +192,7 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 			printf("addr: 0x%08x, valueend: 0x%08x, value: 0x%08x, sym_name:%s\n",addr, symtab[i].st_size + symtab[i].st_value, symtab[i].st_value,sym_name[i]);
 			if(addr >= symtab[i].st_value && addr < (symtab[i].st_value + symtab[i].st_size)){
 				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
+				break;
 			}
 		}
 		if(i == func_count) strcpy(Ft_mem[ft_ind].str, "???");
@@ -219,7 +220,7 @@ void output_ftmem(){
 			for(int j = 0; j < call_count-1; j++){
 				printf(" ");
 			}
-			printf("ret  [%s@0x%08x]\n",Ft_mem[i].str, Ft_mem[i].target);
+			printf("ret  [%s]\n",Ft_mem[i].str);
 			call_count--;
 		}
 		if(i == ft_ind - 1) break;
