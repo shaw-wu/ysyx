@@ -150,14 +150,14 @@ void init_ftmem(){
 	
 	int ind = 0;	
 	for (int i = 0; i < sym_count; i++) {
-		sym_name[i] = (char*)malloc(64); // 为每个名字分配 64 字节空间
-		assert(sym_name[i] != NULL);
-		memset(sym_name[i], 0, 64);
 	  fseek(fp, sym_offset + i * sizeof(Elf32_Sym), SEEK_SET);
 	  ret = fread(&symtab[ind], sizeof(Elf32_Sym), 1, fp);
 	  assert(ret == 1);
 		if((symtab[ind].st_info & 0x0f) != 2) continue;
 		else {
+			sym_name[ind] = (char*)malloc(64); // 为每个名字分配 64 字节空间
+			assert(sym_name[ind] != NULL);
+			memset(sym_name[ind], 0, 64);
 			fseek(fp, str_offset + symtab[ind].st_name, SEEK_SET);
 	  	ret = fread(sym_name[i], 63, 1, fp); // 最多读取63字节
 			printf("str_offset:0x%ld, st_name:%d, sym_name:%s\n",str_offset, symtab[ind].st_name, sym_name[i]);
