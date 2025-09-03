@@ -81,19 +81,19 @@ static int parse_args(int argc, char *argv[]) {
     {0          , 0                , NULL,  0 },
   };
   int o;
+	int elf = 0;
   while ( (o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1) {
-				printf("\n%s\n", argv[optind]);
-				printf("\n%s\n", argv[optind+1]);
-				printf("\n%s\n", argv[optind+2]);
-				printf("\n%s\n", argv[optind+3]);
-				printf("\n%s\n", argv[optind+4]);
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
       case 1: 
-				img_file = argv[optind]; FTRACE_ARGS; return 0;
+				if(!elf) {
+					img_file = argv[optind]; 
+					elf = 1;
+				}
+				if(elf) FTRACE_ARGS; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");
