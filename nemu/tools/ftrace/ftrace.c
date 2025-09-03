@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define FTMEM_SIZE 256
+
 typedef struct {
   unsigned char e_ident[16];     // 0x00
   uint16_t e_type;               // 0x10
@@ -52,7 +54,7 @@ typedef struct {
 	bool iscall;
 	bool isret;
 } ft;
-ft Ft_mem[256] = {};
+ft Ft_mem[FTMEM_SIZE] = {};
 int ft_ind = 0;
 int ft_num = 0;
 
@@ -116,7 +118,7 @@ void init_ftmem(){
 		Log("No elf is given");
 		return ;
 	}
-	memset(Ft_mem, 0, sizeof(Ft_mem[0])*256);
+	memset(Ft_mem, 0, sizeof(Ft_mem[0])*FTMEM_SIZE);
 
 	Elf32_Ehdr head = {};
 	long str_offset = 0;
@@ -182,9 +184,9 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	}
 	if(i == func_count) strcpy(Ft_mem[ft_ind].str, "???");
 
-	if(ft_ind == 255) ft_ind = 0;
+	if(ft_ind == FTMEM_SIZE-1) ft_ind = 0;
 	else							ft_ind++;
-	if(ft_num != 256) ft_num++;
+	if(ft_num != FTMEM_SIZE) ft_num++;
 	return;
 }
 
@@ -206,10 +208,10 @@ void output_ftmem(){
 				printf(" ");
 			}
 			printf("ret  [%s@0x%08x\n",Ft_mem[i].str, Ft_mem[i].target);
-			call_count++;
+			call_count--;
 		}
 		if(i == ft_ind - 1) break;
-		if(i == 255) i = 0;
+		if(i == FTMEM_SIZE-1) i = 0;
 		else				 i++;
 	}
 }
