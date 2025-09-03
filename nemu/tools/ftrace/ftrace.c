@@ -159,10 +159,10 @@ void init_ftmem(){
 			assert(sym_name[ind] != NULL);
 			memset(sym_name[ind], 0, 64);
 			fseek(fp, str_offset + symtab[ind].st_name, SEEK_SET);
-	  	ret = fread(sym_name[i], 63, 1, fp); // 最多读取63字节
-			printf("str_offset:0x%ld, st_name:%d, sym_name:%s\n",str_offset, symtab[ind].st_name, sym_name[i]);
+	  	ret = fread(sym_name[ind], 63, 1, fp); // 最多读取63字节
+			printf("str_offset:0x%ld, st_name:%d, sym_name:%s\n",str_offset, symtab[ind].st_name, sym_name[ind]);
 			assert(ret == 1);
-	  	sym_name[i][63] = '\0'; // 防止溢出
+	  	sym_name[ind][63] = '\0'; // 防止溢出
 			ind ++;
 			func_count++;
 		}
