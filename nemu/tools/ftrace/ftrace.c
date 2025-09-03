@@ -116,6 +116,7 @@ void init_ftmem(){
 		Log("No elf is given");
 		return ;
 	}
+	printf("1\n");
 	memset(Ft_mem, 0, sizeof(Ft_mem[0])*256);
 
 	Elf32_Ehdr head = {};
@@ -124,6 +125,7 @@ void init_ftmem(){
 	uint32_t sym_size = 0;
 	uint32_t sym_entsize = 0;
 
+	printf("2\n");
 	FILE *fp = fopen(elf_file, "rb");
 	Assert(fp, "Can not open '%s'", elf_file);
 
