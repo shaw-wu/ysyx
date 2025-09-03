@@ -109,7 +109,6 @@ long check_Sh(FILE* elf, uint32_t shoff, uint16_t shentsize, uint16_t shnum, uin
   }
 
   // 如果找不到 .symtab
-  fprintf(stderr, "找不到 .symtab 节！\n");
   return -1;
 }
 
@@ -126,7 +125,6 @@ void init_ftmem(){
 	uint32_t sym_size = 0;
 	uint32_t sym_entsize = 0;
 
-	printf("%s\n", elf_file);
 	FILE *fp = fopen(elf_file, "rb");
 	Assert(fp, "Can not open '%s'", elf_file);
 
@@ -160,7 +158,6 @@ void init_ftmem(){
 			memset(sym_name[ind], 0, 64);
 			fseek(fp, str_offset + symtab[ind].st_name, SEEK_SET);
 	  	ret = fread(sym_name[ind], 63, 1, fp); // 最多读取63字节
-			//printf("str_offset:0x%ld, st_name:%d, sym_name:%s\n",str_offset, symtab[ind].st_name, sym_name[ind]);
 			assert(ret == 1);
 	  	sym_name[ind][63] = '\0'; // 防止溢出
 			ind ++;
@@ -178,10 +175,8 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	int i;
 	if(is_call){
 		for(i = 0; i < func_count; i++){
-			//printf("sym_name:%s\n",sym_name[i]);
 			if(target == symtab[i].st_value){
 				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
-				//printf("str:%s, sym_name:%s\n",Ft_mem[ft_ind].str,sym_name[i]);
 				break;
 			} 
 		}
@@ -189,7 +184,6 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	}
 	if(is_ret){
 		for(i = 0; i < func_count; i++){
-			printf("addr: 0x%08x, valueend: 0x%08x, value: 0x%08x, sym_name:%s\n",addr, symtab[i].st_size + symtab[i].st_value, symtab[i].st_value,sym_name[i]);
 			if(addr >= symtab[i].st_value && addr < (symtab[i].st_value + symtab[i].st_size)){
 				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
 				break;
