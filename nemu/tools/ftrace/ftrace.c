@@ -180,7 +180,7 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 		printf("%d : addr:0x%08x, target:0x%08x, symtab:0x%08x\n", i, addr, target, symtab[i].st_value);
 		if(target == symtab[i].st_value){
 			strcpy(Ft_mem[ft_ind].str, sym_name[i]);
-			printf("str:%s\n",Ft_mem[ft_ind].str);
+			printf("str:%s, sym_name:%s\n",Ft_mem[ft_ind].str,sym_name[i]);
 			break;
 		} 
 	}
