@@ -91,9 +91,14 @@ static int parse_args(int argc, char *argv[]) {
       case 1: 
 				if(!elf) {
 					img_file = argv[optind]; 
+					printf("img_file:%s\n", img_file);
 					elf = 1;
 				}
-				if(elf) FTRACE_ARGS; return 0;
+				if(elf) {
+					FTRACE_ARGS; 
+					printf("elf_file:%s\n", elf_file);
+					return 0;
+				}
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");
