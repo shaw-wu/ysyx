@@ -19,7 +19,6 @@
 #include <common.h>
 #include <stdio.h>
 #include <utils.h>
-#include <ftrace.h>
 
 #ifdef CONFIG_IRINGBUF
 #define IRINGBUF_DEPTH 16
