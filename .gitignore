@@ -6,7 +6,6 @@
 !/nanos-lite/*
 !/navy-apps/*
 !/npc/*
-!/riscv-test-am/*
 !Makefile
 !README.md
 !.gitignore
@@ -15,3 +14,4 @@
 /nvboard
 /am-kernels
 /yosys_sta
+/riscv-test-am/*

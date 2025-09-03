@@ -28,6 +28,13 @@ extern int ptr;
 #endif
 
 
+#ifdef CONFIG_IRINGBUF
+#define IRINGBUF_DEPTH 16
+extern char iringbuf[IRINGBUF_DEPTH][128];
+extern int ptr;
+#endif
+
+
 #define Log(format, ...) \
     _Log(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_BLUE) "\n", \
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
@@ -46,7 +53,6 @@ extern int ptr;
             printf("%s\n", iringbuf[i]); \
         } \
       ) \
-			IFDEF(CONFIG_FTRACE, output_ftmem());\
       MUXDEF(CONFIG_TARGET_AM, printf(ANSI_FMT(format, ANSI_FG_RED) "\n", ## __VA_ARGS__), \
         (fflush(stdout), fprintf(stderr, ANSI_FMT(format, ANSI_FG_RED) "\n", ##  __VA_ARGS__))); \
       IFNDEF(CONFIG_TARGET_AM, extern FILE* log_fp; fflush(log_fp)); \
