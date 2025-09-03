@@ -95,7 +95,7 @@ static int parse_args(int argc, char *argv[]) {
       case 1: 
 					img_file = optarg;
 					printf("img_file:%s\n", img_file);
-					return 0;
+					break;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");
