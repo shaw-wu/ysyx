@@ -158,7 +158,7 @@ void init_ftmem(){
 	  assert(ret == 1);
 		if((symtab[ind].st_info & 0x0f) != 2) continue;
 		else {
-			ind = i + 1;
+			ind ++;
 			func_count++;
 		}
 	
