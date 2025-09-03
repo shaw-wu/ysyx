@@ -182,6 +182,10 @@ config MTRACE
   bool "Enable memory trace"
   default n
 
+config FTRACE 
+  bool "Enable function trace"
+  default n
+
 config DIFFTEST
   depends on TARGET_NATIVE_ELF
   bool "Enable differential testing"
