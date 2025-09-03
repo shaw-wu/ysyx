@@ -26,7 +26,7 @@ image: $(IMAGE).elf
 
 run: image
 	@echo IMG=$(IMG) ELF=$(IMG_ELF)
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" -e ELF=$(IMG_ELF) -b IMG=$(IMG)
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" ELF=$(IMG_ELF) IMG=$(IMG)
 
 gdb: image
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" -e ELF=$(IMG_ELF) -b IMG=$(IMG) 
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" ELF=$(IMG_ELF) IMG=$(IMG) 
