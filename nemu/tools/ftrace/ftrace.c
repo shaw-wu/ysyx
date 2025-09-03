@@ -177,11 +177,11 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	Ft_mem[ft_ind].iscall = is_call;
 	int i;
 	for(i = 0; i < func_count; i++){
-		printf("str:%s\n",Ft_mem[ft_ind].str);
 		if(target == symtab[i].st_value){
 			strcpy(Ft_mem[ft_ind].str, sym_name[i]);
 			break;
 		} 
+		printf("str:%s\n",Ft_mem[ft_ind].str);
 	}
 	if(i == func_count) strcpy(Ft_mem[ft_ind].str, "???");
 
