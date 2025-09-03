@@ -177,6 +177,7 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	Ft_mem[ft_ind].iscall = is_call;
 	int i;
 	for(i = 0; i < func_count; i++){
+		printf("str:%s\n",Ft_mem[ft_ind].str);
 		if(target == symtab[i].st_value){
 			strcpy(Ft_mem[ft_ind].str, sym_name[i]);
 			break;
@@ -199,7 +200,7 @@ void output_ftmem(){
 			for(int j = 0; j < call_count; j++){
 				printf(" ");
 			}
-			printf("call [%s@0x%08x\n",Ft_mem[i].str, Ft_mem[i].target);
+			printf("call [%s@0x%08x]\n",Ft_mem[i].str, Ft_mem[i].target);
 			call_count++;
 		}
 		if(Ft_mem[i].isret){
@@ -207,7 +208,7 @@ void output_ftmem(){
 			for(int j = 0; j < call_count-1; j++){
 				printf(" ");
 			}
-			printf("ret  [%s@0x%08x\n",Ft_mem[i].str, Ft_mem[i].target);
+			printf("ret  [%s@0x%08x]\n",Ft_mem[i].str, Ft_mem[i].target);
 			call_count--;
 		}
 		if(i == ft_ind - 1) break;
