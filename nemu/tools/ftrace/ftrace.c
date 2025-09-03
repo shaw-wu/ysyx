@@ -160,7 +160,7 @@ void init_ftmem(){
 			memset(sym_name[ind], 0, 64);
 			fseek(fp, str_offset + symtab[ind].st_name, SEEK_SET);
 	  	ret = fread(sym_name[ind], 63, 1, fp); // 最多读取63字节
-			printf("str_offset:0x%ld, st_name:%d, sym_name:%s\n",str_offset, symtab[ind].st_name, sym_name[ind]);
+			//printf("str_offset:0x%ld, st_name:%d, sym_name:%s\n",str_offset, symtab[ind].st_name, sym_name[ind]);
 			assert(ret == 1);
 	  	sym_name[ind][63] = '\0'; // 防止溢出
 			ind ++;
@@ -176,16 +176,25 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	Ft_mem[ft_ind].isret = is_ret;
 	Ft_mem[ft_ind].iscall = is_call;
 	int i;
-	for(i = 0; i < func_count; i++){
-		printf("sym_name:%s\n",sym_name[i]);
-		if(target == symtab[i].st_value){
-			strcpy(Ft_mem[ft_ind].str, sym_name[i]);
-			//printf("str:%s, sym_name:%s\n",Ft_mem[ft_ind].str,sym_name[i]);
-			break;
-		} 
+	if(is_call){
+		for(i = 0; i < func_count; i++){
+			//printf("sym_name:%s\n",sym_name[i]);
+			if(target == symtab[i].st_value){
+				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
+				//printf("str:%s, sym_name:%s\n",Ft_mem[ft_ind].str,sym_name[i]);
+				break;
+			} 
+		}
+		if(i == func_count) strcpy(Ft_mem[ft_ind].str, "???");
 	}
-	if(i == func_count) strcpy(Ft_mem[ft_ind].str, "???");
-
+	if(is_ret){
+		for(i = 0; i < func_count; i++){
+			if(addr >= symtab[i].st_value && addr < (symtab[i].st_value + symtab[i].st_size)){
+				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
+			}
+		}
+		if(i == func_count) strcpy(Ft_mem[ft_ind].str, "???");
+	}
 	if(ft_ind == FTMEM_SIZE-1) ft_ind = 0;
 	else							ft_ind++;
 	if(ft_num != FTMEM_SIZE) ft_num++;
