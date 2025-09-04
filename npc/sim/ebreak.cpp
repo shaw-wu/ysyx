@@ -4,6 +4,6 @@
 #include <cassert>
 
 void is_ebreak(int ebreak){
-  if(ebreak) stop_sim = 1; 
+  if(ebreak) stop_sim = 1;
 	return;
 }

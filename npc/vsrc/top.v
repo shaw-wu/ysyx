@@ -28,10 +28,12 @@ wire                   idu_exu_ebreak;
 wire [ADDR_WIDTH -1:0] idu_exu_snpc	 ; 
 wire [ADDR_WIDTH -1:0] idu_exu_dnpc	 ; 
 wire [ADDR_WIDTH -1:0] idu_exu_pc		 ; 
+wire [DATA_WIDTH -1:0] idu_exu_shamt ; 
 wire [DATA_WIDTH -1:0] idu_exu_imm 	 ; 
 wire [DATA_WIDTH -1:0] idu_exu_src1	 ; 
 wire [DATA_WIDTH -1:0] idu_exu_src2	 ; 
 wire [RS_WIDTH	 -1:0] idu_exu_rd    ;  
+wire [OPMUX_WIDTH-1:0] idu_exu_opmux ;	 
 wire [OPSEL_WIDTH-1:0] idu_exu_opsel ;	 
 wire [DATA_WIDTH -1:0] idu_exu_mwdata;
 wire idu_exu_memwr  ;
@@ -106,10 +108,12 @@ ysyx_25010009_idu #(
 	.exu_snpc(idu_exu_snpc	 ),
 	.exu_dnpc(idu_exu_dnpc	 ),
 	.exu_pc	 (idu_exu_pc		 ),
+	.exu_shamt(idu_exu_shamt ),
   .exu_imm (idu_exu_imm 	 ),
 	.src1		 (idu_exu_src1	 ),
-  .src2		 (idu_exu_src2	 ),
+	.src2		 (idu_exu_src2	 ),
 	.rd      (idu_exu_rd     ),
+	.opmux	 (idu_exu_opmux  ),
 	.opsel	 (idu_exu_opsel	 ),
 	.mwdata  (idu_exu_mwdata ),
 	.memwr   (idu_exu_memwr  ),
@@ -135,9 +139,11 @@ ysyx_25010009_exu #(
 	.dnpc					(idu_exu_dnpc					),
 	.pc     			(idu_exu_pc     			),
 	.imm    			(idu_exu_imm    			),
+	.shamt				(idu_exu_shamt			  ),
 	.src1	  			(idu_exu_src1	  			),
-  .src2	  			(idu_exu_src2	  			),
+	.src2	  			(idu_exu_src2	  			),
 	.rd     			(idu_exu_rd     			),
+	.opmux			  (idu_exu_opmux  			),
 	.opsel  			(idu_exu_opsel  			),
 	.mwdata 			(idu_exu_mwdata 			),
 	.memwr  			(idu_exu_memwr  			),

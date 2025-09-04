@@ -2,7 +2,8 @@ module ysyx_25010009_exu #(
 	parameter DATA_WIDTH  = 32, 
 	parameter ADDR_WIDTH  = 32, 
 	parameter RS_WIDTH    = 5 , 
-	parameter OPSEL_WIDTH = 4
+	parameter OPSEL_WIDTH = 4 ,
+	parameter OPMUX_WIDTH = 4
 )(
 	input clk,
 	input rst,
@@ -11,9 +12,11 @@ module ysyx_25010009_exu #(
 	input  [ADDR_WIDTH -1:0] dnpc   ,
 	input  [ADDR_WIDTH -1:0] pc     ,
 	input  [DATA_WIDTH -1:0] imm    ,
+	input  [DATA_WIDTH -1:0] shamt  ,
 	input  [DATA_WIDTH -1:0] src1	  ,
-  input  [DATA_WIDTH -1:0] src2	  ,
+	input  [DATA_WIDTH -1:0] src2	  ,
 	input  [RS_WIDTH   -1:0] rd     ,
+	input  [OPMUX_WIDTH-1:0] opmux	,
 	input  [OPSEL_WIDTH-1:0] opsel  ,
 	input  [DATA_WIDTH -1:0] mwdata ,
 	input	 								   memwr  ,
@@ -40,13 +43,49 @@ module ysyx_25010009_exu #(
 
 //ALU
 wire [DATA_WIDTH-1:0] alu_result;
+reg [DATA_WIDTH -1:0] ina;
+reg [DATA_WIDTH -1:0] inb;
+
+always @(*) begin
+	case(opmux) 
+		4'b0001 : begin 
+			ina = src1;
+			inb = src2;
+		end
+		4'b0010 : begin
+			ina = src1;
+			inb = imm;
+		end 
+		4'b0011 : begin 
+			ina = pc;
+			inb = imm;
+		end
+		4'b0100 : begin 
+			ina = src1;
+			inb = shamt;
+		end 
+		4'b0101 : begin
+			ina = imm;
+			inb = 32'd0;
+		end 
+		4'b0110 : begin
+			ina = pc;
+			inb = 32'd4;
+		end 
+		default : begin
+			ina = 32'd0;
+	  	inb = 32'd0;
+		end
+	endcase
+end
+
 ysyx_25010009_ALU #(
 	.DATA_WIDTH (DATA_WIDTH),
 	.OPSEL_WIDTH(OPSEL_WIDTH)
 ) alu(
 	.sel(opsel ),
-	.ina(src1  ),
-	.inb(src2  ),
+	.ina(ina	 ),
+	.inb(inb	 ),
 	.out(alu_result)
 );
  

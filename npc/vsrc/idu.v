@@ -19,21 +19,23 @@ module ysyx_25010009_idu #(
 	input  [ADDR_WIDTH -1:0] dnpc	  ,
 	//exu
 	output                   exu_ebreak,
-	output [ADDR_WIDTH -1:0] exu_snpc,
-	output [ADDR_WIDTH -1:0] exu_dnpc,
-	output [ADDR_WIDTH -1:0] exu_pc	 ,
-  output [DATA_WIDTH -1:0] exu_imm ,
-	output [DATA_WIDTH -1:0] src1		 ,
-  output [DATA_WIDTH -1:0] src2		 ,
-	output [RS_WIDTH   -1:0] rd      ,
-	output [OPSEL_WIDTH-1:0] opsel	 ,
-	output [DATA_WIDTH -1:0] mwdata  ,
-	output									 memwr   ,
-	output									 memre   ,
-	output									 regwr   ,	
-	output									 is_jalr ,
-	output									 is_jal  ,
-	output									 is_bxx  ,
+	output [ADDR_WIDTH -1:0] exu_snpc  ,
+	output [ADDR_WIDTH -1:0] exu_dnpc	 ,
+	output [ADDR_WIDTH -1:0] exu_pc	 	 ,
+  output [DATA_WIDTH -1:0] exu_imm 	 ,
+  output [DATA_WIDTH -1:0] exu_shamt ,
+	output [DATA_WIDTH -1:0] src1			 ,
+	output [DATA_WIDTH -1:0] src2			 ,
+	output [RS_WIDTH   -1:0] rd      	 ,
+	output [OPMUX_WIDTH-1:0] opmux	 	 ,
+	output [OPSEL_WIDTH-1:0] opsel	 	 ,
+	output [DATA_WIDTH -1:0] mwdata  	 ,
+	output									 memwr   	 ,
+	output									 memre   	 ,
+	output									 regwr   	 ,	
+	output									 is_jalr 	 ,
+	output									 is_jal  	 ,
+	output									 is_bxx  	 ,
 	//regfile
 	output [RS_WIDTH   -1:0] rs1		,
 	output [RS_WIDTH   -1:0] rs2		,
@@ -133,18 +135,19 @@ assign imm = (Type == TYPE_I) ? {{21{inst[31]}}, inst[30:25], inst[24:21], inst[
 assign shamt = {{(DATA_WIDTH-RS_WIDTH){1'b0}}, inst[RS2_EN:RS2_ST]};
 
 //opmux/opsel
-wire [OPMUX_WIDTH-1:0] opmux;
 assign opmux = sll || srl  || sra || add || sub || xor_ || or_  || and_ ||
 							 slt || sltu ||	beq || bne || blt || bge  || bltu || bgeu		 ? 4'b0001 : //rs1_rs2
 							 addi || xori || ori || andi || slti || sltiu || lb || lh ||
 							 lw		|| lbu  || lhu || sb   || sh	 || sw									 ? 4'b0010 : //rs1_imm
-							 auipc																											 ? 4'b0011 : //pc_imm
+							 auipc                                                       ? 4'b0011 : //pc_imm
 							 slli || srli || srai																				 ? 4'b0100 : //rs1_shamt
 							 lui																												 ? 4'b0101 : //imm_0
+							 jal  || jalr																								 ? 4'b0110 : //pc_4
 							 4'b0000; //rs1_rs2
 assign opsel = add || addi || lui || auipc ||
 							 lb  || lh	 || lw	|| lbu	 ||
-							 lhu || sb	 || sh	|| sw			  ? 4'b0001 : //+
+							 lhu || sb	 || sh	|| sw		 ||	
+							 jal || jalr                    ? 4'b0001 : //+
 							 sub												    ? 4'b0010 : //-
 							 and_ || andi								    ? 4'b0011 : //&
 							 or_	|| ori								    ? 4'b0100 : //|
@@ -160,41 +163,8 @@ assign opsel = add || addi || lui || auipc ||
 							 bgeu												    ? 4'b1110 : //>=u
 							 4'b0000;//+
 
-//src1/src2
-reg [DATA_WIDTH -1:0] wire_src1;
-reg [DATA_WIDTH -1:0] wire_src2;
-
-always @(*) begin
-	case(opmux) 
-		4'b0001 : begin 
-			wire_src1 = rf_src1;
-			wire_src2 = rf_src2;
-		end
-		4'b0010 : begin
-			wire_src1 = rf_src1;
-			wire_src2 = imm;
-		end 
-		4'b0011 : begin 
-			wire_src1 = pc;
-			wire_src2 = imm;
-		end
-		4'b0100 : begin 
-			wire_src1 = rf_src1;
-			wire_src2 = shamt;
-		end 
-		4'b0101 : begin
-			wire_src1 = imm;
-			wire_src2 = 32'd0;
-		end 
-		default : begin
-			wire_src1 = 32'd0;
-	  	wire_src2 = 32'd0;
-		end
-	endcase
-end
-
-assign src1 = wire_src1;
-assign src2 = wire_src2;
+assign src1 = rf_src1;
+assign src2 = rf_src2;
 
 //other output signal
 assign rs1 = inst[RS1_EN:RS1_ST];
@@ -208,12 +178,13 @@ assign memwr = sb || sh || sw;
 assign memre = lb || lh || lw || lbu || lhu;
 assign regwr = sll  || slli || srl || srli || sra  || srai || add || addi || sub  || lui   || auipc ||
 							 xor_ || xori	|| or_ || ori  || and_ || andi || slt || slti || sltu || sltiu || lb		||
-							 lh		|| lw		|| lbu || lhu																															;
+							 lh		|| lw		|| lbu || lhu	 || jal  || jalr 																						;
 
 assign exu_pc   = pc;
 assign exu_snpc = snpc;
 assign exu_dnpc = dnpc;
 assign exu_imm  = imm ;
+assign exu_shamt= shamt;
 
 function integer clog2;
 	input integer value;
