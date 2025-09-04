@@ -1,4 +1,4 @@
-STUID = ysyx_202301202
+STUID = ysyx_25010009
 STUNAME = 吴孝洲
 
 edits = $(wildcard edit*)

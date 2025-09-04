@@ -26,6 +26,9 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS = $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\""
 
+IMG ?=
+DIFF_REF_SO ?=
+
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
@@ -35,9 +38,12 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 all: default
 
+compile:$(BIN)
+	@echo $(info # compile $(BIN))
+	
 sim:$(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@$^
+	@$^ $(IMG) $(DIFF_REF_SO)
 cleansim:
 	@rm -rf $(BUILD_DIR)
 	@mkdir $(BUILD_DIR)

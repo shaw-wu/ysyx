@@ -3,24 +3,21 @@
 #include "irom.h"
 #include <cassert>
 
-static int ROM[ROM_SIZE];
+static int ROM[ROM_SIZE] = {};
 
-void load_rom(FILE *fp){
-	char line[10] = {};
-	int i;
-	//printf("load coe\n");
-	while(fgets(line, sizeof(line), fp)){
-		int inst;
-		sscanf(line, "%08x", &inst);
-		ROM[i++] = inst;
-	  //printf("inst:%08x, ROM[%d]:%08x\n", inst, i-1, ROM[i-1]);
-	}
+void load_img(FILE *fp){
+	fseek(fp, 0, SEEK_END);
+	long size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	size_t read_bytes = fread(ROM, 1, size, fp);
+	if (read_bytes != size) {
+    fprintf(stderr, "Read error: expected %ld bytes, got %zu\n", size, read_bytes);
+  }
 	return;
 }
 
 int read_irom(int vaddr){
 	int paddr = (vaddr & 0x00000ffe) >> 2;	
-	//for(int i = 0; i < 4; i ++) printf("ROM[%d]:%08x\n", i, ROM[i]);
-	//printf("paddr:%d\n", paddr);
 	return ROM[paddr];
 }

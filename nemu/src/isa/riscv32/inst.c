@@ -170,7 +170,6 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
-	if(s->pc == 0x8000000c) printf("pc:0x%08x, dnpc:0x%08x, src1:0x%08x, imm:0x%08x\n",s->pc,  s->dnpc, src1, imm);
 
   R(0) = 0; // reset $zero to 0
 

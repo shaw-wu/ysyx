@@ -25,5 +25,6 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	@$(NPC_HOME)/build/ysyx_23060336 $(IMAGE).bin $(DIFF_REF_SO)
+	$(MAKE) -C $(NPC_HOME) sim IMG="$(IMAGE).bin" DIFF_REF_SO=$(DIFF_REF_SO)
+	#$(BIN) $(IMAGE).bin $(DIFF_REF_SO)
 	

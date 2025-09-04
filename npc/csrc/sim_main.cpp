@@ -30,8 +30,10 @@ void sim_init(int argc, char** argv ){
 	dut->clk = 0;
 	dut->rst = 1;
 
-	FILE *coe = fopen("/home/shaw/ysyx-workbench/npc/sim/irom/inst.coe", "r");
-	load_rom(coe);
+	if(argc < 2) assert(0);
+	char *img_file = argv[1];
+	FILE *coe = fopen(img_file, "rb");
+	load_img(coe);
 	fclose(coe);
 
 	#ifdef ENABLE_WAVEFORM
