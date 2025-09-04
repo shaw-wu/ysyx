@@ -24,7 +24,10 @@ wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
 wire [ADDR_WIDTH-1:0] ifu_idu_snpc;
 wire [ADDR_WIDTH-1:0] ifu_idu_dnpc;
 
+`ifdef VERILATOR
 wire                   idu_exu_ebreak; 
+wire [DATA_WIDTH -1:0] idu_exu_a0		 ; 
+`endif
 wire [ADDR_WIDTH -1:0] idu_exu_snpc	 ; 
 wire [ADDR_WIDTH -1:0] idu_exu_dnpc	 ; 
 wire [ADDR_WIDTH -1:0] idu_exu_pc		 ; 
@@ -42,12 +45,18 @@ wire idu_exu_regwr  ;
 wire idu_exu_is_jalr;
 wire idu_exu_is_jal ;
 wire idu_exu_is_bxx ;
+`ifdef VERILATOR
+wire [DATA_WIDTH-1:0] idu_rf_a0;
+`endif
 wire [RS_WIDTH	-1:0] idu_rf_rs1		 ;
 wire [RS_WIDTH	-1:0] idu_rf_rs2		 ;
 wire [DATA_WIDTH-1:0] idu_rf_src1;
 wire [DATA_WIDTH-1:0] idu_rf_src2;
 
+`ifdef VERILATOR
 wire exu_lsu_ebreak;
+wire [DATA_WIDTH-1:0] exu_lsu_a0;
+`endif
 wire [ADDR_WIDTH-1:0] exu_lsu_pc		;
 wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
 wire exu_lsu_memwr 	;
@@ -104,7 +113,10 @@ ysyx_25010009_idu #(
 	.pc			 (ifu_idu_pc		 ),
 	.snpc	   (ifu_idu_snpc	 ),
 	.dnpc	   (ifu_idu_dnpc	 ),
+`ifdef VERILATOR
 	.exu_ebreak(idu_exu_ebreak),
+	.exu_a0		 (idu_exu_a0		),
+`endif
 	.exu_snpc(idu_exu_snpc	 ),
 	.exu_dnpc(idu_exu_dnpc	 ),
 	.exu_pc	 (idu_exu_pc		 ),
@@ -122,6 +134,9 @@ ysyx_25010009_idu #(
 	.is_jalr (idu_exu_is_jalr),
 	.is_jal  (idu_exu_is_jal ),
 	.is_bxx  (idu_exu_is_bxx ),
+`ifdef VERILATOR
+	.rf_a0	 (idu_rf_a0			 ),
+`endif
 	.rs1		 (idu_rf_rs1		 ),
 	.rs2		 (idu_rf_rs2		 ),
 	.rf_src1 (idu_rf_src1		 ),
@@ -135,7 +150,10 @@ ysyx_25010009_exu #(
 ) EXU (
 	.clk					(clk					),
 	.rst					(rst					),
+`ifdef VERILATOR
 	.ebreak				(idu_exu_ebreak			  ),
+	.a0						(idu_exu_a0						),
+`endif
 	.dnpc					(idu_exu_dnpc					),
 	.pc     			(idu_exu_pc     			),
 	.imm    			(idu_exu_imm    			),
@@ -154,7 +172,10 @@ ysyx_25010009_exu #(
 	.is_bxx 			(idu_exu_is_bxx 			),
 	.isRAW_control(             				),
 	.exu_dnpc			(exu_dnpc						  ),
+`ifdef VERILATOR
 	.lsu_ebreak	  (exu_lsu_ebreak				),
+	.lsu_a0				(exu_lsu_a0					  ),
+`endif
 	.lsu_pc		 		(exu_lsu_pc		 				),
 	.lsu_mwdata		(exu_lsu_mwdata				),
 	.lsu_memwr 		(exu_lsu_memwr 				),
@@ -173,7 +194,10 @@ ysyx_25010009_wbu #(
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
 	.pc		   (exu_lsu_pc		 ),
+`ifdef VERILATOR
 	.ebreak  (exu_lsu_ebreak ),
+	.a0			 (exu_lsu_a0     ),
+`endif
 	.regwr   (exu_wbu_regwr	 ),	
 	.rd		   (exu_wbu_rd		 ),
 	.gpr_res (exu_wbu_res		 ),  
@@ -190,6 +214,9 @@ ysyx_25010009_RegisterFile #(
 	.rst		 (rst		    		 ),
 	.wdata	 (wbu_rf_wdata	 ),
 	.waddr	 (wbu_rf_rd			 ),
+`ifdef VERILATOR
+	.a0_data (idu_rf_a0      ),
+`endif
 	.raddr1	 (idu_rf_rs1		 ),
 	.raddr2	 (idu_rf_rs2		 ),
 	.rdata1	 (idu_rf_src1		 ),

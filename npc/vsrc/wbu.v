@@ -5,7 +5,10 @@ module ysyx_25010009_wbu #(
 )(
 	input clk,
 	input rst,
+`ifdef VERILATOR
 	input										 ebreak,
+	input [DATA_WIDTH  -1:0] a0		 ,
+`endif
 	input  [ADDR_WIDTH -1:0] pc		 ,
 	input	 								   regwr ,	
 	input  [RS_WIDTH   -1:0] rd		 ,
@@ -19,7 +22,9 @@ assign rf_wen   = regwr;
 assign rf_rd    = rd;
 assign rf_wdata = gpr_res;
 
-ebreak EBREAK(clk, ebreak);
+`ifdef VERILATOR
+ebreak EBREAK(clk, ebreak, a0, pc);
+`endif
 
 endmodule
 	

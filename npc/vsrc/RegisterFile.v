@@ -7,6 +7,9 @@ module ysyx_25010009_RegisterFile #(
 	input rst,
 	input [DATA_WIDTH-1:0] wdata,
 	input [ADDR_WIDTH-1:0] waddr,
+`ifdef VERILATOR
+	output [DATA_WIDTH-1:0] a0_data,
+`endif
 	input [ADDR_WIDTH-1:0] raddr1,
 	input [ADDR_WIDTH-1:0] raddr2,
 	output [DATA_WIDTH-1:0] rdata1,
@@ -28,6 +31,9 @@ end
 
 assign rdata1 = rf[raddr1];
 assign rdata2 = rf[raddr2];
+`ifdef VERILATOR
+assign a0_data = rf[10];
+`endif
 
 always @(*) begin
 	rf[0] = {DATA_WIDTH{1'b0}};

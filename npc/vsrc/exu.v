@@ -8,7 +8,10 @@ module ysyx_25010009_exu #(
 	input clk,
 	input rst,
 	//idu
+`ifdef VERILATOR
 	input										 ebreak	,
+	input  [DATA_WIDTH -1:0] a0			,
+`endif
 	input  [ADDR_WIDTH -1:0] dnpc   ,
 	input  [ADDR_WIDTH -1:0] pc     ,
 	input  [DATA_WIDTH -1:0] imm    ,
@@ -30,7 +33,10 @@ module ysyx_25010009_exu #(
 	output								   isRAW_control,
 	output [ADDR_WIDTH -1:0] exu_dnpc ,
 	//lsu
-	output	 								 lsu_ebreak,
+`ifdef VERILATOR
+	output 									 lsu_ebreak,
+	output [DATA_WIDTH -1:0] lsu_a0		 ,
+`endif
 	output [ADDR_WIDTH -1:0] lsu_pc		 ,
 	output [DATA_WIDTH -1:0] lsu_mwdata,
 	output	 								 lsu_memwr ,
@@ -85,7 +91,7 @@ ysyx_25010009_ALU #(
 ) alu(
 	.sel(opsel ),
 	.ina(ina	 ),
-	.inb(inb	 ),
+	.inb(inb   ),
 	.out(alu_result)
 );
  
@@ -122,6 +128,9 @@ assign lsu_memwr	= memwr ;
 assign lsu_memre  = memre ;
 assign lsu_regwr  = regwr ;
 
+`ifdef VERILATOR
 assign lsu_ebreak = ebreak;
+assign lsu_a0 = a0;
+`endif
 
 endmodule
