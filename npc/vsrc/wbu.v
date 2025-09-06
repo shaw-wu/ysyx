@@ -10,12 +10,15 @@ module ysyx_25010009_wbu #(
 	input [DATA_WIDTH  -1:0] a0		 ,
 `endif
 	input  [ADDR_WIDTH -1:0] pc		 ,
+	// lsu <> wbu
 	input	 								   regwr ,	
 	input  [RS_WIDTH   -1:0] rd		 ,
 	input  [DATA_WIDTH -1:0] gpr_res,  
+	// wbu <> rf
 	output [RS_WIDTH   -1:0] rf_rd	,
 	output [DATA_WIDTH -1:0] rf_wdata,
-	output									 rf_wen  
+	output									 rf_wen  ,
+	output									 speec
 );
 
 assign rf_wen   = regwr;
@@ -25,6 +28,15 @@ assign rf_wdata = gpr_res;
 `ifdef VERILATOR
 ebreak EBREAK(clk, ebreak, a0, pc);
 `endif
+
+reg reg_speec;
+
+always @(posedge clk or posedge rst) begin
+	if(rst) reg_speec <= 0;
+	else		reg_speec <= 1;
+end
+
+assign speec = reg_speec;
 
 endmodule
 	

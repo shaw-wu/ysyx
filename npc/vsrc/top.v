@@ -19,6 +19,13 @@ module ysyx_25010009_top #(
 wire [DATA_WIDTH-1:0] irom_data;
 wire [ADDR_WIDTH-1:0] irom_addr;
 
+wire								  dram_awvalid;
+wire								  dram_arvalid;
+wire [ADDR_WIDTH-1:0] dram_raddr;
+wire [DATA_WIDTH-1:0] dram_rdata;
+wire [ADDR_WIDTH-1:0] dram_waddr;
+wire [DATA_WIDTH-1:0] dram_wdata;
+
 wire [ADDR_WIDTH-1:0] ifu_idu_inst;
 wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
 wire [ADDR_WIDTH-1:0] ifu_idu_snpc;
@@ -48,8 +55,8 @@ wire idu_exu_is_bxx ;
 `ifdef VERILATOR
 wire [DATA_WIDTH-1:0] idu_rf_a0;
 `endif
-wire [RS_WIDTH	-1:0] idu_rf_rs1		 ;
-wire [RS_WIDTH	-1:0] idu_rf_rs2		 ;
+wire [RS_WIDTH	-1:0] idu_rf_rs1 ;
+wire [RS_WIDTH	-1:0] idu_rf_rs2 ;
 wire [DATA_WIDTH-1:0] idu_rf_src1;
 wire [DATA_WIDTH-1:0] idu_rf_src2;
 
@@ -61,21 +68,45 @@ wire [ADDR_WIDTH-1:0] exu_lsu_pc		;
 wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
 wire exu_lsu_memwr 	;
 wire exu_lsu_memre 	;
-wire exu_wbu_regwr 	;
+wire exu_lsu_regwr 	;
 wire [ADDR_WIDTH-1:0] exu_lsu_paddr  ;
-wire [RS_WIDTH-1:0  ] exu_wbu_rd ;
-wire [DATA_WIDTH-1:0] exu_wbu_res;
+wire [RS_WIDTH-1:0  ] exu_lsu_rd ;
+wire [DATA_WIDTH-1:0] exu_lsu_res;
 wire [ADDR_WIDTH-1:0] exu_dnpc;
+
+`ifdef VERILATOR
+wire lsu_wbu_ebreak;
+wire [DATA_WIDTH-1:0] lsu_wbu_a0;
+`endif
+wire [ADDR_WIDTH-1:0] lsu_wbu_pc;
+wire									lsu_wbu_regwr;
+wire [RS_WIDTH-1:0  ] lsu_wbu_rd ;
+wire [DATA_WIDTH-1:0] lsu_wbu_res;
 
 wire [RS_WIDTH  -1:0] wbu_rf_rd	  ;		 
 wire [DATA_WIDTH-1:0] wbu_rf_wdata;	 
 wire wbu_rf_wen; 	 
+
+wire speec;
 
 ysyx_25010009_irom #(
 	.XLEN(DATA_WIDTH)
 ) IROM (
 	.addr(irom_addr),
 	.inst(irom_data)
+);
+
+ysyx_25010009_dram #(
+	.XLEN(DATA_WIDTH)
+) DRAM (
+	.clk	(clk),
+	.rst	(rst),
+	.awvalid(dram_awvalid),
+	.arvalid(dram_arvalid),
+	.raddr(dram_raddr),
+	.rdata(dram_rdata),
+	.waddr(dram_waddr),
+	.wdata(dram_wdata)
 );
 
 ysyx_25010009_ifu #(
@@ -180,10 +211,45 @@ ysyx_25010009_exu #(
 	.lsu_mwdata		(exu_lsu_mwdata				),
 	.lsu_memwr 		(exu_lsu_memwr 				),
 	.lsu_memre 		(exu_lsu_memre 				),
-	.lsu_regwr 		(exu_wbu_regwr 				),	
+	.lsu_regwr 		(exu_lsu_regwr 				),	
 	.paddr     		(exu_lsu_paddr    		),
-	.gpr_rd		 		(exu_wbu_rd						),
-	.gpr_res   		(exu_wbu_res  				)
+	.gpr_rd		 		(exu_lsu_rd						),
+	.gpr_res   		(exu_lsu_res  				)
+);
+
+ysyx_25010009_lsu #(
+	.DATA_WIDTH(DATA_WIDTH),
+	.ADDR_WIDTH(ADDR_WIDTH),
+	.RS_WIDTH  (RS_WIDTH  )
+) LSU (
+	.clk		 (clk						 ),
+	.rst		 (rst		    		 ),
+`ifdef VERILATOR
+	.ebreak	  (exu_lsu_ebreak),
+	.a0				(exu_lsu_a0		 ),
+`endif
+	.pc		 		(exu_lsu_pc		 ),
+	.mwdata		(exu_lsu_mwdata),
+	.memwr 		(exu_lsu_memwr ),
+	.memre 		(exu_lsu_memre ),
+	.regwr 		(exu_lsu_regwr ),	
+	.paddr    (exu_lsu_paddr ),
+	.gpr_rd		(exu_lsu_rd		 ),
+	.gpr_res  (exu_lsu_res   ),
+	.awvalid  (dram_awvalid  ),
+	.arvalid  (dram_arvalid  ),
+	.araddr		(dram_raddr),
+	.rdata    (dram_rdata),
+	.awaddr		(dram_waddr),
+	.wdata    (dram_wdata),
+`ifdef VERILATOR
+	.wbu_ebreak (lsu_wbu_ebreak ),
+	.wbu_a0			(lsu_wbu_a0     ),
+`endif
+	.wbu_pc			 (lsu_wbu_pc		 ),
+	.wbu_regwr   (lsu_wbu_regwr	 ),	
+	.wbu_gpr_rd	 (lsu_wbu_rd		 ),
+	.wbu_gpr_res (lsu_wbu_res		 )  
 );
 
 ysyx_25010009_wbu #(
@@ -193,17 +259,18 @@ ysyx_25010009_wbu #(
 ) WBU (
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
-	.pc		   (exu_lsu_pc		 ),
+	.pc		   (lsu_wbu_pc		 ),
 `ifdef VERILATOR
-	.ebreak  (exu_lsu_ebreak ),
-	.a0			 (exu_lsu_a0     ),
+	.ebreak  (lsu_wbu_ebreak ),
+	.a0			 (lsu_wbu_a0     ),
 `endif
-	.regwr   (exu_wbu_regwr	 ),	
-	.rd		   (exu_wbu_rd		 ),
-	.gpr_res (exu_wbu_res		 ),  
+	.regwr   (lsu_wbu_regwr	 ),	
+	.rd		   (lsu_wbu_rd		 ),
+	.gpr_res (lsu_wbu_res		 ),  
 	.rf_rd	 (wbu_rf_rd			 ),
 	.rf_wdata(wbu_rf_wdata	 ),
-	.rf_wen  (wbu_rf_wen  	 )
+	.rf_wen  (wbu_rf_wen  	 ),
+	.speec	 (speec					 )
 );
 
 ysyx_25010009_RegisterFile #(
@@ -223,5 +290,11 @@ ysyx_25010009_RegisterFile #(
 	.rdata2	 (idu_rf_src2		 ),
 	.wen		 (wbu_rf_wen		 )
 );
+
+`ifdef VERILATOR
+import "DPI-C" function void speec_once(int speec);
+always @(*) 
+	speec_once({31'b0, speec});
+`endif
 
 endmodule

@@ -1,6 +1,10 @@
 TOP_NAME = ysyx_25010009_top
 NXDC_FILE = $(shell pwd)/constr/top.nxdc
 INC_PATH = $(shell pwd)/sim/include
+INC_PATH += $(shell pwd)/include
+INC_PATH += $(shell pwd)/include/memory
+#INC_PATH += $(shell pwd)/include/device
+LINC_PATH += /usr/include/readline
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += --cc --build --trace
@@ -18,6 +22,8 @@ $(SRC_AUTO_BIND): $(NXDC_FILE)
 
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.cpp")
+CSRCS += $(shell find $(abspath ./csrc/sdb) -name "*.c")
+CSRCS += $(shell find $(abspath ./csrc/memory) -name "*.c")
 CSRCS += $(shell find $(abspath ./sim/irom) -name "*.cpp")
 CSRCS += $(shell find $(abspath ./sim) -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
@@ -28,6 +34,8 @@ CXXFLAGS = $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\""
 
 IMG ?=
 DIFF_REF_SO ?=
+
+LDFLAGS += $(addprefix -L, $(LINC_PATH)) $(addprefix -l, readline)
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

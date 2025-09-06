@@ -35,6 +35,15 @@ assign rdata2 = rf[raddr2];
 assign a0_data = rf[10];
 `endif
 
+`ifdef VERILATOR
+export "DPI-C" task read_gpr;
+task automatic read_gpr(input int addr, output int rdata); 
+begin
+	rdata = rf[addr];
+end
+endtask
+`endif
+
 always @(*) begin
 	rf[0] = {DATA_WIDTH{1'b0}};
 end
