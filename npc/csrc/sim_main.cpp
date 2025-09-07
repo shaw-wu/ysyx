@@ -13,6 +13,7 @@
 #include <utils.h>
 #include <macro.h>
 #include <ftrace.h>
+#include <isa.h>
 #define ENABLE_WAVEFORM
 #define RESET_TIME 10
 
@@ -31,6 +32,8 @@
 
 int execed_once(int speec);
 
+CPU_state cpu = {};
+ISADecodeInfo decode = {};
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 extern "C" void init_disasm(const char *triple);
 static int sim_time = 5000;
@@ -40,12 +43,6 @@ int end_sim = 0;
 int once_sim = 0;
 int stop_sim = 0;
 bool is_good_trap = false;
-uint32_t ebreak_pc   = 0x80000000;
-uint32_t ebreak_snpc = 0x80000004;
-uint32_t ebreak_dnpc = 0x80000004;
-uint32_t ebreak_inst = 0x00000000;
-uint32_t ebreak_rd	 = 0;
-uint32_t ebreak_rs1  = 0;
 uint32_t is_jal  = 0;
 uint32_t is_jalr = 0;
 
@@ -103,9 +100,9 @@ void reset_npc (){
 
 void log_trap(){
 	if(is_good_trap) {
-		printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, ebreak_pc);
+		printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, cpu.pc);
 	} else {
-		printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, ebreak_pc);
+		printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, cpu.pc);
 	}
 }
 
@@ -116,15 +113,18 @@ int ptr = 0;
 #endif
 
 void trace_and_difftest(){
+#ifdef CONFIG_DIFFTEST
+	difftest_step(cpu.pc, cpu.dnpc);
+#endif
 #ifdef CONFIG_FTRACE
-	if(is_jal ) ftrace_jal (ebreak_pc, ebreak_dnpc, ebreak_rd);
-	if(is_jalr) ftrace_jalr(ebreak_pc, ebreak_dnpc, ebreak_rd, ebreak_rs1);
+	if(is_jal ) ftrace_jal (cpu.pc, cpu.dnpc, decode.rd);
+	if(is_jalr) ftrace_jalr(cpu.pc, cpu.dnpc, decode.rd, decode.rs1);
 #endif
 #ifdef CONFIG_IRINGBUF
   char *p = iringbuf[ptr];
-  p += snprintf(p, sizeof(iringbuf[ptr]), FMT_WORD ":", ebreak_pc);//pc
-  int ilen = ebreak_snpc - ebreak_pc;
-  uint8_t *inst = (uint8_t *)(&ebreak_inst);
+  p += snprintf(p, sizeof(iringbuf[ptr]), FMT_WORD ":", cpu.pc);//pc
+  int ilen = cpu.snpc - cpu.pc;
+  uint8_t *inst = (uint8_t *)(&decode.inst);
   for (int k = ilen - 1; k >= 0; k --) {
     p += snprintf(p, 4, " %02x", inst[k]);//inst
   }
@@ -134,7 +134,7 @@ void trace_and_difftest(){
   space_len = space_len * 3 + 1;
   memset(p, ' ', space_len);
   p += space_len;
-  disassemble(p, iringbuf[ptr] + sizeof(iringbuf[ptr]) - p, ebreak_pc, (uint8_t *)(&ebreak_inst), ilen);
+  disassemble(p, iringbuf[ptr] + sizeof(iringbuf[ptr]) - p, cpu.pc, (uint8_t *)(&decode.inst), ilen);
 	ptr = (ptr+1) % IRINGBUF_DEPTH;
 #endif
 #ifdef CONFIG_WATCHPOINT
