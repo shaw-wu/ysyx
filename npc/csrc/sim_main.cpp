@@ -11,21 +11,37 @@
 #include <ebreak.h>
 #include <sdb.h>
 #include <utils.h>
+#include <macro.h>
 #define ENABLE_WAVEFORM
 #define RESET_TIME 10
-#define MONITOR_EN
 
 #define STRIP_TO_CSRC(file) (strstr(file, "csrc/") ? strstr(file, "csrc/") : file)
+#define IRING_PRINT() \
+	do { \
+		int cur = (ptr - 1 + IRINGBUF_DEPTH) % IRINGBUF_DEPTH; \
+    for (int i = 0; i < IRINGBUF_DEPTH; i++) { \
+      if (strlen(iringbuf[i]) == 0) continue; \
+      if (i == cur) \
+        printf(ANSI_FMT("%s", ANSI_FG_RED) "\n", iringbuf[i]); \
+      else \
+        printf("%s\n", iringbuf[i]); \
+    } \
+	} while(0)
 
 int execed_once(int speec);
 
+extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+extern "C" void init_disasm(const char *triple);
 static int sim_time = 5000;
 static TOP_NAME* dut;
 void nvboard_bind_all_pins(TOP_NAME* top);
 int end_sim = 0;
+int once_sim = 0;
 int stop_sim = 0;
 bool is_good_trap = false;
-uint32_t ebreak_pc = 0x80000000;
+uint32_t ebreak_pc   = 0x80000000;
+uint32_t ebreak_snpc = 0x80000004;
+uint32_t ebreak_inst = 0x00000000;
 
 VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
@@ -37,6 +53,9 @@ static void single_cycle() {
 void sim_init(int argc, char** argv ){
 #ifdef MONITOR_EN
 	init_sdb();
+#endif
+#ifdef CONFIG_ITRACE
+	init_disasm("riscv32");
 #endif
 	contextp = new VerilatedContext;  
 	contextp->commandArgs(argc, argv);
@@ -82,7 +101,75 @@ void log_trap(){
 	}
 }
 
+static void ftrace_jal(vaddr_t pc, vaddr_t dnpc, int rd) {
+#ifdef CONFIG_FTRACE
+  if (rd == 1)
+    update_ftmem(pc, dnpc, false, true);
+#endif
+}
+static void ftrace_jalr(vaddr_t pc, vaddr_t dnpc, int rd, int rs1) {
+#ifdef CONFIG_FTRACE
+  if (rd == 0 && rs1 == 1)
+    update_ftmem(pc, dnpc, true, false);
+  if (rd == 1)
+    update_ftmem(pc, dnpc, false, true);
+#endif
+}
+
+#ifdef CONFIG_IRINGBUF
+#define IRINGBUF_DEPTH 16
+char iringbuf[IRINGBUF_DEPTH][128] = {};
+int ptr = 0;
+#endif
+
+void trace_and_difftest(){
+#ifdef CONFIG_IRINGBUF
+  char *p = iringbuf[ptr];
+  p += snprintf(p, sizeof(iringbuf[ptr]), FMT_WORD ":", ebreak_pc);//pc
+  int ilen = ebreak_snpc - ebreak_pc;
+  uint8_t *inst = (uint8_t *)(&ebreak_inst);
+  for (int k = ilen - 1; k >= 0; k --) {
+    p += snprintf(p, 4, " %02x", inst[k]);//inst
+  }
+  int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+  int space_len = ilen_max - ilen;
+  if (space_len < 0) space_len = 0;
+  space_len = space_len * 3 + 1;
+  memset(p, ' ', space_len);
+  p += space_len;
+  disassemble(p, iringbuf[ptr] + sizeof(iringbuf[ptr]) - p, ebreak_pc, (uint8_t *)(&ebreak_inst), ilen);
+	ptr = (ptr+1) % IRINGBUF_DEPTH;
+#endif
+#ifdef CONFIG_WATCHPOINT
+  WP* p = head;
+  WP* temp[32] = {};
+	int ind = 0;
+	uint32_t res[32] = {};
+	while(p){
+		bool suc = true;
+		expr(p->expr, &suc, &res[ind]);
+		if(!suc) {
+			return;
+		}
+		if(res[ind] != p->result){
+			stop_sim = 1;
+			temp[ind++] = p;
+		}
+		p = p->next;
+	}
+	for(int i = 0; i < ind; i++){
+		printf("\nwatch point %d : %s\n", temp[i]->NO, temp[i]->expr);
+		printf("\nOld value : 0x%x\n", temp[i]->result);
+		printf("New value : 0x%x\n", res[i]);//怎么定位行号?
+		temp[i]->result = res[i];
+	}
+#endif
+	return;
+}
+
 void exec_once(uint32_t n){
+	once_sim = 0;
+	stop_sim = 0;
 	uint32_t i = 0;
 	if(end_sim) {
 		printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
@@ -91,18 +178,17 @@ void exec_once(uint32_t n){
 	while(1){
 		contextp->timeInc(1);
 		single_cycle();
-		printf("end_sim = %u\n", end_sim);
 		if(end_sim) {
-			log_trap();
 			break;
 		}
-		if(stop_sim) {
+		if(once_sim) {
 			i++;
+			trace_and_difftest();
+			if(stop_sim) break;
 			if(i == n) break;
 		}
 	}
 }
-
 
 void main_loop(){
 	reset_npc();
@@ -110,10 +196,13 @@ void main_loop(){
 	sdb_mainloop();
 #else
 	while(1){
+		once_sim = 0;
 		contextp->timeInc(1);
 		single_cycle();
+		if(once_sim) {
+			trace_and_difftest();
+		}
 		if(end_sim) {
-			log_trap();
 			break;
 		}
 	#ifdef ENABLE_WAVEFORM
@@ -143,6 +232,10 @@ void sim_exit(){
 int main(int argc, char** argv) {
 	sim_init(argc, argv);
 	main_loop();
+#ifdef CONFIG_IRINGBUF
+	IRING_PRINT();
+#endif
+  log_trap();
 	sim_exit();
 	if(!is_good_trap) return 1;
 	return 0;

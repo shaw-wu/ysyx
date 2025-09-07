@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <isa.h>
-#define IRINGBUF_DEPTH 16
 
 extern char* elf_file;
 extern bool have_img;

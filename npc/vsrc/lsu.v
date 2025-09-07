@@ -7,28 +7,32 @@ module ysyx_25010009_lsu #(
 	input rst,
 	//exu <> lsu
 `ifdef VERILATOR
-	input 									 ebreak,
+	input 									ebreak ,
 	input [DATA_WIDTH -1:0] a0		 ,
+	input [DATA_WIDTH -1:0] inst	 ,
+	input [ADDR_WIDTH -1:0] snpc	 ,
 `endif
 	input [ADDR_WIDTH -1:0] pc		 ,
-	input [DATA_WIDTH -1:0] mwdata,
-	input	 								 memwr ,
-	input	 								 memre ,
-	input	 								 regwr ,	
+	input [DATA_WIDTH -1:0] mwdata ,
+	input										memwr  ,
+	input	 								 	memre  ,
+	input	 								 	regwr  ,	
 	input [DATA_WIDTH -1:0] paddr  ,
-	input [RS_WIDTH   -1:0] gpr_rd	,
+	input [RS_WIDTH   -1:0] gpr_rd ,
 	input [DATA_WIDTH -1:0] gpr_res,
 	// lsu <> ram
 	output									 awvalid,
 	output									 arvalid,
-	output [ADDR_WIDTH -1:0] araddr,
-	input  [DATA_WIDTH -1:0] rdata,
-	output [DATA_WIDTH -1:0] awaddr,
-	output [DATA_WIDTH -1:0] wdata,
+	output [ADDR_WIDTH -1:0] araddr ,
+	input  [DATA_WIDTH -1:0] rdata	,
+	output [DATA_WIDTH -1:0] awaddr ,
+	output [DATA_WIDTH -1:0] wdata	,
 	// lsu <> wbu
 `ifdef VERILATOR
 	output 									 wbu_ebreak,
 	output [DATA_WIDTH -1:0] wbu_a0		 ,
+	output [DATA_WIDTH -1:0] wbu_inst	 ,
+	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
 `endif
 	output [ADDR_WIDTH -1:0] wbu_pc		 ,
 	output	 								 wbu_regwr ,	
@@ -42,8 +46,12 @@ assign araddr = paddr;
 assign awaddr = paddr;
 assign wdata = mwdata;
 
+`ifdef VERILATOR
 assign wbu_ebreak = ebreak;
 assign wbu_a0 = a0;
+assign wbu_inst = inst;
+assign wbu_snpc = snpc;
+`endif
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;
 assign wbu_gpr_rd = gpr_rd;

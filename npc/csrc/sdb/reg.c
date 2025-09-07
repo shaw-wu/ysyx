@@ -19,7 +19,7 @@ void isa_reg_display() {
   svSetScope(scope);
 	int i, j;
 	i = 0;
-	int reg = 0;
+	word_t reg = 0;
 	for(j = 0; j < 8; j++){
 		for(; i < (j + 1) * 4; i++){
 			read_gpr(i, &reg);
@@ -36,24 +36,40 @@ void isa_reg_display() {
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
-//	int i = 0;
-//	//读取pc
-//	if(strcmp(s, "pc") == 0){
-//		*success = true;
-//		return read_pc();
-//	}
-//	//遍历32个寄存器
-//	for(; i < 32; i++){
-//		if(strcmp(s, regs[i]) == 0){
-//			break;
-//		}
-//	}
-//	if(i < 32){
-//		*success = true;
-//		return gpr(i);
-//	}
-//	else{
-//		*success = false;
-//	}
+	int i = 0;
+	//读取pc
+	if(strcmp(s, "pc") == 0){
+		svScope scope = svGetScopeFromName("TOP.ysyx_25010009_top.WBU");
+  	if (!scope) {
+  	    fprintf(stderr, "Error: Cannot find DPI scope!\n");
+  	    exit(1);
+  	}
+  	svSetScope(scope);
+		*success = true;
+		word_t pc;
+		read_pc(&pc);
+		return pc;
+	}
+	//遍历32个寄存器
+	word_t reg;
+	for(; i < 32; i++){
+		if(strcmp(s, regs[i]) == 0){
+			break;
+		}
+	}
+	svScope scope = svGetScopeFromName("TOP.ysyx_25010009_top.GPR");
+  if (!scope) {
+      fprintf(stderr, "Error: Cannot find DPI scope!\n");
+      exit(1);
+  }
+  svSetScope(scope);
+	read_gpr(i, &reg);
+	if(i < 32){
+		*success = true;
+		return reg;
+	}
+	else{
+		*success = false;
+	}
   return 0;
 }

@@ -21,6 +21,7 @@ module ysyx_25010009_idu #(
 `ifdef VERILATOR
 	output                   exu_ebreak,
   output [DATA_WIDTH -1:0] exu_a0		 ,
+  output [DATA_WIDTH -1:0] exu_inst	 ,
 `endif
 	output [ADDR_WIDTH -1:0] exu_snpc  ,
 	output [ADDR_WIDTH -1:0] exu_dnpc	 ,
@@ -105,6 +106,7 @@ wire and_	 = ((opcode == 7'b0110011) && (funct3 == 3'b111) && (funct7 == 7'b0000
 `ifdef VERILATOR
 assign exu_ebreak = inst == 32'h00100073;
 assign exu_a0 = rf_a0;
+assign exu_inst = inst;
 `endif
                                                                                       
 wire [FUNCT3_WIDTH-1:0] funct3;

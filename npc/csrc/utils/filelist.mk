@@ -1,0 +1,5 @@
+ifneq ($(CONFIG_ITRACE)$(CONFIG_IQUEUE),)
+CSRCS += $(shell find $(abspath ./csrc/utils) -name "*.cc")
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+LIBS += $(shell llvm-config --libs)
+endif

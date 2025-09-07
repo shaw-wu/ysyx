@@ -6,12 +6,14 @@
 #include <debug.h>
 #include <vaddr.h>
 #include <paddr.h>
+#include <sdb.h>
+//#define CONFIG_WATCHPOINT
 
 static int is_batch_mode = false;
 extern int end_sim;
 
 void init_regex();
-//void init_wp_pool();
+void init_wp_pool();
 
 void exec_once(uint32_t n);
 extern void isa_reg_display();
@@ -139,30 +141,25 @@ static int cmd_info(char *args) {
 		printf("Please config watchpoint option\n");
 		return 0;
 #endif
-//		//先检查监视点池里有没有工作中的监视点
-//		if (!head){
-//			printf("No watchpoints\n");
-//		}
-//		else{
-//		//遍历打印的操作
-//			char* space = " ";
-//			char* noh = "noh";
-//			printf("Num%12sType%15sDisp%2sEnb%3sAddress%12sWhat%2s\n", space, space, space, space, space, space);
-//			WP *p = head;
-//			while(p){
-//				printf("%-15d%-19s%-6s%-6s0x%-19x%-6s\n"\
-//						, p->NO \
-//						, noh \
-//						, noh \
-//						, noh \
-//						, p->result \
-//						, p->expr);
-//				p = p->next;
-//			}
-//		}
-//	}
-//	else {
-//    printf("%s - %s\n", cmd_table[4].name, cmd_table[4].description);
+		//先检查监视点池里有没有工作中的监视点
+		if (!head){
+			printf("No watchpoints\n");
+		}
+		else{
+		//遍历打印的操作
+			printf("Num%12sType%15sDisp%2sEnb%3sAddress%12sWhat%2s\n", " ", " ", " ", " ", " ", " ");
+			WP *p = head;
+			while(p){
+				printf("%-15d%-19s%-6s%-6s0x%-19x%-6s\n"\
+						, p->NO \
+						, "noh" \
+						, "noh" \
+						, "noh" \
+						, p->result \
+						, p->expr);
+				p = p->next;
+			}
+		}
 	} else {
 		cmd_help(args);
 	}
@@ -276,65 +273,65 @@ static int cmd_et(char *args) {
 }
 
 static int cmd_d(char *args) {
-//#ifndef CONFIG_WATCHPOINT
-//		printf("Please config watchpoint option\n");
-//		return 0;
-//#endif
-//  //访问监视点池,遍历链表
-//	char* arg = strtok(NULL," ");
-//	int num;
-//	sscanf(arg, "%d", &num);
-//  WP *p = head;
-//	//无监视点
-//	if(!p){
-//		printf("No Watchpoints\n");
-//		return 1;
-//	}
-//	while(p){
-//		if(p->NO == num) break;
-//		p = p->next;
-//	}
-//	//找不到监视点
-//	if(!p){
-//		printf("Can't find watchpoint %d.\n", num);
-//		return 1;
-//	}
-//	//删除监视点
-//	free_wp(p);
-//	
+#ifndef CONFIG_WATCHPOINT
+		printf("Please config watchpoint option\n");
+		return 0;
+#endif
+  //访问监视点池,遍历链表
+	char* arg = strtok(NULL," ");
+	int num;
+	sscanf(arg, "%d", &num);
+  WP *p = head;
+	//无监视点
+	if(!p){
+		printf("No Watchpoints\n");
+		return 1;
+	}
+	while(p){
+		if(p->NO == num) break;
+		p = p->next;
+	}
+	//找不到监视点
+	if(!p){
+		printf("Can't find watchpoint %d.\n", num);
+		return 1;
+	}
+	//删除监视点
+	free_wp(p);
+	
 	return 0;
 }
 
 static int cmd_w(char *args) {
-//#ifndef CONFIG_WATCHPOINT
-//		printf("Please config watchpoint option\n");
-//		return 1;
-//#endif
-//	if(args == NULL){
-//		printf("Error: No expression provided.\n");
-//		return 1;
-//	}
-//	//从空闲池中取出监视点为其赋值
-//	char *arg = args;
-//	char ex[65536] = {};
-//	memset(ex, '\0',  65536);
-//	strcpy(ex, arg);
-//	WP *wp = new_wp();
-//	if(!wp){
-//		return 1;
-//	}
-//
-//	strcpy(wp->expr, ex);
-//	uint32_t rp;
-//	bool suc = true;
-//	expr(ex, &suc, &rp);
-//	//printf("%d\n",suc);
-//	if(!suc) {
-//		return 1;
-//	}
-//	wp->result = rp;
-//
-//	wp = NULL;
+#ifndef CONFIG_WATCHPOINT
+		printf("Please config watchpoint option\n");
+		return 1;
+#endif
+	if(args == NULL){
+		printf("Error: No expression provided.\n");
+		return 1;
+	}
+	//从空闲池中取出监视点为其赋值
+	char *arg = args;
+	char ex[65536] = {};
+	memset(ex, '\0',  65536);
+	strcpy(ex, arg);
+	WP *wp = new_wp();
+	if(!wp){
+		return 1;
+	}
+
+	strcpy(wp->expr, ex);
+	uint32_t rp;
+	bool suc = true;
+	expr(ex, &suc, &rp);
+	//printf("%d\n",suc);
+	if(!suc) {
+		return 1;
+	}
+	wp->result = rp;
+
+	wp = NULL;
 	return 0;
 }
 
@@ -376,5 +373,5 @@ void init_sdb() {
   init_regex();
 
   /* Initialize the watchpoint pool. */
-  //init_wp_pool();
+  init_wp_pool();
 }

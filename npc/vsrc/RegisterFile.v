@@ -37,7 +37,7 @@ assign a0_data = rf[10];
 
 `ifdef VERILATOR
 export "DPI-C" task read_gpr;
-task automatic read_gpr(input int addr, output int rdata); 
+task automatic read_gpr(input int addr, output int unsigned rdata); 
 begin
 	rdata = rf[addr];
 end
