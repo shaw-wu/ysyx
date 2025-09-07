@@ -12,6 +12,7 @@ module ysyx_25010009_exu #(
 	input										 ebreak	,
 	input  [DATA_WIDTH -1:0] a0			,
 	input  [DATA_WIDTH -1:0] inst		,
+	input  [RS_WIDTH   -1:0] rs1		,
 `endif
 	input  [ADDR_WIDTH -1:0] dnpc   ,
 	input  [ADDR_WIDTH -1:0] pc     ,
@@ -39,6 +40,10 @@ module ysyx_25010009_exu #(
 	output [DATA_WIDTH -1:0] lsu_a0		 ,
 	output [DATA_WIDTH -1:0] lsu_inst	 ,
 	output [ADDR_WIDTH -1:0] lsu_snpc	 ,
+	output [RS_WIDTH   -1:0] lsu_rs1	 ,
+	output									 lsu_jal   ,
+	output									 lsu_jalr  ,
+	output [ADDR_WIDTH -1:0] lsu_dnpc ,
 `endif
 	output [ADDR_WIDTH -1:0] lsu_pc		 ,
 	output [DATA_WIDTH -1:0] lsu_mwdata,
@@ -136,6 +141,10 @@ assign lsu_ebreak = ebreak;
 assign lsu_a0			= a0		;
 assign lsu_inst		= inst	;
 assign lsu_snpc   = pc + 4;
+assign lsu_dnpc   = pcadder_result;
+assign lsu_rs1		= rs1		;
+assign lsu_jal		= is_jal ;
+assign lsu_jalr		= is_jalr;
 `endif
 
 endmodule

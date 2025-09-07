@@ -11,6 +11,10 @@ module ysyx_25010009_lsu #(
 	input [DATA_WIDTH -1:0] a0		 ,
 	input [DATA_WIDTH -1:0] inst	 ,
 	input [ADDR_WIDTH -1:0] snpc	 ,
+	input [ADDR_WIDTH -1:0] dnpc	 ,
+	input [RS_WIDTH   -1:0] rs1		 ,
+	input										jal		 ,
+	input										jalr	 ,
 `endif
 	input [ADDR_WIDTH -1:0] pc		 ,
 	input [DATA_WIDTH -1:0] mwdata ,
@@ -33,6 +37,10 @@ module ysyx_25010009_lsu #(
 	output [DATA_WIDTH -1:0] wbu_a0		 ,
 	output [DATA_WIDTH -1:0] wbu_inst	 ,
 	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
+	output [ADDR_WIDTH -1:0] wbu_dnpc	 ,
+	output [RS_WIDTH   -1:0] wbu_rs1	 ,
+	output									 wbu_jal	 ,
+	output									 wbu_jalr	 ,
 `endif
 	output [ADDR_WIDTH -1:0] wbu_pc		 ,
 	output	 								 wbu_regwr ,	
@@ -51,6 +59,10 @@ assign wbu_ebreak = ebreak;
 assign wbu_a0 = a0;
 assign wbu_inst = inst;
 assign wbu_snpc = snpc;
+assign wbu_dnpc = dnpc;
+assign wbu_rs1  = rs1	;
+assign wbu_jal	= jal ;
+assign wbu_jalr	= jalr;
 `endif
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;

@@ -66,6 +66,10 @@ wire exu_lsu_ebreak;
 wire [DATA_WIDTH-1:0] exu_lsu_a0  ;
 wire [DATA_WIDTH-1:0] exu_lsu_inst;
 wire [ADDR_WIDTH-1:0] exu_lsu_snpc;
+wire [ADDR_WIDTH-1:0] exu_lsu_dnpc;
+wire [RS_WIDTH-1:0  ] exu_lsu_rs1	;
+wire                  exu_lsu_jal ;
+wire                  exu_lsu_jalr;
 `endif
 wire [ADDR_WIDTH-1:0] exu_lsu_pc		;
 wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
@@ -82,6 +86,10 @@ wire lsu_wbu_ebreak;
 wire [DATA_WIDTH-1:0] lsu_wbu_a0  ;
 wire [DATA_WIDTH-1:0] lsu_wbu_inst;
 wire [ADDR_WIDTH-1:0] lsu_wbu_snpc;
+wire [ADDR_WIDTH-1:0] lsu_wbu_dnpc;
+wire [RS_WIDTH-1:0  ] lsu_wbu_rs1 ;
+wire                  lsu_wbu_jal ;
+wire                  lsu_wbu_jalr;
 `endif
 wire [ADDR_WIDTH-1:0] lsu_wbu_pc;
 wire									lsu_wbu_regwr;
@@ -191,6 +199,7 @@ ysyx_25010009_exu #(
 	.ebreak				(idu_exu_ebreak			  ),
 	.a0						(idu_exu_a0						),
 	.inst					(idu_exu_inst				  ),
+	.rs1					(idu_rf_rs1					  ),
 `endif
 	.dnpc					(idu_exu_dnpc					),
 	.pc     			(idu_exu_pc     			),
@@ -215,6 +224,10 @@ ysyx_25010009_exu #(
 	.lsu_a0				(exu_lsu_a0					  ),
 	.lsu_inst			(exu_lsu_inst					),
 	.lsu_snpc			(exu_lsu_snpc					),
+	.lsu_rs1			(exu_lsu_rs1					),
+	.lsu_jal			(exu_lsu_jal				  ),
+	.lsu_jalr			(exu_lsu_jalr				  ),
+	.lsu_dnpc			(exu_lsu_dnpc				  ),
 `endif
 	.lsu_pc		 		(exu_lsu_pc		 				),
 	.lsu_mwdata		(exu_lsu_mwdata				),
@@ -238,6 +251,10 @@ ysyx_25010009_lsu #(
 	.a0				(exu_lsu_a0		 ),
 	.inst			(exu_lsu_inst	 ),
 	.snpc			(exu_lsu_snpc	 ),
+	.dnpc			(exu_lsu_dnpc	 ),
+	.rs1			(exu_lsu_rs1	 ),
+	.jal			(exu_lsu_jal	 ),
+	.jalr			(exu_lsu_jalr	 ),
 `endif
 	.pc		 		(exu_lsu_pc		 ),
 	.mwdata		(exu_lsu_mwdata),
@@ -258,6 +275,10 @@ ysyx_25010009_lsu #(
 	.wbu_a0			(lsu_wbu_a0     ),
 	.wbu_inst		(lsu_wbu_inst		),
 	.wbu_snpc		(lsu_wbu_snpc		),
+	.wbu_dnpc		(lsu_wbu_dnpc		),
+	.wbu_rs1		(lsu_wbu_rs1    ),
+	.wbu_jal		(lsu_wbu_jal		),
+	.wbu_jalr		(lsu_wbu_jalr		),
 `endif
 	.wbu_pc			 (lsu_wbu_pc		 ),
 	.wbu_regwr   (lsu_wbu_regwr	 ),	
@@ -278,6 +299,10 @@ ysyx_25010009_wbu #(
 	.a0			 (lsu_wbu_a0     ),
 	.inst		 (lsu_wbu_inst	 ),
 	.snpc		 (lsu_wbu_snpc   ),
+	.dnpc		 (lsu_wbu_dnpc   ),
+	.rs1		 (lsu_wbu_rs1		 ),
+	.jal		 (lsu_wbu_jal		 ),
+	.jalr		 (lsu_wbu_jalr	 ),
 `endif
 	.regwr   (lsu_wbu_regwr	 ),	
 	.rd		   (lsu_wbu_rd		 ),

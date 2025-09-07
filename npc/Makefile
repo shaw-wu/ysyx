@@ -14,6 +14,7 @@ MACROS_FLAGS ?=
 #MACROS_FLAGS += -DMONITOR_EN=""
 MACROS_FLAGS += -DCONFIG_IRINGBUF=""
 MACROS_FLAGS += -DCONFIG_ITRACE=""
+MACROS_FLAGS += -DCONFIG_FTRACE=""
 MACROS_FLAGS += -DCONFIG_ISA_riscv=""
 #MACROS_FLAGS += -DCONFIG_WATCHPOINT=""
 VERILATOR_CFLAGS += --cc --build --trace
@@ -49,6 +50,7 @@ CXXFLAGS += -U__STDC_FORMAT_MACROS
 
 
 IMG ?=
+ELF ?=
 DIFF_REF_SO ?=
 
 LDFLAGS += $(addprefix -L, $(LINC_PATH)) $(addprefix -l, readline) $(LIBS)
@@ -67,7 +69,7 @@ compile:$(BIN)
 	
 sim:$(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@$^ $(IMG) $(DIFF_REF_SO)
+	@$^ $(IMG) $(ELF) $(DIFF_REF_SO)
 cleansim:
 	@rm -rf $(BUILD_DIR)
 	@mkdir $(BUILD_DIR)

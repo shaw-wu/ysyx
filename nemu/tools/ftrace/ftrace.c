@@ -63,7 +63,7 @@ bool have_img = false;
 
 Elf32_Sym* symtab = NULL; 
 char **sym_name = NULL;
-int func_count = -1; 
+int func_count = 0; 
 
 long check_Sh(FILE* elf, uint32_t shoff, uint16_t shentsize, uint16_t shnum, uint16_t shstrndx, long* sym_offset, uint32_t* sym_size, uint32_t* sym_entsize) {
   long offset = (long)shoff;

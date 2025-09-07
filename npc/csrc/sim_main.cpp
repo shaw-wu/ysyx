@@ -12,6 +12,7 @@
 #include <sdb.h>
 #include <utils.h>
 #include <macro.h>
+#include <ftrace.h>
 #define ENABLE_WAVEFORM
 #define RESET_TIME 10
 
@@ -41,7 +42,12 @@ int stop_sim = 0;
 bool is_good_trap = false;
 uint32_t ebreak_pc   = 0x80000000;
 uint32_t ebreak_snpc = 0x80000004;
+uint32_t ebreak_dnpc = 0x80000004;
 uint32_t ebreak_inst = 0x00000000;
+uint32_t ebreak_rd	 = 0;
+uint32_t ebreak_rs1  = 0;
+uint32_t is_jal  = 0;
+uint32_t is_jalr = 0;
 
 VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
@@ -65,9 +71,11 @@ void sim_init(int argc, char** argv ){
 
 	if(argc < 2) assert(0);
 	char *img_file = argv[1];
+	elf_file = argv[2];
 	FILE *img = fopen(img_file, "rb");
 	load_img(img);
 	pmem_load_img(img);
+	init_ftmem();
 	fclose(img);
 
 	#ifdef ENABLE_WAVEFORM
@@ -101,21 +109,6 @@ void log_trap(){
 	}
 }
 
-static void ftrace_jal(vaddr_t pc, vaddr_t dnpc, int rd) {
-#ifdef CONFIG_FTRACE
-  if (rd == 1)
-    update_ftmem(pc, dnpc, false, true);
-#endif
-}
-static void ftrace_jalr(vaddr_t pc, vaddr_t dnpc, int rd, int rs1) {
-#ifdef CONFIG_FTRACE
-  if (rd == 0 && rs1 == 1)
-    update_ftmem(pc, dnpc, true, false);
-  if (rd == 1)
-    update_ftmem(pc, dnpc, false, true);
-#endif
-}
-
 #ifdef CONFIG_IRINGBUF
 #define IRINGBUF_DEPTH 16
 char iringbuf[IRINGBUF_DEPTH][128] = {};
@@ -123,6 +116,10 @@ int ptr = 0;
 #endif
 
 void trace_and_difftest(){
+#ifdef CONFIG_FTRACE
+	if(is_jal ) ftrace_jal (ebreak_pc, ebreak_dnpc, ebreak_rd);
+	if(is_jalr) ftrace_jalr(ebreak_pc, ebreak_dnpc, ebreak_rd, ebreak_rs1);
+#endif
 #ifdef CONFIG_IRINGBUF
   char *p = iringbuf[ptr];
   p += snprintf(p, sizeof(iringbuf[ptr]), FMT_WORD ":", ebreak_pc);//pc
@@ -225,6 +222,7 @@ void sim_exit(){
 #ifdef ENABLE_NVBOARD
 	nvboard_quit();
 #endif
+	free_ft();
 	delete dut;
 	delete contextp;
 }
@@ -234,6 +232,9 @@ int main(int argc, char** argv) {
 	main_loop();
 #ifdef CONFIG_IRINGBUF
 	IRING_PRINT();
+#endif
+#ifdef CONFIG_FTRACE
+	output_ftmem();
 #endif
   log_trap();
 	sim_exit();

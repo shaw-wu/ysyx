@@ -63,7 +63,7 @@ bool have_img = false;
 
 Elf32_Sym* symtab = NULL; 
 char **sym_name = NULL;
-int func_count = -1; 
+int func_count = 0; 
 
 long check_Sh(FILE* elf, uint32_t shoff, uint16_t shentsize, uint16_t shnum, uint16_t shstrndx, long* sym_offset, uint32_t* sym_size, uint32_t* sym_entsize) {
   long offset = (long)shoff;
@@ -176,7 +176,10 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 	int i;
 	if(is_call){
 		for(i = 0; i < func_count; i++){
+			printf("func_count = %d, st_value = 0x%08x\n", func_count, symtab[i].st_value);
+			printf("addr = 0x%08x, target = 0x%08x\n", addr, target);
 			if(target == symtab[i].st_value){
+			  printf("sym_name[%d] = %s\n", i, sym_name[i]);
 				strcpy(Ft_mem[ft_ind].str, sym_name[i]);
 				break;
 			} 
@@ -199,6 +202,10 @@ void update_ftmem(uint32_t addr, uint32_t target, bool is_ret, bool is_call){
 }
 
 void output_ftmem(){
+	if(ft_ind == 0){
+		printf("Have no function traced\n");
+		return;
+	}
 	int call_count = 0;
 	int i = ft_ind != ft_num ? ft_ind : 0;
 	while(1){
@@ -230,5 +237,21 @@ void free_ft(){
 	}
 	free(sym_name);
 	free(symtab);
+}
+
+void ftrace_jal(vaddr_t pc, vaddr_t dnpc, uint32_t rd) {
+#ifdef CONFIG_FTRACE
+  if (rd == 1)
+    update_ftmem(pc, dnpc, false, true);
+#endif
+}
+
+void ftrace_jalr(vaddr_t pc, vaddr_t dnpc, uint32_t rd, uint32_t rs1) {
+#ifdef CONFIG_FTRACE
+  if (rd == 0 && rs1 == 1)
+    update_ftmem(pc, dnpc, true, false);
+  if (rd == 1)
+    update_ftmem(pc, dnpc, false, true);
+#endif
 }
 
