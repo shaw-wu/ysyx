@@ -20,6 +20,8 @@ module ysyx_25010009_lsu #(
 	input										memwr  ,
 	input	 								 	memre  ,
 	input	 								 	regwr  ,	
+	input	[						 3:0] mem_mask,	
+	input	                  mem_sext,	
 	input [DATA_WIDTH -1:0] paddr  ,
 	input [RS_WIDTH   -1:0] gpr_rd ,
 	input [DATA_WIDTH -1:0] gpr_res,
@@ -30,6 +32,7 @@ module ysyx_25010009_lsu #(
 	input  [DATA_WIDTH -1:0] rdata	,
 	output [DATA_WIDTH -1:0] awaddr ,
 	output [DATA_WIDTH -1:0] wdata	,
+	output [            3:0] ram_mask,
 	// lsu <> wbu
 `ifdef VERILATOR
 	output 									 wbu_ebreak,
@@ -46,11 +49,23 @@ module ysyx_25010009_lsu #(
 	output [DATA_WIDTH -1:0] wbu_gpr_res
 );
 
+wire [DATA_WIDTH-1:0] ur_result;
+wire [DATA_WIDTH-1:0] sr_result;
+wire [DATA_WIDTH-1:0] re_result;
+assign ur_result = mem_mask == 4'b0001 ? {24'b0, rdata[7 :0]} :
+									 mem_mask == 4'b0011 ? {16'b0, rdata[15:0]} :
+									 mem_mask == 4'b1111 ?         rdata        : 32'b0;
+assign sr_result = mem_mask == 4'b0001 ? {{24{rdata[7 ]}}, rdata[7 :0]} :
+									 mem_mask == 4'b0011 ? {{16{rdata[15]}}, rdata[15:0]} :
+									 mem_mask == 4'b1111 ?                   rdata        : 32'b0;
+assign re_result = mem_sext ? sr_result : ur_result;
+
 assign awvalid = memwr;
 assign arvalid = memre;
 assign araddr = paddr;
 assign awaddr = paddr;
 assign wdata = mwdata;
+assign ram_mask = mem_mask;
 
 `ifdef VERILATOR
 assign wbu_ebreak = ebreak;
@@ -64,6 +79,6 @@ assign wbu_jalr	= jalr;
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;
 assign wbu_gpr_rd = gpr_rd;
-assign wbu_gpr_res = memre ? rdata : gpr_res;
+assign wbu_gpr_res = memre ? re_result : gpr_res;
 
 endmodule

@@ -37,14 +37,14 @@ ysyx_25010009_SHIFT shift_0(
 //cla
 wire [DATA_WIDTH-1:0] cla_a, cla_b;
 wire                  cla_cout;
-//wire									overflow;
+wire									overflow;
 wire							    is_sub;
 wire								  cin;
 assign cla_a  = ina; 
 assign cla_b  = {DATA_WIDTH{is_sub}} ^ inb; 
 assign is_sub = (sel == 4'b0010) || (sel == 4'b1011) || (sel == 4'b1100) ; 
 assign cin    = is_sub;
-//assign overflow = (ina[DATA_WIDTH-1] == cla_b[DATA_WIDTH-1]) && (cla_out[DATA_WIDTH-1] != ina[DATA_WIDTH-1]);
+assign overflow = (ina[DATA_WIDTH-1] == cla_b[DATA_WIDTH-1]) && (cla_out[DATA_WIDTH-1] != ina[DATA_WIDTH-1]);
 ysyx_25010009_CLA cla_0(
 	.a   (cla_a   ),
 	.b   (cla_b   ),
@@ -58,8 +58,8 @@ assign or_  = ina | inb;
 assign xor_ = ina ^ inb;
 assign eq   = {{(DATA_WIDTH-1){1'b0}}, ina == inb}; 
 assign ne   = {{(DATA_WIDTH-1){1'b0}}, ina != inb};
-assign lt   =	{{(DATA_WIDTH-1){1'b0}},  cla_out[DATA_WIDTH-1]}; 
-assign ge   = {{(DATA_WIDTH-1){1'b0}}, !cla_out[DATA_WIDTH-1]}; 
+assign lt   =	overflow ? {{(DATA_WIDTH-1){1'b0}},  ina[DATA_WIDTH-1]} : {{(DATA_WIDTH-1){1'b0}},  cla_out[DATA_WIDTH-1]}; 
+assign ge   = overflow ? {{(DATA_WIDTH-1){1'b0}}, !ina[DATA_WIDTH-1]} : {{(DATA_WIDTH-1){1'b0}}, !cla_out[DATA_WIDTH-1]}; 
 assign ltu  = {{(DATA_WIDTH-1){1'b0}}, ina <  inb}; 
 assign geu  = {{(DATA_WIDTH-1){1'b0}}, ina >= inb}; 
 

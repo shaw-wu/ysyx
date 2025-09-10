@@ -17,7 +17,7 @@ extern int is_ifetch;
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
-void pmem_load_img(FILE *fp){
+long load_img(FILE *fp){
 	fseek(fp, 0, SEEK_END);
 	long size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -26,7 +26,7 @@ void pmem_load_img(FILE *fp){
 	if (read_bytes != size) {
     fprintf(stderr, "Read error: expected %ld bytes, got %zu\n", size, read_bytes);
   }
-	return;
+	return size;
 }
 
 static word_t pmem_read(paddr_t addr, int len) {

@@ -1,5 +1,5 @@
 #include <Vysyx_25010009_top__Dpi.h>
-#include "irom.h"
+//#include "irom.h"
 #include <paddr.h>
 #include "Vysyx_25010009_top.h"
 #include "verilated.h"
@@ -77,7 +77,6 @@ void sim_init(int argc, char** argv ){
 	elf_file = argv[2];
 	FILE *img = fopen(img_file, "rb");
 	long img_size = load_img(img);
-	pmem_load_img(img);
 	init_ftmem();
 	fclose(img);
 	init_isa();

@@ -26,6 +26,7 @@ wire [ADDR_WIDTH-1:0] irom_addr;
 
 wire								  dram_awvalid;
 wire								  dram_arvalid;
+wire [					 3:0] dram_mask ;
 wire [ADDR_WIDTH-1:0] dram_raddr;
 wire [DATA_WIDTH-1:0] dram_rdata;
 wire [ADDR_WIDTH-1:0] dram_waddr;
@@ -54,6 +55,8 @@ wire [OPSEL_WIDTH-1:0] idu_exu_opsel ;
 wire [DATA_WIDTH -1:0] idu_exu_mwdata;
 wire idu_exu_memwr  ;
 wire idu_exu_memre  ;
+wire [3:0] idu_exu_mask;
+wire idu_exu_sext;
 wire idu_exu_regwr  ;
 wire idu_exu_is_jalr;
 wire idu_exu_is_jal ;
@@ -78,6 +81,8 @@ wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
 wire exu_lsu_memwr 	;
 wire exu_lsu_memre 	;
 wire exu_lsu_regwr 	;
+wire [3:0] exu_lsu_mask;
+wire exu_lsu_sext;
 wire [ADDR_WIDTH-1:0] exu_lsu_paddr  ;
 wire [RS_WIDTH-1:0  ] exu_lsu_rd ;
 wire [DATA_WIDTH-1:0] exu_lsu_res;
@@ -106,6 +111,7 @@ wire speec;
 ysyx_25010009_irom #(
 	.XLEN(DATA_WIDTH)
 ) IROM (
+	.rst (rst),
 	.addr(irom_addr),
 	.inst(irom_data)
 );
@@ -115,6 +121,7 @@ ysyx_25010009_dram #(
 ) DRAM (
 	.clk	(clk),
 	.rst	(rst),
+	.mask		(dram_mask	 ),
 	.awvalid(dram_awvalid),
 	.arvalid(dram_arvalid),
 	.raddr(dram_raddr),
@@ -175,6 +182,8 @@ ysyx_25010009_idu #(
 	.mwdata  (idu_exu_mwdata ),
 	.memwr   (idu_exu_memwr  ),
 	.memre   (idu_exu_memre  ),
+	.mem_mask(idu_exu_mask	 ),
+	.mem_sext(idu_exu_sext	 ),
 	.regwr   (idu_exu_regwr  ),	
 	.is_jalr (idu_exu_is_jalr),
 	.is_jal  (idu_exu_is_jal ),
@@ -207,8 +216,10 @@ ysyx_25010009_exu #(
 	.opmux			  (idu_exu_opmux  			),
 	.opsel  			(idu_exu_opsel  			),
 	.mwdata 			(idu_exu_mwdata 			),
-	.memwr  			(idu_exu_memwr  			),
+	.mem_mask			(idu_exu_mask					),
+	.mem_sext			(idu_exu_sext					),
 	.memre  			(idu_exu_memre  			),
+	.memwr  			(idu_exu_memwr  			),
 	.regwr  			(idu_exu_regwr  			),	
 	.is_jal 			(idu_exu_is_jal 			),
 	.is_jalr			(idu_exu_is_jalr			),
@@ -228,6 +239,8 @@ ysyx_25010009_exu #(
 	.lsu_mwdata		(exu_lsu_mwdata				),
 	.lsu_memwr 		(exu_lsu_memwr 				),
 	.lsu_memre 		(exu_lsu_memre 				),
+	.lsu_mask			(exu_lsu_mask					),
+	.lsu_sext			(exu_lsu_sext					),
 	.lsu_regwr 		(exu_lsu_regwr 				),	
 	.paddr     		(exu_lsu_paddr    		),
 	.gpr_rd		 		(exu_lsu_rd						),
@@ -252,12 +265,15 @@ ysyx_25010009_lsu #(
 `endif
 	.pc		 		(exu_lsu_pc		 ),
 	.mwdata		(exu_lsu_mwdata),
+	.mem_mask (exu_lsu_mask	 ),
+	.mem_sext (exu_lsu_sext	 ),
 	.memwr 		(exu_lsu_memwr ),
 	.memre 		(exu_lsu_memre ),
 	.regwr 		(exu_lsu_regwr ),	
 	.paddr    (exu_lsu_paddr ),
 	.gpr_rd		(exu_lsu_rd		 ),
 	.gpr_res  (exu_lsu_res   ),
+	.ram_mask (dram_mask		 ),
 	.awvalid  (dram_awvalid  ),
 	.arvalid  (dram_arvalid  ),
 	.araddr		(dram_raddr),

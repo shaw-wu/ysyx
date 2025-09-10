@@ -19,16 +19,19 @@ reg [DATA_WIDTH-1:0] rf [0:GPR_NUM-1];
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
-		for(integer i = 1; i < DATA_WIDTH; i=i+1) begin
+		for(integer i = 0; i < DATA_WIDTH; i=i+1) begin
 			rf[i] = 32'b0;
 		end
 	end else begin
-		if (wen) rf[waddr] <= wdata;
+		if (wen) begin
+			if (waddr != 0) rf[waddr] <= wdata;
+			else						rf[waddr] <= 0		;
+		end
 	end
 end
 
-assign rdata1 = rf[raddr1];
-assign rdata2 = rf[raddr2];
+assign rdata1 = raddr1 == 0 ? 0 : rf[raddr1];
+assign rdata2 = raddr2 == 0 ? 0 : rf[raddr2];
 
 `ifdef VERILATOR
 export "DPI-C" task read_gpr;
@@ -39,9 +42,5 @@ begin
 end
 endtask
 `endif
-
-always @(*) begin
-	rf[0] = {DATA_WIDTH{1'b0}};
-end
 
 endmodule

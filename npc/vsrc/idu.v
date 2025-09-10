@@ -35,6 +35,8 @@ module ysyx_25010009_idu #(
 	output [DATA_WIDTH -1:0] mwdata  	 ,
 	output									 memwr   	 ,
 	output									 memre   	 ,
+	output [            3:0] mem_mask  ,
+	output                   mem_sext  ,
 	output									 regwr   	 ,	
 	output									 is_jalr 	 ,
 	output									 is_jal  	 ,
@@ -168,7 +170,7 @@ assign opsel = add || addi || lui || auipc ||
 							 sltu || sltiu || bltu			    ? 4'b1101 : //<u
 							 bgeu												    ? 4'b1110 : //>=u
 							 4'b0000;//+
-
+						 
 assign src1 = rf_src1;
 assign src2 = rf_src2;
 
@@ -182,6 +184,10 @@ assign is_bxx   = beq || bne || blt || bge || bltu || bgeu;
 assign mwdata = rf_src2;
 assign memwr = sb || sh || sw;
 assign memre = lb || lh || lw || lbu || lhu;
+assign mem_mask = sb || lb || lbu ? 4'b0001 :
+									sh || lh || lhu ? 4'b0011 :
+									sw || lw				? 4'b1111 : 4'b0000;
+assign mem_sext = sb || lb || sh || lh || sw || lw;
 assign regwr = sll  || slli || srl || srli || sra  || srai || add || addi || sub  || lui   || auipc ||
 							 xor_ || xori	|| or_ || ori  || and_ || andi || slt || slti || sltu || sltiu || lb		||
 							 lh		|| lw		|| lbu || lhu	 || jal  || jalr 																						;

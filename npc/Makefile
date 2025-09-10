@@ -17,7 +17,7 @@ MACROS_FLAGS ?=
 MACROS_FLAGS += -DCONFIG_IRINGBUF=""
 MACROS_FLAGS += -DCONFIG_DIFFTEST=""
 MACROS_FLAGS += -DCONFIG_ITRACE=""
-MACROS_FLAGS += -DCONFIG_FTRACE=""
+#MACROS_FLAGS += -DCONFIG_FTRACE=""
 MACROS_FLAGS += -DCONFIG_ISA_riscv=""
 MACROS_FLAGS += -DCONFIG_RVE=1
 MACROS_FLAGS += -DCONFIG_PC_RESET_OFFSET=0x00
@@ -48,7 +48,6 @@ CSRCS += $(shell find $(abspath ./csrc/ftrace) -name "*.c")
 CSRCS += $(shell find $(abspath ./csrc/memory) -name "*.c")
 CSRCS += $(shell find $(abspath ./csrc/difftest) -name "*.c")
 CSRCS += $(shell find $(abspath ./csrc/isa-difftest) -name "*.c")
-CSRCS += $(shell find $(abspath ./sim/irom) -name "*.cpp")
 CSRCS += $(shell find $(abspath ./sim) -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 include $(NVBOARD_HOME)/scripts/nvboard.mk

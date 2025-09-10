@@ -26,6 +26,8 @@ module ysyx_25010009_exu #(
 	input	 								   memwr  ,
 	input	 								   memre  ,
 	input	 								   regwr  ,	
+	input	 [					  3:0] mem_mask,
+	input	                   mem_sext,
 	input										 is_jal ,
 	input										 is_jalr,
 	input										 is_bxx ,
@@ -48,6 +50,8 @@ module ysyx_25010009_exu #(
 	output	 								 lsu_memwr ,
 	output	 								 lsu_memre ,
 	output	 								 lsu_regwr ,	
+	output [					  3:0] lsu_mask	 ,
+	output                   lsu_sext  ,
 	output [DATA_WIDTH -1:0] paddr     ,
 	output [RS_WIDTH   -1:0] gpr_rd		 ,
 	output [DATA_WIDTH -1:0] gpr_res   
@@ -100,6 +104,20 @@ ysyx_25010009_ALU #(
 	.inb(inb   ),
 	.out(alu_result)
 );
+
+wire is_shiftl  = opsel == 4'b0110;
+wire is_shiftru = opsel == 4'b0111;
+wire is_shiftrs = opsel == 4'b1000;
+wire [1:0] shift_sel = is_shiftl  ? 2'b01 :
+											 is_shiftru ? 2'b11 :
+											 is_shiftrs ? 2'b10 : 2'b00;
+wire [DATA_WIDTH-1:0] shift_res;
+ysyx_25010009_SHIFT SHIFT(
+	.a		(ina			 ),
+	.shamt(inb[4:0]  ),
+	.sel	(shift_sel ),
+	.out	(shift_res )
+);
  
 //pcadder
 wire is_jmp;
@@ -125,7 +143,7 @@ assign exu_dnpc  = pcadder_result;
 assign isRAW_control = (exu_dnpc != dnpc); 
 
 assign paddr   = alu_result;
-assign gpr_res = alu_result;
+assign gpr_res = shift_sel != 2'b00 ? shift_res : alu_result;
 assign gpr_rd  = rd;
 
 assign lsu_pc			= pc		;
@@ -133,6 +151,8 @@ assign lsu_mwdata = mwdata;
 assign lsu_memwr	= memwr ;
 assign lsu_memre  = memre ;
 assign lsu_regwr  = regwr ;
+assign lsu_mask   = mem_mask;
+assign lsu_sext   = mem_sext;
 
 `ifdef VERILATOR
 assign lsu_ebreak = ebreak;
