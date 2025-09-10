@@ -7,7 +7,8 @@
 int is_ifetch = 0;	
 #endif
 
-word_t vaddr_ifetch(vaddr_t addr, int len) {
+word_t vaddr_ifetch(vaddr_t addr, int len, int ren) {
+	if(!ren) return 0;
 #ifdef CONFIG_MTRACE
 	is_ifetch = 1;
 #endif

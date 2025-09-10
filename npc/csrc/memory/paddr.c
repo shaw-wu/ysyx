@@ -54,7 +54,7 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 		case 2: printf(ANSI_FMT("[pmem_write]", ANSI_FG_CYAN) " addr: 0x%08x   wdata: 0x%04x\n", addr, data);break;
 		case 4: printf(ANSI_FMT("[pmem_write]", ANSI_FG_CYAN) " addr: 0x%08x   wdata: 0x%08x\n", addr, data);break;
     IFDEF(CONFIG_ISA64, case 8: printf(ANSI_FMT("[pmem_write]", ANSI_FG_CYAN) " addr: 0x%08x   wdata: 0x%016x\n", addr, data));break;
-    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);break;
+    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return);break;
 	}
 #endif
   host_write(guest_to_host(addr), len, data);
