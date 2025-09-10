@@ -19,9 +19,10 @@
 #include <memory/paddr.h>
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
+	uint8_t *buf_mem = (uint8_t *) buf;
 	if(direction == DIFFTEST_TO_REF){
 		for(int i = 0; i < n; i++){
-			pmem_write(addr + i, 1, buf + i);
+			paddr_write(addr + i, 1, *(buf_mem + i));
 		}
 	} else {
 		assert(0);
@@ -29,16 +30,17 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 }
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
+	CPU_state *dut_state = (CPU_state *)dut;
 	if(direction == DIFFTEST_TO_REF){
-		for(int i = 0; i < RISCV_GPR_NUM - 1; i++){
-			cpu.gpr[i] = dut->gpr[i]; 
+		for(int i = 0; i < RISCV_GPR_NUM; i++){
+			cpu.gpr[i] = dut_state->gpr[i]; 
 		}
-		cpu.pc = dut->pc;
+		cpu.pc = dut_state->pc;
 	} else {
-		for(int i = 0; i < RISCV_GPR_NUM - 1; i++){
-			dut->gpr[i] = cpu.gpr[i]; 
+		for(int i = 0; i < RISCV_GPR_NUM; i++){
+			dut_state->gpr[i] = cpu.gpr[i]; 
 		}
-		dut->pc = cpu.gpr[i];
+		dut_state->pc = cpu.pc;
 	}
 }
 
@@ -54,5 +56,5 @@ __EXPORT void difftest_init(int port) {
   void init_mem();
   init_mem();
   /* Perform ISA dependent initialization. */
-  init_isa();
+  //init_isa();
 }

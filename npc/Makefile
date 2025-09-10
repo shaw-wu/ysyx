@@ -8,20 +8,26 @@ LINC_PATH += /usr/include/readline
 LIBS ?=
 
 CONFIG_ITRACE = y
+CONFIG_DIFFTEST = y
 
+GUEST_ISA = riscv32
 VERILATOR = verilator
 MACROS_FLAGS ?=
 #MACROS_FLAGS += -DMONITOR_EN=""
 MACROS_FLAGS += -DCONFIG_IRINGBUF=""
+MACROS_FLAGS += -DCONFIG_DIFFTEST=""
 MACROS_FLAGS += -DCONFIG_ITRACE=""
 MACROS_FLAGS += -DCONFIG_FTRACE=""
 MACROS_FLAGS += -DCONFIG_ISA_riscv=""
-MACROS_FLAGS += -D__GUEST_ISA__="riscv32"
+MACROS_FLAGS += -DCONFIG_RVE=1
+MACROS_FLAGS += -DCONFIG_PC_RESET_OFFSET=0x00
+MACROS_FLAGS += -D__GUEST_ISA__="$(GUEST_ISA)"
 #MACROS_FLAGS += -DCONFIG_WATCHPOINT=""
 VERILATOR_CFLAGS += --cc --build --trace
 #-MMD --build --cc 
 									#-03 --x-assign fast --x-initial --noassert
 
+ARGS ?=
 BUILD_DIR = $(shell pwd)/build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOP_NAME)
@@ -36,9 +42,12 @@ CXXFLAGS ?=
 include $(NPC_HOME)/csrc/utils/filelist.mk
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS += $(shell find $(abspath ./csrc) -name "*.cpp")
+CSRCS += $(shell find $(abspath ./csrc) -name "*.c")
 CSRCS += $(shell find $(abspath ./csrc/sdb) -name "*.c")
 CSRCS += $(shell find $(abspath ./csrc/ftrace) -name "*.c")
 CSRCS += $(shell find $(abspath ./csrc/memory) -name "*.c")
+CSRCS += $(shell find $(abspath ./csrc/difftest) -name "*.c")
+CSRCS += $(shell find $(abspath ./csrc/isa-difftest) -name "*.c")
 CSRCS += $(shell find $(abspath ./sim/irom) -name "*.cpp")
 CSRCS += $(shell find $(abspath ./sim) -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
@@ -49,12 +58,16 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\""
 CXXFLAGS += $(MACROS_FLAGS)
 CXXFLAGS += -U__STDC_FORMAT_MACROS
 
-
 IMG ?=
 ELF ?=
 DIFF_REF_SO ?=
 
 LDFLAGS += $(addprefix -L, $(LINC_PATH)) $(addprefix -l, readline) $(LIBS)
+
+#ifdef CONFIG_DIFFTEST
+include $(NPC_HOME)/csrc/difftest/difftest.mk
+#endif
+ARGS += $(ARGS_DIFF)
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

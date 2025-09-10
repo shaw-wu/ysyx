@@ -8,7 +8,6 @@ module ysyx_25010009_lsu #(
 	//exu <> lsu
 `ifdef VERILATOR
 	input 									ebreak ,
-	input [DATA_WIDTH -1:0] a0		 ,
 	input [DATA_WIDTH -1:0] inst	 ,
 	input [ADDR_WIDTH -1:0] snpc	 ,
 	input [ADDR_WIDTH -1:0] dnpc	 ,
@@ -34,7 +33,6 @@ module ysyx_25010009_lsu #(
 	// lsu <> wbu
 `ifdef VERILATOR
 	output 									 wbu_ebreak,
-	output [DATA_WIDTH -1:0] wbu_a0		 ,
 	output [DATA_WIDTH -1:0] wbu_inst	 ,
 	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
 	output [ADDR_WIDTH -1:0] wbu_dnpc	 ,
@@ -56,7 +54,6 @@ assign wdata = mwdata;
 
 `ifdef VERILATOR
 assign wbu_ebreak = ebreak;
-assign wbu_a0 = a0;
 assign wbu_inst = inst;
 assign wbu_snpc = snpc;
 assign wbu_dnpc = dnpc;

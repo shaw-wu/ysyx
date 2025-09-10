@@ -20,7 +20,7 @@ void isa_reg_display() {
 	int i, j;
 	i = 0;
 	word_t reg = 0;
-	for(j = 0; j < 8; j++){
+	for(j = 0; j < 4; j++){
 		for(; i < (j + 1) * 4; i++){
 			read_gpr(i, &reg);
 			if(strcmp(regs[i], "s10") == 0 || strcmp(regs[i], "s11") == 0) {

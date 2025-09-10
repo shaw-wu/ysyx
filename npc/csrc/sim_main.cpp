@@ -48,7 +48,12 @@ uint32_t is_jalr = 0;
 
 VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
-																	 //
+																	 
+void init_isa();
+
+void init_difftest(char *ref_so_file, long img_size, int port);
+void difftest_step(vaddr_t pc, vaddr_t npc);
+
 static void single_cycle() {
   dut->clk = ~dut->clk & 1; dut->eval();
 }
@@ -66,15 +71,20 @@ void sim_init(int argc, char** argv ){
 	dut->clk = 0;
 	dut->rst = 1;
 
-	if(argc < 2) assert(0);
+	if(argc < 3) assert(0);
+	char *ref_so_file = argv[3];
 	char *img_file = argv[1];
 	elf_file = argv[2];
 	FILE *img = fopen(img_file, "rb");
-	load_img(img);
+	long img_size = load_img(img);
 	pmem_load_img(img);
 	init_ftmem();
 	fclose(img);
+	init_isa();
 
+#ifdef CONFIG_DIFFTEST
+	init_difftest(ref_so_file, img_size, 0);
+#endif
 	#ifdef ENABLE_WAVEFORM
 		Verilated::traceEverOn(true);
 		tfp = new VerilatedVcdC;
@@ -117,8 +127,8 @@ void trace_and_difftest(){
 	difftest_step(cpu.pc, cpu.dnpc);
 #endif
 #ifdef CONFIG_FTRACE
-	if(is_jal ) ftrace_jal (cpu.pc, cpu.dnpc, decode.rd);
-	if(is_jalr) ftrace_jalr(cpu.pc, cpu.dnpc, decode.rd, decode.rs1);
+	if(decode.is_jal ) ftrace_jal (cpu.pc, cpu.dnpc, decode.rd);
+	if(decode.is_jalr) ftrace_jalr(cpu.pc, cpu.dnpc, decode.rd, decode.rs1);
 #endif
 #ifdef CONFIG_IRINGBUF
   char *p = iringbuf[ptr];
@@ -165,22 +175,22 @@ void trace_and_difftest(){
 }
 
 void exec_once(uint32_t n){
-	once_sim = 0;
-	stop_sim = 0;
 	uint32_t i = 0;
 	if(end_sim) {
 		printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
 		return;
 	}
 	while(1){
+		once_sim = 0;
+		stop_sim = 0;
 		contextp->timeInc(1);
 		single_cycle();
 		if(end_sim) {
 			break;
 		}
 		if(once_sim) {
-			i++;
 			trace_and_difftest();
+			i++;
 			if(stop_sim) break;
 			if(i == n) break;
 		}

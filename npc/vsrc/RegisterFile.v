@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 module ysyx_25010009_RegisterFile #(
+	parameter GPR_NUM = 16,
 	parameter ADDR_WIDTH = 5, 
 	parameter DATA_WIDTH = 32
 )(
@@ -7,9 +8,6 @@ module ysyx_25010009_RegisterFile #(
 	input rst,
 	input [DATA_WIDTH-1:0] wdata,
 	input [ADDR_WIDTH-1:0] waddr,
-`ifdef VERILATOR
-	output [DATA_WIDTH-1:0] a0_data,
-`endif
 	input [ADDR_WIDTH-1:0] raddr1,
 	input [ADDR_WIDTH-1:0] raddr2,
 	output [DATA_WIDTH-1:0] rdata1,
@@ -17,7 +15,7 @@ module ysyx_25010009_RegisterFile #(
 	input wen
 );
 
-reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
+reg [DATA_WIDTH-1:0] rf [0:GPR_NUM-1];
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
@@ -31,15 +29,13 @@ end
 
 assign rdata1 = rf[raddr1];
 assign rdata2 = rf[raddr2];
-`ifdef VERILATOR
-assign a0_data = rf[10];
-`endif
 
 `ifdef VERILATOR
 export "DPI-C" task read_gpr;
 task automatic read_gpr(input int addr, output int unsigned rdata); 
 begin
-	rdata = rf[addr];
+	if(addr == 0) rdata = 0;
+	else          rdata = rf[addr];
 end
 endtask
 `endif

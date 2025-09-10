@@ -5,7 +5,7 @@
 
 static int ROM[ROM_SIZE] = {};
 
-void load_img(FILE *fp){
+long load_img(FILE *fp){
 	fseek(fp, 0, SEEK_END);
 	long size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -14,7 +14,7 @@ void load_img(FILE *fp){
 	if (read_bytes != size) {
     fprintf(stderr, "Read error: expected %ld bytes, got %zu\n", size, read_bytes);
   }
-	return;
+	return size;
 }
 
 int read_irom(int vaddr){

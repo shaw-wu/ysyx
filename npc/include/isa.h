@@ -2,6 +2,7 @@
 #define __ISA_H__
 
 #include <isa-def.h>
+#include <paddr.h>
 
 // The macro `__GUEST_ISA__` is defined in $(CFLAGS).
 // It will be expanded as "x86" or "mips32" ...
@@ -9,8 +10,9 @@ typedef concat(__GUEST_ISA__, _CPU_state) CPU_state;
 typedef concat(__GUEST_ISA__, _ISADecodeInfo) ISADecodeInfo;
 
 // monitor
-extern unsigned char isa_logo[];
-void init_isa();
+//extern unsigned char isa_logo[];
+extern int end_sim;
+extern bool is_good_trap;
 
 // reg
 extern CPU_state cpu;
@@ -18,7 +20,8 @@ void isa_reg_display();
 word_t isa_reg_str2val(const char *name, bool *success);
 
 // exec
-struct Decode;
+//struct Decode;
+extern ISADecodeInfo decode;
 
 // memory
 enum { MMU_DIRECT, MMU_TRANSLATE, MMU_FAIL };

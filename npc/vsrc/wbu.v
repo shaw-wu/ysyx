@@ -7,7 +7,6 @@ module ysyx_25010009_wbu #(
 	input rst,
 `ifdef VERILATOR
 	input										 ebreak,
-	input [DATA_WIDTH  -1:0] a0		 ,
 	input [DATA_WIDTH  -1:0] inst  ,
 	input [ADDR_WIDTH  -1:0] snpc	 ,
 	input [ADDR_WIDTH  -1:0] dnpc	 ,
@@ -32,7 +31,7 @@ assign rf_rd    = rd;
 assign rf_wdata = gpr_res;
 
 `ifdef VERILATOR
-ebreak EBREAK(clk, ebreak, a0, pc, snpc, dnpc, inst, rd, rs1, jal, jalr);
+ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr);
 
 export "DPI-C" task read_pc;
 task automatic read_pc(output int unsigned rdata); 
