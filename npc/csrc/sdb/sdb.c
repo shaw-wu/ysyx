@@ -41,8 +41,8 @@ static int cmd_c(char *args) {
   exec_once(-1);	
   return 0;
 }
-//
-//
+  
+  
 static int cmd_q(char *args) {
 //	nemu_state.state = NEMU_QUIT;//quit
   end_sim = 1;

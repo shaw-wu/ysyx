@@ -69,6 +69,7 @@ void free_wp(WP *wp){
 	}
 	if(!p){
 		Log("Can't find watchpoint %d", no);
+		assert(0);
 	}
 	//清除wp的内容
 	memset(p->expr, '\0', 65536);

@@ -84,6 +84,10 @@ int printf(const char *fmt, ...) {
 					putch(buf[i]);
 				}
 				len += l;
+			} else if (*f == 'c') {
+				const char c = (char)va_arg(args, int);
+				putch(c);
+				len++;
       } else {
         putch('%');
         putch(*f);
@@ -119,6 +123,14 @@ int sprintf(char *out, const char *fmt, ...) {
       } else if (*f == 's') {
         const char *s = va_arg(args, const char *);
         while (*s) *p++ = *s++;
+      } else if (*f == 's') {
+        int val = va_arg(args, uint32_t);
+        char buf[20];
+        int len = x2str(val, buf);
+        for (int i = 0; i < len; i++) *p++ = buf[i];
+      } else if (*f == 'c') {
+				const char c = (char)va_arg(args, int);
+				*p++ = c;
       } else {
         *p++ = '%';
         *p++ = *f;
