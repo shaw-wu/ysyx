@@ -1,14 +1,8 @@
 #include <memory/host.h>
 #include <memory/paddr.h>
-//#include <utils.h>
-//#include <device/mmio.h>
-//#include <isa.h>
+#include <assert.h>
 
-#if   defined(CONFIG_PMEM_MALLOC)
-static uint8_t *pmem = NULL;
-#else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
-#endif
 
 #ifdef CONFIG_MTRACE
 extern int is_ifetch;
@@ -77,15 +71,59 @@ void init_mem() {
   //Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
+static uint64_t now_time;
+word_t mmio_read(paddr_t addr, int len) {
+	word_t ret;
+	if(addr >= TIMER_ADDR && addr < TIMER_END){
+		if(addr == TIMER_ADDR + 4) {
+			now_time = get_time();
+			ret = now_time >> 32;
+		} else {
+			ret = now_time;
+		}
+	} else {
+		printf("Device addr : 0x%0x can't find.\n", addr);
+	}
+//#ifdef CONFIG_DTRACE
+//	switch(len){
+//		case 1: printf(ANSI_FMT("[device_read ]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   rdata: 0x%02x\n", name, addr, ret);break;
+//		case 2: printf(ANSI_FMT("[device_read ]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   rdata: 0x%04x\n", name, addr, ret);break;
+//		case 4: printf(ANSI_FMT("[device_read ]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   rdata: 0x%08x\n", name, addr, ret);break;
+//    IFDEF(CONFIG_ISA64, case 8: printf(ANSI_FMT("[pmem_read ]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   rdata: 0x%016x\n", name, addr, ret));break;
+//    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);break;
+//	}
+//#endif
+  return ret;
+}
+
+void mmio_write(paddr_t addr, int len, word_t data) {
+//#ifdef CONFIG_DTRACE
+//	switch(len){
+//		case 1: printf(ANSI_FMT("[device_write]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   wdata: 0x%02x\n", name, addr, data);break;
+//		case 2: printf(ANSI_FMT("[device_write]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   wdata: 0x%04x\n", name, addr, data);break;
+//		case 4: printf(ANSI_FMT("[device_write]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   wdata: 0x%08x\n", name, addr, data);break;
+//    IFDEF(CONFIG_ISA64, case 8: printf(ANSI_FMT("[pmem_write]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   wdata: 0x%016x\n", name, addr, data));break;
+//    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);break;
+//	}
+//#endif
+	if(addr >= SERIAL_ADDR && addr < SERIAL_END){
+		if(addr == SERIAL_ADDR) {
+			putc((char)data, stderr);
+		} else {
+			printf("Serial read don't implement.\n");
+		}
+	} else {
+		printf("Device addr : 0x%0x can't find", addr);
+	}
+}
 word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
-  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
-  out_of_bound(addr);
-  return 0;
+	return mmio_read(addr, len);
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-  out_of_bound(addr);
+  mmio_write(addr, len, data);
+	return;
 }
+

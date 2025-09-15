@@ -51,6 +51,7 @@ VerilatedVcdC* tfp = NULL;         // 波形变量
 																	 
 void init_isa();
 
+void init_rand();
 void init_difftest(char *ref_so_file, long img_size, int port);
 void difftest_step(vaddr_t pc, vaddr_t npc);
 
@@ -59,6 +60,7 @@ static void single_cycle() {
 }
 
 void sim_init(int argc, char** argv ){
+	init_rand();
 #ifdef MONITOR_EN
 	init_sdb();
 #endif
@@ -75,6 +77,7 @@ void sim_init(int argc, char** argv ){
 	char *ref_so_file = argv[3];
 	char *img_file = argv[1];
 	elf_file = argv[2];
+	printf("argv[0] = %s, argv[1] = %s, argv[2] = %s, argv[3] = %s\n", argv[0], argv[1], argv[2], argv[3]);
 	FILE *img = fopen(img_file, "rb");
 	long img_size = load_img(img);
 	init_ftmem();
@@ -176,7 +179,7 @@ void trace_and_difftest(){
 void exec_once(uint32_t n){
 	uint32_t i = 0;
 	if(end_sim) {
-		printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
+		printf("Program execution has ended. To restart the program, exit sdb and run again.\n");
 		return;
 	}
 	while(1){
