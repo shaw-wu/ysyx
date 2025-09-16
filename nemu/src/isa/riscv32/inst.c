@@ -20,6 +20,7 @@
 #include <ftrace.h>
 
 #define R(i) gpr(i)
+#define CSR(i) cpu.csrs[i] 
 #define Mr vaddr_read
 #define Mw vaddr_write
 #define SHIFT(x) s->dnpc = (uint32_t)((int32_t)s->pc + (int32_t)x)
@@ -59,24 +60,27 @@ int rs2 = 0;
 
 #define src1R() do { *src1 = R(rs1); } while (0)
 #define src2R() do { *src2 = R(rs2); } while (0)
+#define CSRsR() do { *csrs = CSR(*csr); } while (0)
+#define zimmI() do { *zimm = SEXT(BITS(i, 19, 15), 5); } while(0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immJ() do { *imm = (SEXT(BITS(i, 31, 31), 1) << 20) | (BITS(i, 30, 21) << 1) | (BITS(i, 20, 20) << 11) | (BITS(i, 19, 12) << 12); } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
 #define immB() do { *imm = (SEXT(BITS(i, 31, 31), 1) << 12) | (BITS(i, 30, 25) << 5) | (BITS(i, 11, 8) << 1) | (BITS(i, 7, 7) << 11); } while(0)
 
-static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type) {
+static void decode_operand(Decode *s, int *rd, int *csr, word_t *src1, word_t *src2, word_t *csrs, word_t *imm, word_t *zimm, int type) {
   uint32_t i = s->isa.inst.val;
   rs1 = BITS(i, 19, 15);
   rs2 = BITS(i, 24, 20);
   *rd     = BITS(i, 11, 7);
+  *csr    = BITS(i, 31, 20);
   switch (type) {
-    case TYPE_I: src1R();          immI(); break;
-    case TYPE_U:                   immU(); break;
-    case TYPE_J:									 immJ(); break;
-    case TYPE_S: src1R(); src2R(); immS(); break;
-    case TYPE_B: src1R(); src2R(); immB(); break;
-    case TYPE_R: src1R(); src2R()				 ; break;
+    case TYPE_I: src1R();          CSRsR(); zimmI(); immI(); break;
+    case TYPE_U:																		 immU(); break;
+    case TYPE_J:													  				 immJ(); break;
+    case TYPE_S: src1R(); src2R();				  				 immS(); break;
+    case TYPE_B: src1R(); src2R();				  				 immB(); break;
+    case TYPE_R: src1R(); src2R()					 					 		   ; break;
   }
 	#ifdef CONFIG_IRINGBUF
 	  char *p = iringbuf[ptr];
@@ -105,14 +109,30 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 	#endif
 }
 
+void etrace(vaddr_t pc, int i){
+#ifdef CONFIG_ETRACE
+	char *c = i == 0 ? "csrrc" : 
+						i == 1 ? "csrrs" :
+						i == 2 ? "csrrw" :
+						i == 3 ? "ecall" :
+						i == 4 ? "mret"  : "inv";
+	if(i >= 0 && i < 5) {
+		printf("pc = 0x%08x, inst = %5s, mepc = 0x%08x, mstatus = 0x%08x, mcause = 0x%08x, mtvec = 0x%08x\n", 
+			     pc, c, CSR(MEPC), CSR(MSTATUS), CSR(MCAUSE), CSR(MTVEC)); \
+	}
+#else
+#endif
+}
+
 static int decode_exec(Decode *s) {
   int rd = 0;
-  word_t src1 = 0, src2 = 0, imm = 0;
+	int csr = 0;
+  word_t src1 = 0, src2 = 0, csrs, imm = 0, zimm = 0;
   s->dnpc = s->snpc;
 
 #define INSTPAT_INST(s) ((s)->isa.inst.val)
 #define INSTPAT_MATCH(s, name, type, ... /* execute body */ ) { \
-  decode_operand(s, &rd, &src1, &src2, &imm, concat(TYPE_, type)); \
+  decode_operand(s, &rd, &csr, &src1, &src2, &csrs, &imm, &zimm, concat(TYPE_, type)); \
   __VA_ARGS__ ; \
 }
 
@@ -167,6 +187,11 @@ static int decode_exec(Decode *s) {
 	INSTPAT("??????? ????? ????? 100 ????? 11000 11", blt    , B, if((int32_t)src1 < (int32_t)src2) SHIFT(imm));
 	INSTPAT("??????? ????? ????? 110 ????? 11000 11", bltu   , B, if(src1 < src2) SHIFT(imm));
 	INSTPAT("??????? ????? ????? 001 ????? 11000 11", bne    , B, if(src1 != src2) SHIFT(imm));
+  INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc  , I, R(rd) = csrs, CSR(csr) = csrs & (~src1), etrace(s->pc, 0)); 
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = csrs, CSR(csr) = csrs | src1, etrace(s->pc, 1)); 
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, R(rd) = csrs, CSR(csr) = src1, etrace(s->pc, 2)); 
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall	 , N, s->dnpc = isa_raise_intr(0x0000000b, s->pc), etrace(s->pc, 3)); 
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = CSR(MTVEC), etrace(s->pc, 4)); 
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
@@ -175,6 +200,7 @@ static int decode_exec(Decode *s) {
 
   return 0;
 }
+
 
 int isa_exec_once(Decode *s) {
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
