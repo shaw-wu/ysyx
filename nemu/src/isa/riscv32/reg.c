@@ -38,6 +38,7 @@ void isa_reg_display() {
 	}
 		printf("\n");
 	}
+	printf("%s  : 0x%08x\n", "mepc", cpu.csrs[MEPC]);
 	return;
 }
 
