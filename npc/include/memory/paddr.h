@@ -38,6 +38,7 @@ uint8_t* guest_to_host(paddr_t paddr);
 paddr_t host_to_guest(uint8_t *haddr);
 
 static inline bool in_pmem(paddr_t addr) {
+	//printf("%08x - %08x <? %08x : %s\n", addr, CONFIG_MBASE, CONFIG_MSIZE, addr - CONFIG_MBASE < CONFIG_MSIZE ? "true" : "false");
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 

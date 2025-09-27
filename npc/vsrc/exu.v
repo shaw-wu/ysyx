@@ -2,6 +2,7 @@ module ysyx_25010009_exu #(
 	parameter DATA_WIDTH  = 32, 
 	parameter ADDR_WIDTH  = 32, 
 	parameter RS_WIDTH    = 5 , 
+	parameter CAR_WIDTH   = 12,
 	parameter OPSEL_WIDTH = 4 ,
 	parameter OPMUX_WIDTH = 4
 )(
@@ -19,6 +20,7 @@ module ysyx_25010009_exu #(
 	input  [DATA_WIDTH -1:0] shamt  ,
 	input  [DATA_WIDTH -1:0] src1	  ,
 	input  [DATA_WIDTH -1:0] src2	  ,
+	input  [DATA_WIDTH -1:0] csrs   ,
 	input  [RS_WIDTH   -1:0] rd     ,
 	input  [OPMUX_WIDTH-1:0] opmux	,
 	input  [OPSEL_WIDTH-1:0] opsel  ,
@@ -26,11 +28,22 @@ module ysyx_25010009_exu #(
 	input	 								   memwr  ,
 	input	 								   memre  ,
 	input	 								   regwr  ,	
+	input									   csr1wr ,	
+	input									   csr2wr ,	
+	input  [CAR_WIDTH  -1:0] csr1rd	,
+	input  [CAR_WIDTH  -1:0] csr2rd	,
 	input	 [					  3:0] mem_mask,
 	input	                   mem_sext,
 	input										 is_jal ,
 	input										 is_jalr,
 	input										 is_bxx ,
+	input										 is_ecall,
+	input										 is_mret ,
+	input										 is_csrrs,
+	input										 is_csrrc,
+	input										 is_csrrw,
+	input [DATA_WIDTH-1 :0]  mepc ,
+	input [DATA_WIDTH-1 :0]  mtvec,
 	//ifu
   /*verilator lint_off UNUSED*/
 	output								   isRAW_control,
@@ -49,12 +62,18 @@ module ysyx_25010009_exu #(
 	output [DATA_WIDTH -1:0] lsu_mwdata,
 	output	 								 lsu_memwr ,
 	output	 								 lsu_memre ,
+	output	 								 lsu_csr1wr,	
+	output	 								 lsu_csr2wr,	
 	output	 								 lsu_regwr ,	
 	output [					  3:0] lsu_mask	 ,
 	output                   lsu_sext  ,
 	output [DATA_WIDTH -1:0] paddr     ,
 	output [RS_WIDTH   -1:0] gpr_rd		 ,
-	output [DATA_WIDTH -1:0] gpr_res   
+	output [DATA_WIDTH -1:0] gpr_res   ,  
+	output [CAR_WIDTH  -1:0] csr_rd1	 ,
+	output [CAR_WIDTH  -1:0] csr_rd2	 ,
+	output [DATA_WIDTH -1:0] csr_res1  ,
+	output [DATA_WIDTH -1:0] csr_res2   
 );
 
 //ALU
@@ -87,6 +106,10 @@ always @(*) begin
 		4'b0110 : begin
 			ina = pc;
 			inb = 32'd4;
+		end 
+		4'b0111 : begin
+			ina = csrs;
+			inb = 32'd0;
 		end 
 		default : begin
 			ina = 32'd0;
@@ -139,18 +162,28 @@ assign pcadder_a = is_jalr ? src1 : pc   ;
 assign pcadder_b = is_jmp  ? imm  : 32'd4;
 
 
-assign exu_dnpc  = pcadder_result; 
+assign exu_dnpc  = is_ecall ? mtvec : 
+									 is_mret  ? mepc  : pcadder_result; 
 assign isRAW_control = (exu_dnpc != dnpc); 
 
 assign paddr   = alu_result;
 assign gpr_res = shift_sel != 2'b00 ? shift_res : alu_result;
 assign gpr_rd  = rd;
+assign csr_rd1 = csr1rd;
+assign csr_rd2 = csr2rd;
+assign csr_res1= is_ecall ? pc + 4				 : 
+								 is_csrrc ? csrs & (~src1) : 
+								 is_csrrs ? csrs |   src1  : 
+								 is_csrrw ?          src1  : 0;
+assign csr_res2= is_ecall ? 32'hb	 : 0;
 
 assign lsu_pc			= pc		;
 assign lsu_mwdata = mwdata;
 assign lsu_memwr	= memwr ;
 assign lsu_memre  = memre ;
 assign lsu_regwr  = regwr ;
+assign lsu_csr1wr = csr1wr;
+assign lsu_csr2wr = csr2wr;
 assign lsu_mask   = mem_mask;
 assign lsu_sext   = mem_sext;
 
@@ -158,7 +191,7 @@ assign lsu_sext   = mem_sext;
 assign lsu_ebreak = ebreak;
 assign lsu_inst		= inst	;
 assign lsu_snpc   = pc + 4;
-assign lsu_dnpc   = pcadder_result;
+assign lsu_dnpc   = exu_dnpc;
 assign lsu_rs1		= rs1		;
 assign lsu_jal		= is_jal ;
 assign lsu_jalr		= is_jalr;

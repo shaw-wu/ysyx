@@ -1,7 +1,8 @@
 module ysyx_25010009_lsu #(
 	parameter DATA_WIDTH  = 32, 
 	parameter ADDR_WIDTH  = 32, 
-	parameter RS_WIDTH    = 5  
+	parameter RS_WIDTH    = 5 ,
+	parameter CAR_WIDTH   = 12
 )(
 	input clk,
 	input rst,
@@ -20,11 +21,17 @@ module ysyx_25010009_lsu #(
 	input										memwr  ,
 	input	 								 	memre  ,
 	input	 								 	regwr  ,	
+	input	 								 	csr1wr ,	
+	input	 								 	csr2wr ,	
 	input	[						 3:0] mem_mask,	
 	input	                  mem_sext,	
 	input [DATA_WIDTH -1:0] paddr  ,
 	input [RS_WIDTH   -1:0] gpr_rd ,
 	input [DATA_WIDTH -1:0] gpr_res,
+	input [CAR_WIDTH  -1:0] csr_rd1	,
+	input [CAR_WIDTH  -1:0] csr_rd2	,
+	input [DATA_WIDTH -1:0] csr_res1,
+	input [DATA_WIDTH -1:0] csr_res2,   
 	// lsu <> ram
 	output									 awvalid,
 	output									 arvalid,
@@ -45,8 +52,14 @@ module ysyx_25010009_lsu #(
 `endif
 	output [ADDR_WIDTH -1:0] wbu_pc		 ,
 	output	 								 wbu_regwr ,	
+	output	 								 wbu_csr1wr,	
+	output	 								 wbu_csr2wr,	
 	output [RS_WIDTH   -1:0] wbu_gpr_rd	,
-	output [DATA_WIDTH -1:0] wbu_gpr_res
+	output [DATA_WIDTH -1:0] wbu_gpr_res,
+	output [CAR_WIDTH  -1:0] wbu_csr_rd1 ,
+	output [CAR_WIDTH  -1:0] wbu_csr_rd2 ,
+	output [DATA_WIDTH -1:0] wbu_csr_res1,
+	output [DATA_WIDTH -1:0] wbu_csr_res2 
 );
 
 wire [DATA_WIDTH-1:0] ur_result;
@@ -78,7 +91,13 @@ assign wbu_jalr	= jalr;
 `endif
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;
+assign wbu_csr1wr = csr1wr;
+assign wbu_csr2wr = csr2wr;
 assign wbu_gpr_rd = gpr_rd;
 assign wbu_gpr_res = memre ? re_result : gpr_res;
+assign wbu_csr_rd1 = csr_rd1;
+assign wbu_csr_rd2 = csr_rd2;
+assign wbu_csr_res1 = csr_res1;
+assign wbu_csr_res2 = csr_res2;
 
 endmodule

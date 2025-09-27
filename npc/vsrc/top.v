@@ -4,6 +4,7 @@ module ysyx_25010009_top #(
 	parameter ADDR_WIDTH   = 32, 
 	parameter DATA_WIDTH   = 32,
 	parameter RS_WIDTH     = 5 , 
+	parameter CAR_WIDTH    = 12, 
 	parameter FUNCT3_WIDTH = 3 , 
 	parameter FUNCT7_WIDTH = 7 , 
 	parameter OPCODE_WIDTH = 7 , 
@@ -15,6 +16,12 @@ module ysyx_25010009_top #(
 	input clk,
 	input rst
 );
+
+localparam MSTATUS = 12'h0300;
+localparam MTVEC	 = 12'h0305;
+localparam MEPC    = 12'h0341;
+localparam MCAUSE  = 12'h0342;
+
 `ifdef CONFIG_RVE
 	parameter GPR_NUM = 16;
 `else
@@ -57,14 +64,30 @@ wire idu_exu_memwr  ;
 wire idu_exu_memre  ;
 wire [3:0] idu_exu_mask;
 wire idu_exu_sext;
-wire idu_exu_regwr  ;
+wire idu_exu_regwr ;
+wire idu_exu_csr1wr; 
+wire idu_exu_csr2wr; 
+wire [CAR_WIDTH -1:0] idu_exu_csr1rd; 
+wire [CAR_WIDTH -1:0] idu_exu_csr2rd; 
 wire idu_exu_is_jalr;
 wire idu_exu_is_jal ;
 wire idu_exu_is_bxx ;
+wire idu_exu_is_ecall;
+wire idu_exu_is_mret;
+wire idu_exu_is_csrrc;
+wire idu_exu_is_csrrs;
+wire idu_exu_is_csrrw;
+wire [DATA_WIDTH-1:0] idu_exu_csrs;
+wire [DATA_WIDTH-1:0] idu_exu_mepc;
+wire [DATA_WIDTH-1:0] idu_exu_mtvec;
 wire [RS_WIDTH	-1:0] idu_rf_rs1 ;
 wire [RS_WIDTH	-1:0] idu_rf_rs2 ;
 wire [DATA_WIDTH-1:0] idu_rf_src1;
 wire [DATA_WIDTH-1:0] idu_rf_src2;
+wire [CAR_WIDTH	-1:0] idu_rf_csr ;
+wire [DATA_WIDTH-1:0] idu_rf_csrs;
+wire [DATA_WIDTH-1:0] idu_rf_mepc;
+wire [DATA_WIDTH-1:0] idu_rf_mtvec;
 
 `ifdef VERILATOR
 wire exu_lsu_ebreak;
@@ -81,11 +104,17 @@ wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
 wire exu_lsu_memwr 	;
 wire exu_lsu_memre 	;
 wire exu_lsu_regwr 	;
+wire exu_lsu_csr1wr 	;
+wire exu_lsu_csr2wr 	;
 wire [3:0] exu_lsu_mask;
 wire exu_lsu_sext;
 wire [ADDR_WIDTH-1:0] exu_lsu_paddr  ;
 wire [RS_WIDTH-1:0  ] exu_lsu_rd ;
 wire [DATA_WIDTH-1:0] exu_lsu_res;
+wire [CAR_WIDTH-1:0 ] exu_lsu_csr1;
+wire [CAR_WIDTH-1:0 ] exu_lsu_csr2;
+wire [DATA_WIDTH-1:0] exu_lsu_csrs1;
+wire [DATA_WIDTH-1:0] exu_lsu_csrs2;
 wire [ADDR_WIDTH-1:0] exu_dnpc;
 
 `ifdef VERILATOR
@@ -99,12 +128,24 @@ wire                  lsu_wbu_jalr;
 `endif
 wire [ADDR_WIDTH-1:0] lsu_wbu_pc;
 wire									lsu_wbu_regwr;
+wire									lsu_wbu_csr1wr;
+wire									lsu_wbu_csr2wr;
 wire [RS_WIDTH-1:0  ] lsu_wbu_rd ;
 wire [DATA_WIDTH-1:0] lsu_wbu_res;
+wire [CAR_WIDTH-1:0 ] lsu_wbu_csr1;
+wire [CAR_WIDTH-1:0 ] lsu_wbu_csr2;
+wire [DATA_WIDTH-1:0 ] lsu_wbu_csrs1;
+wire [DATA_WIDTH-1:0 ] lsu_wbu_csrs2;
 
 wire [RS_WIDTH  -1:0] wbu_rf_rd	  ;		 
 wire [DATA_WIDTH-1:0] wbu_rf_wdata;	 
 wire wbu_rf_wen; 	 
+wire [CAR_WIDTH  -1:0] wbu_rf_csr1;		 
+wire [CAR_WIDTH  -1:0] wbu_rf_csr2;		 
+wire [DATA_WIDTH-1:0] wbu_rf_csrs1;	 
+wire [DATA_WIDTH-1:0] wbu_rf_csrs2;	 
+wire wbu_rf_cwen1; 	 
+wire wbu_rf_cwen2; 	 
 
 wire speec;
 
@@ -151,13 +192,18 @@ ysyx_25010009_idu #(
 	.ADDR_WIDTH  (ADDR_WIDTH  ), 
 	.DATA_WIDTH  (DATA_WIDTH  ),
 	.RS_WIDTH    (RS_WIDTH    ), 
+	.CAR_WIDTH   (CAR_WIDTH   ), 
 	.FUNCT3_WIDTH(FUNCT3_WIDTH), 
 	.FUNCT7_WIDTH(FUNCT7_WIDTH), 
 	.OPCODE_WIDTH(OPCODE_WIDTH), 
 	.OPSEL_WIDTH (OPSEL_WIDTH ),
 	.OPMUX_WIDTH (OPMUX_WIDTH ),
 	.INST_BITS	 (INST_BITS		),
-	.PCMUX_WIDTH (PCMUX_WIDTH )
+	.PCMUX_WIDTH (PCMUX_WIDTH ),
+	.MSTATUS		 (MSTATUS			),
+	.MTVEC			 (MTVEC	 			),
+	.MEPC   		 (MEPC   			),
+	.MCAUSE 		 (MCAUSE 			) 
 ) IDU (
 	.clk		 (clk						 ),
 	.rst     (rst     			 ),
@@ -185,13 +231,29 @@ ysyx_25010009_idu #(
 	.mem_mask(idu_exu_mask	 ),
 	.mem_sext(idu_exu_sext	 ),
 	.regwr   (idu_exu_regwr  ),	
+	.csr1wr	 (idu_exu_csr1wr ),
+	.csr2wr	 (idu_exu_csr2wr ),
+	.csr1rd	 (idu_exu_csr1rd ),
+	.csr2rd	 (idu_exu_csr2rd ),
 	.is_jalr (idu_exu_is_jalr),
 	.is_jal  (idu_exu_is_jal ),
 	.is_bxx  (idu_exu_is_bxx ),
+	.is_ecall(idu_exu_is_ecall),
+	.is_mret (idu_exu_is_mret ),
+	.is_csrrc(idu_exu_is_csrrc),
+	.is_csrrs(idu_exu_is_csrrs),
+	.is_csrrw(idu_exu_is_csrrw),
+	.exu_csrs (idu_exu_csrs  ),
+	.exu_mepc (idu_exu_mepc	 ),
+	.exu_mtvec(idu_exu_mtvec ),
+	.csr		 (idu_rf_csr		 ),
+	.csrs		 (idu_rf_csrs		 ),
 	.rs1		 (idu_rf_rs1		 ),
 	.rs2		 (idu_rf_rs2		 ),
 	.rf_src1 (idu_rf_src1		 ),
-  .rf_src2 (idu_rf_src2 	 )
+  .rf_src2 (idu_rf_src2 	 ),
+	.mepc	 	 (idu_rf_mepc		 ),
+	.mtvec	 (idu_rf_mtvec	 )
 );
 
 ysyx_25010009_exu #(
@@ -221,9 +283,21 @@ ysyx_25010009_exu #(
 	.memre  			(idu_exu_memre  			),
 	.memwr  			(idu_exu_memwr  			),
 	.regwr  			(idu_exu_regwr  			),	
+	.csr1wr  			(idu_exu_csr1wr  			),	
+	.csr2wr  			(idu_exu_csr2wr  			),	
+	.csr1rd  			(idu_exu_csr1rd  			),	
+	.csr2rd  			(idu_exu_csr2rd  			),	
 	.is_jal 			(idu_exu_is_jal 			),
 	.is_jalr			(idu_exu_is_jalr			),
 	.is_bxx 			(idu_exu_is_bxx 			),
+	.is_ecall			(idu_exu_is_ecall		  ),
+	.is_mret			(idu_exu_is_mret		  ),
+	.is_csrrc			(idu_exu_is_csrrc			),
+	.is_csrrs			(idu_exu_is_csrrs			),
+	.is_csrrw			(idu_exu_is_csrrw			),
+	.csrs					(idu_exu_csrs					),
+	.mepc					(idu_exu_mepc					),
+	.mtvec				(idu_exu_mtvec				),
 	.isRAW_control(             				),
 	.exu_dnpc			(exu_dnpc						  ),
 `ifdef VERILATOR
@@ -241,16 +315,23 @@ ysyx_25010009_exu #(
 	.lsu_memre 		(exu_lsu_memre 				),
 	.lsu_mask			(exu_lsu_mask					),
 	.lsu_sext			(exu_lsu_sext					),
+	.lsu_csr1wr 	(exu_lsu_csr1wr				),	
+	.lsu_csr2wr 	(exu_lsu_csr2wr				),	
 	.lsu_regwr 		(exu_lsu_regwr 				),	
 	.paddr     		(exu_lsu_paddr    		),
 	.gpr_rd		 		(exu_lsu_rd						),
-	.gpr_res   		(exu_lsu_res  				)
+	.gpr_res   		(exu_lsu_res  				),
+	.csr_rd1			(exu_lsu_csr1					),
+	.csr_rd2			(exu_lsu_csr2					),
+	.csr_res1			(exu_lsu_csrs1				),
+	.csr_res2			(exu_lsu_csrs2				)
 );
 
 ysyx_25010009_lsu #(
 	.DATA_WIDTH(DATA_WIDTH),
 	.ADDR_WIDTH(ADDR_WIDTH),
-	.RS_WIDTH  (RS_WIDTH  )
+	.RS_WIDTH  (RS_WIDTH  ),
+	.CAR_WIDTH (CAR_WIDTH )
 ) LSU (
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
@@ -270,9 +351,15 @@ ysyx_25010009_lsu #(
 	.memwr 		(exu_lsu_memwr ),
 	.memre 		(exu_lsu_memre ),
 	.regwr 		(exu_lsu_regwr ),	
+	.csr1wr 	(exu_lsu_csr1wr),	
+	.csr2wr 	(exu_lsu_csr2wr),	
 	.paddr    (exu_lsu_paddr ),
 	.gpr_rd		(exu_lsu_rd		 ),
 	.gpr_res  (exu_lsu_res   ),
+	.csr_rd1	(exu_lsu_csr1	 ),
+	.csr_rd2	(exu_lsu_csr2	 ),
+	.csr_res1 (exu_lsu_csrs1 ),
+	.csr_res2 (exu_lsu_csrs2 ),
 	.ram_mask (dram_mask		 ),
 	.awvalid  (dram_awvalid  ),
 	.arvalid  (dram_arvalid  ),
@@ -291,14 +378,21 @@ ysyx_25010009_lsu #(
 `endif
 	.wbu_pc			 (lsu_wbu_pc		 ),
 	.wbu_regwr   (lsu_wbu_regwr	 ),	
+	.wbu_csr1wr  (lsu_wbu_csr1wr ),	
+	.wbu_csr2wr  (lsu_wbu_csr2wr ),	
 	.wbu_gpr_rd	 (lsu_wbu_rd		 ),
-	.wbu_gpr_res (lsu_wbu_res		 )  
+	.wbu_gpr_res (lsu_wbu_res		 ),
+	.wbu_csr_rd1 (lsu_wbu_csr1	 ),
+	.wbu_csr_rd2 (lsu_wbu_csr2	 ),
+	.wbu_csr_res1(lsu_wbu_csrs1	 ),
+	.wbu_csr_res2(lsu_wbu_csrs2	 ) 
 );
 
 ysyx_25010009_wbu #(
 	.DATA_WIDTH(DATA_WIDTH),
 	.ADDR_WIDTH(ADDR_WIDTH),
-	.RS_WIDTH  (RS_WIDTH  )
+	.RS_WIDTH  (RS_WIDTH  ),
+	.CAR_WIDTH (CAR_WIDTH )
 ) WBU (
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
@@ -313,28 +407,54 @@ ysyx_25010009_wbu #(
 	.jalr		 (lsu_wbu_jalr	 ),
 `endif
 	.regwr   (lsu_wbu_regwr	 ),	
+	.csr1wr  (lsu_wbu_csr1wr ),	
+	.csr2wr  (lsu_wbu_csr2wr ),	
 	.rd		   (lsu_wbu_rd		 ),
 	.gpr_res (lsu_wbu_res		 ),  
-	.rf_rd	 (wbu_rf_rd			 ),
-	.rf_wdata(wbu_rf_wdata	 ),
-	.rf_wen  (wbu_rf_wen  	 ),
+	.csr_rd1 (lsu_wbu_csr1	 ),
+	.csr_rd2 (lsu_wbu_csr2	 ),
+	.csr_res1(lsu_wbu_csrs1	 ),
+	.csr_res2(lsu_wbu_csrs2	 ),
+	.rf_gpr_rd	 (wbu_rf_rd			 ),
+	.rf_gpr_wdata(wbu_rf_wdata	 ),
+	.rf_gpr_wen  (wbu_rf_wen  	 ),
+	.rf_csr_rd1	 (wbu_rf_csr1		 ),
+	.rf_csr_rd2	 (wbu_rf_csr2		 ),
+	.rf_csr_res1 (wbu_rf_csrs1	 ),
+	.rf_csr_res2 (wbu_rf_csrs2	 ),
+	.rf_csr_wen1 (wbu_rf_cwen1	 ),
+	.rf_csr_wen2 (wbu_rf_cwen2	 ),
 	.speec	 (speec					 )
 );
 
 ysyx_25010009_RegisterFile #(
 	.GPR_NUM	 (GPR_NUM		),
 	.DATA_WIDTH(DATA_WIDTH),
-	.ADDR_WIDTH(RS_WIDTH  )
+	.ADDR_WIDTH(RS_WIDTH  ),
+	.MSTATUS		 (MSTATUS			),
+	.MTVEC			 (MTVEC	 			),
+	.MEPC   		 (MEPC   			),
+	.MCAUSE 		 (MCAUSE 			) 
 ) GPR (
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
-	.wdata	 (wbu_rf_wdata	 ),
-	.waddr	 (wbu_rf_rd			 ),
-	.raddr1	 (idu_rf_rs1		 ),
-	.raddr2	 (idu_rf_rs2		 ),
-	.rdata1	 (idu_rf_src1		 ),
-	.rdata2	 (idu_rf_src2		 ),
-	.wen		 (wbu_rf_wen		 )
+	.gpr_wdata	 (wbu_rf_wdata	 ),
+	.gpr_waddr	 (wbu_rf_rd			 ),
+	.gpr_raddr1	 (idu_rf_rs1		 ),
+	.gpr_raddr2	 (idu_rf_rs2		 ),
+	.gpr_rdata1	 (idu_rf_src1		 ),
+	.gpr_rdata2	 (idu_rf_src2		 ),
+	.gpr_wen		 (wbu_rf_wen		 ),
+	.csrs_wdata1 (wbu_rf_csrs1),
+	.csrs_waddr1 (wbu_rf_csr1 ),
+	.csrs_wdata2 (wbu_rf_csrs2),
+	.csrs_waddr2 (wbu_rf_csr2 ),
+	.csrs_rdata	 (idu_rf_csrs),
+	.csrs_raddr	 (idu_rf_csr ),
+	.csrs_wen1	 (wbu_rf_cwen1),
+	.csrs_wen2	 (wbu_rf_cwen1),
+	.mepc				 (idu_rf_mepc ),
+	.mtvec			 (idu_rf_mtvec)
 );
 
 `ifdef VERILATOR

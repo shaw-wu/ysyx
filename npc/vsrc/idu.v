@@ -2,13 +2,18 @@ module ysyx_25010009_idu #(
 	parameter ADDR_WIDTH   = 32, 
 	parameter DATA_WIDTH   = 32,
 	parameter RS_WIDTH     = 5 , 
+	parameter CAR_WIDTH    = 12, 
 	parameter FUNCT3_WIDTH = 3 ,
 	parameter FUNCT7_WIDTH = 7 ,
 	parameter OPCODE_WIDTH = 7 , 
 	parameter OPSEL_WIDTH  = 4 ,
 	parameter OPMUX_WIDTH  = 4 ,
 	parameter	INST_BITS    = 6 ,
-	parameter PCMUX_WIDTH  = 2 
+	parameter PCMUX_WIDTH  = 2 ,
+	parameter MSTATUS = 12'h0300,
+	parameter MTVEC	= 12'h0305,
+	parameter MEPC = 12'h0341,
+	parameter MCAUSE = 12'h0342
 ) (
 	input clk,
 	input rst,
@@ -38,16 +43,31 @@ module ysyx_25010009_idu #(
 	output [            3:0] mem_mask  ,
 	output                   mem_sext  ,
 	output									 regwr   	 ,	
+	output									 csr1wr    ,	
+	output									 csr2wr    ,	
+	output [CAR_WIDTH  -1:0] csr1rd		 ,
+	output [CAR_WIDTH  -1:0] csr2rd		 ,
 	output									 is_jalr 	 ,
 	output									 is_jal  	 ,
 	output									 is_bxx  	 ,
+	output									 is_ecall	 ,
+	output									 is_mret	 ,
+	output									 is_csrrs  ,
+	output									 is_csrrc  ,
+	output									 is_csrrw  ,
+	output [DATA_WIDTH -1:0] exu_csrs	 ,
+	output [DATA_WIDTH -1:0] exu_mepc	 ,
+	output [DATA_WIDTH -1:0] exu_mtvec ,
 	//regfile
 	output [RS_WIDTH   -1:0] rs1		,
 	output [RS_WIDTH   -1:0] rs2		,
 	input  [DATA_WIDTH -1:0] rf_src1,
-  input  [DATA_WIDTH -1:0] rf_src2 
+  input  [DATA_WIDTH -1:0] rf_src2,
+	output [CAR_WIDTH  -1:0] csr		,
+	input  [DATA_WIDTH -1:0] csrs		,
+	input  [DATA_WIDTH -1:0] mepc		,
+	input  [DATA_WIDTH -1:0] mtvec
 );
-
 
 localparam OPCODE_ST = 0;
 localparam OPCODE_EN = 6;
@@ -62,6 +82,13 @@ localparam RS2_EN    = 24;
 localparam FUNCT7_ST = 25;
 localparam FUNCT7_EN = 31;
 localparam TYPE_WIDTH = 3 ;
+                                                                                      
+wire [FUNCT3_WIDTH-1:0] funct3;
+wire [FUNCT7_WIDTH-1:0] funct7;
+wire [OPCODE_WIDTH-1:0] opcode;
+assign funct3 = inst[FUNCT3_EN:FUNCT3_ST];
+assign funct7 = inst[FUNCT7_EN:FUNCT7_ST];
+assign opcode = inst[OPCODE_EN:OPCODE_ST];
 
 //decode
 wire lui   =  (opcode == 7'b0110111)                        ;//
@@ -101,17 +128,15 @@ wire srl	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b00000
 wire sra	 = ((opcode == 7'b0110011) && (funct3 == 3'b101) && (funct7 == 7'b0100000));//
 wire or_	 = ((opcode == 7'b0110011) && (funct3 == 3'b110) && (funct7 == 7'b0000000));//
 wire and_	 = ((opcode == 7'b0110011) && (funct3 == 3'b111) && (funct7 == 7'b0000000));//
+wire csrrc = ((opcode == 7'b1110011) && (funct3 == 3'b011));
+wire csrrs = ((opcode == 7'b1110011) && (funct3 == 3'b010));
+wire csrrw = ((opcode == 7'b1110011) && (funct3 == 3'b001));
+wire ecall = inst == 32'h00000073;
+wire mret  = inst == 32'h30200073;
 `ifdef VERILATOR
 assign exu_ebreak = inst == 32'h00100073;
 assign exu_inst = inst;
 `endif
-                                                                                      
-wire [FUNCT3_WIDTH-1:0] funct3;
-wire [FUNCT7_WIDTH-1:0] funct7;
-wire [OPCODE_WIDTH-1:0] opcode;
-assign funct3 = inst[FUNCT3_EN:FUNCT3_ST];
-assign funct7 = inst[FUNCT7_EN:FUNCT7_ST];
-assign opcode = inst[OPCODE_EN:OPCODE_ST];
 
 //type
 localparam TYPE_R = 0;
@@ -124,8 +149,9 @@ wire [TYPE_WIDTH-1:0] Type;
 
 assign Type =  sll || srl  || sra || add || sub || xor_ || or_ || and_ ||
 							 slt || sltu   																										 ? TYPE_R :
-							 slli  || srli  || srai || addi || xori || ori || andi || slti ||
-							 sltiu || jalr  || lb   || lh   || lw		|| lbu || lhu							 ? TYPE_I : 
+							 slli  || srli  || srai || addi || xori || ori || andi || slti  ||
+							 sltiu || jalr  || lb   || lh   || lw		|| lbu || lhu	 || ecall || 
+							 mret  || csrrc || csrrs || csrrw																	 ? TYPE_I : 
 							 sb || sh || sw																										 ? TYPE_S :
 							 beq || bne || blt || bge || bltu || bgeu													 ? TYPE_B :
 							 lui || auipc																											 ? TYPE_U :
@@ -151,24 +177,26 @@ assign opmux = sll || srl  || sra || add || sub || xor_ || or_  || and_ ||
 							 slli || srli || srai																				 ? 4'b0100 : //rs1_shamt
 							 lui																												 ? 4'b0101 : //imm_0
 							 jal  || jalr																								 ? 4'b0110 : //pc_4
+							 csrrc || csrrw || csrrs																		 ? 4'b0111 : //csrs_0
 							 4'b0000; //rs1_rs2
-assign opsel = add || addi || lui || auipc ||
-							 lb  || lh	 || lw	|| lbu	 ||
-							 lhu || sb	 || sh	|| sw		 ||	
-							 jal || jalr                    ? 4'b0001 : //+
-							 sub												    ? 4'b0010 : //-
-							 and_ || andi								    ? 4'b0011 : //&
-							 or_	|| ori								    ? 4'b0100 : //|
-							 xor_	|| xori								    ? 4'b0101 : //^
-							 sll || slli								    ? 4'b0110 : //<<
-							 srl || srli								    ? 4'b0111 : //>>u
-							 sra || srai                    ? 4'b1000 : //>>s
-							 beq												    ? 4'b1001 : //==
-							 bne												    ? 4'b1010 : //!=
-							 slt || slti || blt					    ? 4'b1011 : //<
-							 bge												    ? 4'b1100 : //>=
-							 sltu || sltiu || bltu			    ? 4'b1101 : //<u
-							 bgeu												    ? 4'b1110 : //>=u
+assign opsel = add || addi || lui   || auipc ||
+							 lb  || lh	 || lw	  || lbu	 ||
+							 lhu || sb	 || sh	  || sw		 ||	
+							 jal || jalr || csrrc || csrrs || 
+							 csrrw													  ? 4'b0001 : //+
+							 sub												      ? 4'b0010 : //-
+							 and_ || andi								      ? 4'b0011 : //&
+							 or_	|| ori								      ? 4'b0100 : //|
+							 xor_	|| xori								      ? 4'b0101 : //^
+							 sll || slli								      ? 4'b0110 : //<<
+							 srl || srli								      ? 4'b0111 : //>>u
+							 sra || srai                      ? 4'b1000 : //>>s
+							 beq												      ? 4'b1001 : //==
+							 bne												      ? 4'b1010 : //!=
+							 slt || slti || blt					      ? 4'b1011 : //<
+							 bge												      ? 4'b1100 : //>=
+							 sltu || sltiu || bltu			      ? 4'b1101 : //<u
+							 bgeu												      ? 4'b1110 : //>=u
 							 4'b0000;//+
 						 
 assign src1 = rf_src1;
@@ -190,8 +218,22 @@ assign mem_mask = sb || lb || lbu ? 4'b0001 :
 assign mem_sext = sb || lb || sh || lh || sw || lw;
 assign regwr = sll  || slli || srl || srli || sra  || srai || add || addi || sub  || lui   || auipc ||
 							 xor_ || xori	|| or_ || ori  || and_ || andi || slt || slti || sltu || sltiu || lb		||
-							 lh		|| lw		|| lbu || lhu	 || jal  || jalr 																						;
+							 lh		|| lw		|| lbu || lhu	 || jal  || jalr || csrrw || csrrc || csrrs;
+assign csr1wr = ecall || csrrw || csrrc || csrrs;
+assign csr2wr = ecall;
+assign csr1rd = ecall ? MEPC : imm[11:0];
+assign csr2rd = ecall ? MCAUSE : 0;
+assign csr = csr1rd;
 
+assign is_csrrs = csrrs;
+assign is_csrrc = csrrc;
+assign is_csrrw = csrrw;
+assign is_ecall = ecall;
+assign is_mret  = mret;
+
+assign exu_csrs = csrs;
+assign exu_mepc = mepc;
+assign exu_mtvec= mtvec;
 assign exu_pc   = pc;
 assign exu_snpc = snpc;
 assign exu_dnpc = dnpc;
