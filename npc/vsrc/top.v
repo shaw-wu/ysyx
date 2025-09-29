@@ -43,6 +43,8 @@ wire [DATA_WIDTH-1:0] dram_rdata;
 wire [ADDR_WIDTH-1:0] dram_waddr;
 wire [DATA_WIDTH-1:0] dram_wdata;
 
+
+wire ifu_idu_valid;
 wire [ADDR_WIDTH-1:0] ifu_idu_inst;
 wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
 wire [ADDR_WIDTH-1:0] ifu_idu_snpc;
@@ -156,6 +158,7 @@ wire speec;
 ysyx_25010009_irom #(
 	.XLEN(DATA_WIDTH)
 ) IROM (
+	.clk (clk),
 	.rst (rst),
 	.addr(irom_addr),
 	.inst(irom_data)
@@ -184,6 +187,7 @@ ysyx_25010009_ifu #(
 	.rst(rst),
 	.finst(irom_data),
 	.addr	(irom_addr),
+	.valid(ifu_idu_valid),
 	.inst (ifu_idu_inst),
 	.pc		(ifu_idu_pc	 ),
 	.snpc (ifu_idu_snpc),
@@ -211,6 +215,7 @@ ysyx_25010009_idu #(
 ) IDU (
 	.clk		 (clk						 ),
 	.rst     (rst     			 ),
+	.valid	 (ifu_idu_valid	 ),
 	.inst    (ifu_idu_inst   ),
 	.pc			 (ifu_idu_pc		 ),
 	.snpc	   (ifu_idu_snpc	 ),

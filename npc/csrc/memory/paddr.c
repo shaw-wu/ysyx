@@ -82,7 +82,7 @@ word_t mmio_read(paddr_t addr, int len) {
 			ret = now_time;
 		}
 	} else {
-		printf("Device addr : 0x%0x can't find.\n", addr);
+		//printf("Device addr : 0x%0x can't find.\n", addr);
 	}
 //#ifdef CONFIG_DTRACE
 //	switch(len){
@@ -113,7 +113,7 @@ void mmio_write(paddr_t addr, int len, word_t data) {
 			printf("Serial read don't implement.\n");
 		}
 	} else {
-		printf("Device addr : 0x%08x can't find", addr);
+		//printf("Device addr : 0x%08x can't find", addr);
 	}
 }
 word_t paddr_read(paddr_t addr, int len) {

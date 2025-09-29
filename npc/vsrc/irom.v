@@ -2,28 +2,20 @@
 module ysyx_25010009_irom #(
 	parameter XLEN = 32
 )(
-	input							rst ,
+	input							clk	,
+	input							rst	,
 	input  [XLEN-1:0] addr,
 	output [XLEN-1:0] inst 
 );
 
 import "DPI-C" function int unsigned vaddr_ifetch(int unsigned addr, int len, int ren);
 
-reg [XLEN-1:0] wire_rdata;
+reg [XLEN-1:0] rdata;
 
-always @(*) begin
-	wire_rdata = vaddr_ifetch(addr, 4, {31'b0, !rst});
+always @(posedge clk) begin
+	rdata <= vaddr_ifetch(addr, 4, {31'b0, !rst});
 end
 
-assign inst = wire_rdata;
-
-//import "DPI-C" function int read_irom(int addr);
-//
-//reg [XLEN-1:0] rdata;
-//always @(*) begin
-//	rdata = read_irom(addr);
-//end
-//
-//assign inst = rdata;
+assign inst = rdata;
 
 endmodule

@@ -107,6 +107,9 @@ void reset_npc (){
 		single_cycle();
 		if(i < RESET_TIME) i++;
 		if(i == RESET_TIME) dut->rst = 0;
+	#ifdef ENABLE_WAVEFORM
+		tfp->dump(contextp->time());
+	#endif
 	}
 }
 
