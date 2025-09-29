@@ -1,14 +1,18 @@
 `timescale 1ns / 1ps
 module ysyx_25010009_RegisterFile #(
-	parameter GPR_NUM = 16,
-	parameter CSRS_NUM = 4096,
-	parameter ADDR_WIDTH = 5, 
-	parameter CAR_WIDTH = 12, 
-	parameter DATA_WIDTH = 32,
-	parameter MSTATUS = 12'h0300,
-	parameter MTVEC	= 12'h0305,
-	parameter MEPC = 12'h0341,
-	parameter MCAUSE = 12'h0342
+	parameter GPR_NUM    = 16			,
+	parameter CSRS_NUM   = 4096		,
+	parameter ADDR_WIDTH = 5			, 
+	parameter CAR_WIDTH  = 12			, 
+	parameter DATA_WIDTH = 32			,
+	parameter MSTATUS		 = 12'h300,
+	parameter MTVEC			 = 12'h305,
+	parameter MEPC			 = 12'h341,
+	parameter MCAUSE		 = 12'h342,
+	parameter MCYCLE		 = 12'hb00,
+	parameter MCYCLEH		 = 12'hb01,
+	parameter MVENDORID  = 12'hf11,
+	parameter MARCHID    = 12'hf12
 )(
 	input clk,
 	input rst,
@@ -41,9 +45,13 @@ always @(posedge clk or posedge rst) begin
 			rf[i] = {DATA_WIDTH{1'b0}};
 		end
 		for(i = 0; i < CSRS_NUM; i=i+1) begin
-			csrs[i] = {DATA_WIDTH{1'b0}};
+			if		 (i == {20'd0, MVENDORID}) csrs[i] = 'h79737978				;
+			else if(i == {20'd0, MARCHID	}) csrs[i] = 'h17d9f59 				;
+			else										csrs[i] = {DATA_WIDTH{1'b0}};
 		end
 	end else begin
+		csrs[MCYCLE ] <= csrs[MCYCLE] + 1;
+		csrs[MCYCLEH] <= &csrs[MCYCLE] ? csrs[MCYCLEH] + 1 : csrs[MCYCLEH];
 		if (gpr_wen) begin
 			if (gpr_waddr != 0) rf[gpr_waddr] <= gpr_wdata;
 			else						    rf[gpr_waddr] <= 0		;

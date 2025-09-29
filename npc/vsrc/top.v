@@ -17,10 +17,14 @@ module ysyx_25010009_top #(
 	input rst
 );
 
-localparam MSTATUS = 12'h0300;
-localparam MTVEC	 = 12'h0305;
-localparam MEPC    = 12'h0341;
-localparam MCAUSE  = 12'h0342;
+localparam MSTATUS   = 12'h300;
+localparam MTVEC	   = 12'h305;
+localparam MEPC      = 12'h341;
+localparam MCAUSE    = 12'h342;
+localparam MCYCLE    = 12'hb00;
+localparam MCYCLEH   = 12'hb01;
+localparam MVENDORID = 12'hf11;
+localparam MARCHID   = 12'hf12;
 
 `ifdef CONFIG_RVE
 	parameter GPR_NUM = 16;
@@ -434,7 +438,11 @@ ysyx_25010009_RegisterFile #(
 	.MSTATUS		 (MSTATUS			),
 	.MTVEC			 (MTVEC	 			),
 	.MEPC   		 (MEPC   			),
-	.MCAUSE 		 (MCAUSE 			) 
+	.MCAUSE 		 (MCAUSE 			),
+	.MCYCLE			 (MCYCLE			),
+	.MCYCLEH		 (MCYCLEH			),
+	.MVENDORID	 (MVENDORID		),
+	.MARCHID		 (MARCHID			)
 ) GPR (
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
