@@ -35,13 +35,13 @@ localparam MARCHID   = 12'hf12;
 wire [DATA_WIDTH-1:0] irom_data;
 wire [ADDR_WIDTH-1:0] irom_addr;
 
-wire								  dram_awvalid;
-wire								  dram_arvalid;
-wire [					 3:0] dram_mask ;
-wire [ADDR_WIDTH-1:0] dram_raddr;
+//wire								  dram_awvalid;
+//wire								  dram_arvalid;
+wire [					 3:0] dram_wmask;
+wire [ADDR_WIDTH-1:0] dram_addr ;
 wire [DATA_WIDTH-1:0] dram_rdata;
-wire [ADDR_WIDTH-1:0] dram_waddr;
 wire [DATA_WIDTH-1:0] dram_wdata;
+wire									dram_wen	;
 
 
 wire ifu_idu_valid;
@@ -172,13 +172,13 @@ ysyx_25010009_dram #(
 ) DRAM (
 	.clk	(clk),
 	.rst	(rst),
-	.mask		(dram_mask	 ),
-	.awvalid(dram_awvalid),
-	.arvalid(dram_arvalid),
-	.raddr(dram_raddr),
-	.rdata(dram_rdata),
-	.waddr(dram_waddr),
-	.wdata(dram_wdata)
+	//.awvalid(dram_awvalid),
+	//.arvalid(dram_arvalid),
+	.addr	 (dram_addr ),
+	.rdata (dram_rdata),
+	.wdata (dram_wdata),
+	.wmask (dram_wmask),
+	.wen	 (dram_wen  )
 );
 
 ysyx_25010009_ifu #(
@@ -196,7 +196,8 @@ ysyx_25010009_ifu #(
 	.snpc (ifu_idu_snpc),
 	.dnpc (ifu_idu_dnpc),
 	.is_RAW_control(1'b0),
-	.exu_dnpc(exu_dnpc )
+	.exu_dnpc(exu_dnpc ),
+	.speec	 (speec		 )
 );
 
 ysyx_25010009_idu #(
@@ -376,13 +377,13 @@ ysyx_25010009_lsu #(
 	.csr_rd2	(exu_lsu_csr2	 ),
 	.csr_res1 (exu_lsu_csrs1 ),
 	.csr_res2 (exu_lsu_csrs2 ),
-	.ram_mask (dram_mask		 ),
-	.awvalid  (dram_awvalid  ),
-	.arvalid  (dram_arvalid  ),
-	.araddr		(dram_raddr),
-	.rdata    (dram_rdata),
-	.awaddr		(dram_waddr),
-	.wdata    (dram_wdata),
+	//.awvalid  (dram_awvalid  ),
+	//.arvalid  (dram_arvalid  ),
+	.lsu_addr	 (dram_addr ),
+	.lsu_rdata (dram_rdata),
+	.lsu_wdata (dram_wdata),
+	.lsu_wmask (dram_wmask),
+	.lsu_wen	 (dram_wen  ),
 `ifdef VERILATOR
 	.wbu_ebreak (lsu_wbu_ebreak ),
 	.wbu_inst		(lsu_wbu_inst		),

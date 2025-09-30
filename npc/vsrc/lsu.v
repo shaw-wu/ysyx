@@ -34,13 +34,13 @@ module ysyx_25010009_lsu #(
 	input [DATA_WIDTH -1:0] csr_res1,
 	input [DATA_WIDTH -1:0] csr_res2,   
 	// lsu <> ram
-	output									 awvalid,
-	output									 arvalid,
-	output [ADDR_WIDTH -1:0] araddr ,
-	input  [DATA_WIDTH -1:0] rdata	,
-	output [DATA_WIDTH -1:0] awaddr ,
-	output [DATA_WIDTH -1:0] wdata	,
-	output [            3:0] ram_mask,
+	//output									 awvalid,
+	//output									 arvalid,
+	output [ADDR_WIDTH -1:0] lsu_addr ,
+	input  [DATA_WIDTH -1:0] lsu_rdata,
+	output [DATA_WIDTH -1:0] lsu_wdata,
+	output [            3:0] lsu_wmask,
+	output									 lsu_wen	,
 	// lsu <> wbu
 `ifdef VERILATOR
 	output									 lsu_valid ,
@@ -64,23 +64,42 @@ module ysyx_25010009_lsu #(
 	output [DATA_WIDTH -1:0] wbu_csr_res2 
 );
 
+parameter IDLE = 1'b0;
+parameter WORK = 1'b1;
+
+reg current_state, next_state;
+
+always @(*) begin
+	case(current_state)
+		IDLE : if(exu_valid) next_state = WORK;
+		WORK :							 next_state = IDLE;
+	endcase
+end
+
+always @(posedge clk or posedge rst) begin
+	if(rst) begin
+		current_state <= IDLE;
+	end else begin
+		current_state <= next_state;
+	end
+end
+
 wire [DATA_WIDTH-1:0] ur_result;
 wire [DATA_WIDTH-1:0] sr_result;
 wire [DATA_WIDTH-1:0] re_result;
-assign ur_result = mem_mask == 4'b0001 ? {24'b0, rdata[7 :0]} :
-									 mem_mask == 4'b0011 ? {16'b0, rdata[15:0]} :
-									 mem_mask == 4'b1111 ?         rdata        : 32'b0;
-assign sr_result = mem_mask == 4'b0001 ? {{24{rdata[7 ]}}, rdata[7 :0]} :
-									 mem_mask == 4'b0011 ? {{16{rdata[15]}}, rdata[15:0]} :
-									 mem_mask == 4'b1111 ?                   rdata        : 32'b0;
+assign ur_result = mem_mask == 4'b0001 ? {24'b0, lsu_rdata[7 :0]} :
+									 mem_mask == 4'b0011 ? {16'b0, lsu_rdata[15:0]} :
+									 mem_mask == 4'b1111 ?         lsu_rdata        : 32'b0;
+assign sr_result = mem_mask == 4'b0001 ? {{24{lsu_rdata[7 ]}}, lsu_rdata[7 :0]} :
+									 mem_mask == 4'b0011 ? {{16{lsu_rdata[15]}}, lsu_rdata[15:0]} :
+									 mem_mask == 4'b1111 ? lsu_rdata : 32'b0;
 assign re_result = mem_sext ? sr_result : ur_result;
 
-assign awvalid = memwr;
-assign arvalid = memre;
-assign araddr = paddr;
-assign awaddr = paddr;
-assign wdata = mwdata;
-assign ram_mask = mem_mask;
+//assign awvalid = memwr;
+//assign arvalid = memre;
+assign lsu_addr = paddr;
+assign lsu_wdata = mwdata;
+assign lsu_wmask = mem_mask;
 
 `ifdef VERILATOR
 assign wbu_ebreak = ebreak;
@@ -91,7 +110,7 @@ assign wbu_rs1  = rs1	;
 assign wbu_jal	= jal ;
 assign wbu_jalr	= jalr;
 `endif
-assign lsu_valid = exu_valid;
+assign lsu_valid = current_state == WORK ;
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;
 assign wbu_csr1wr = csr1wr;

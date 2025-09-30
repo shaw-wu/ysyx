@@ -40,11 +40,11 @@ module ysyx_25010009_wbu #(
 	output									 speec
 );
 
-assign rf_gpr_wen   = regwr;
+assign rf_gpr_wen   = lsu_valid && regwr;
 assign rf_gpr_rd    = rd;
 assign rf_gpr_wdata = gpr_res;
-assign rf_csr_wen1 = csr1wr;
-assign rf_csr_wen2 = csr2wr;
+assign rf_csr_wen1 = lsu_valid && csr1wr;
+assign rf_csr_wen2 = lsu_valid && csr2wr;
 assign rf_csr_rd1  = csr_rd1;
 assign rf_csr_rd2  = csr_rd2;
 assign rf_csr_res1 = csr_res1;
@@ -62,9 +62,9 @@ endtask
 `endif
 
 reg reg_speec;
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
 	if(rst) begin
-		reg_speec <= 0;
+		reg_speec <= 1;
 	end else begin
 		reg_speec <= lsu_valid;
 	end
