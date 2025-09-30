@@ -18,9 +18,19 @@
 
 #include <common.h>
 
+#define MSTATUS 0x300
+#define MTVEC 0x305
+#define MEPC 0x341
+#define MCAUSE 0x342
+#define MCYCLE 0xb00
+#define MVENDORID 0xf11
+#define MARCHID 0xf12
+
 typedef struct {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
   vaddr_t pc;
+	word_t csrs[4096];
+	int csrs_valid[4096];
   vaddr_t snpc;
   vaddr_t dnpc;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);

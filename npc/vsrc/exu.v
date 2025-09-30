@@ -14,6 +14,7 @@ module ysyx_25010009_exu #(
 	input  [DATA_WIDTH -1:0] inst		,
 	input  [RS_WIDTH   -1:0] rs1		,
 `endif
+	input										 idu_valid,
 	input  [ADDR_WIDTH -1:0] dnpc   ,
 	input  [ADDR_WIDTH -1:0] pc     ,
 	input  [DATA_WIDTH -1:0] imm    ,
@@ -58,6 +59,7 @@ module ysyx_25010009_exu #(
 	output									 lsu_jalr  ,
 	output [ADDR_WIDTH -1:0] lsu_dnpc ,
 `endif
+	output									 exu_valid ,
 	output [ADDR_WIDTH -1:0] lsu_pc		 ,
 	output [DATA_WIDTH -1:0] lsu_mwdata,
 	output	 								 lsu_memwr ,
@@ -177,6 +179,7 @@ assign csr_res1= is_ecall ? pc + 4				 :
 								 is_csrrw ?          src1  : 0;
 assign csr_res2= is_ecall ? 32'hb	 : 0;
 
+assign exu_valid  = idu_valid;
 assign lsu_pc			= pc		;
 assign lsu_mwdata = mwdata;
 assign lsu_memwr	= memwr ;

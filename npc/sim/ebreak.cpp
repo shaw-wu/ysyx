@@ -23,6 +23,13 @@ void is_ebreak(uint32_t ebreak, uint32_t pc, uint32_t snpc, uint32_t dnpc, uint3
 		read_gpr(i, &gpr_x);
 		cpu.gpr[i] = gpr_x; 
 	}
+	for(int i = 0; i < 4096; i++){
+		if(cpu.csrs_valid[i]) {
+			word_t csr_x = 0;
+			read_csr(i, &csr_x);
+			cpu.csrs[i] = csr_x;
+		}
+	}
   if(ebreak) {
 		end_sim = 1;
 		if(cpu.gpr[10] == 0) is_good_trap = true;

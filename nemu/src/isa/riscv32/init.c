@@ -31,8 +31,21 @@ static const uint32_t img [] = {
 
 static void restart() {
   /* Set the initial program counter. */
+	memset(cpu.csrs_valid, 0, sizeof(cpu.csrs_valid));
+	cpu.csrs_valid[MSTATUS  ] = 1;
+	cpu.csrs_valid[MTVEC	  ] = 1;
+	cpu.csrs_valid[MEPC		  ] = 1;
+	cpu.csrs_valid[MCAUSE   ] = 1;
+	cpu.csrs_valid[MCYCLE   ] = 1;
+	cpu.csrs_valid[MVENDORID] = 1;
+	cpu.csrs_valid[MARCHID	] = 1;
   cpu.pc = RESET_VECTOR;
 	cpu.csrs[MSTATUS] = 0x1800;
+<<<<<<< HEAD
+=======
+	cpu.csrs[MVENDORID] = 0x79737978;
+	cpu.csrs[MARCHID] = 0x17d9f59;
+>>>>>>> tracer-ysyx
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;

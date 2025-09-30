@@ -36,11 +36,27 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
 			cpu.gpr[i] = dut_state->gpr[i]; 
 		}
 		cpu.pc = dut_state->pc;
+<<<<<<< HEAD
+=======
+		for(int i = 0; i < 4096; i++) {
+			if(dut_state->csrs_valid[i]){
+				cpu.csrs[i] = dut_state->csrs[i];
+			}
+		}
+>>>>>>> tracer-ysyx
 	} else {
 		for(int i = 0; i < RISCV_GPR_NUM; i++){
 			dut_state->gpr[i] = cpu.gpr[i]; 
 		}
 		dut_state->pc = cpu.pc;
+<<<<<<< HEAD
+=======
+		for(int i = 0; i < 4096; i++) {
+			if(dut_state->csrs_valid[i]){
+				dut_state->csrs[i] = cpu.csrs[i];
+			}
+		}
+>>>>>>> tracer-ysyx
 	}
 }
 

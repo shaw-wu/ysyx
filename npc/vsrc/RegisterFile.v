@@ -79,6 +79,12 @@ begin
 	else          rdata = rf[addr];
 end
 endtask
+export "DPI-C" task read_csr;
+task automatic read_csr(input int addr, output int unsigned rdata); 
+begin
+	rdata = csrs[addr];
+end
+endtask
 `endif
 
 endmodule

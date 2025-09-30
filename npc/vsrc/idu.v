@@ -18,12 +18,13 @@ module ysyx_25010009_idu #(
 	input clk,
 	input rst,
 	//ifu
-	input										 valid	,
+	input										 ifu_valid,
 	input  [DATA_WIDTH -1:0] inst   ,
 	input  [ADDR_WIDTH -1:0] pc			,
 	input  [ADDR_WIDTH -1:0] snpc	  ,
 	input  [ADDR_WIDTH -1:0] dnpc	  ,
 	//exu
+	output									 idu_valid ,
 `ifdef VERILATOR
 	output                   exu_ebreak,
   output [DATA_WIDTH -1:0] exu_inst	 ,
@@ -211,17 +212,17 @@ assign is_jalr  = jalr;
 assign is_jal   = jal;
 assign is_bxx   = beq || bne || blt || bge || bltu || bgeu;
 assign mwdata = rf_src2;
-assign memwr = valid && (sb || sh || sw);
+assign memwr = ifu_valid && (sb || sh || sw);
 assign memre = lb || lh || lw || lbu || lhu;
 assign mem_mask = sb || lb || lbu ? 4'b0001 :
 									sh || lh || lhu ? 4'b0011 :
 									sw || lw				? 4'b1111 : 4'b0000;
 assign mem_sext = sb || lb || sh || lh || sw || lw;
-assign regwr = valid && (sll  || slli || srl || srli || sra  || srai || add || addi || sub  || lui   || auipc ||
+assign regwr = ifu_valid && (sll  || slli || srl || srli || sra  || srai || add || addi || sub  || lui   || auipc ||
 												 xor_ || xori	|| or_ || ori  || and_ || andi || slt || slti || sltu || sltiu || lb		||
 							 					 lh		|| lw		|| lbu || lhu	 || jal  || jalr || csrrw || csrrc || csrrs);
-assign csr1wr = valid && (ecall || csrrw || csrrc || csrrs);
-assign csr2wr = valid &&ecall;
+assign csr1wr = ifu_valid && (ecall || csrrw || csrrc || csrrs);
+assign csr2wr = ifu_valid &&ecall;
 assign csr1rd = ecall ? MEPC : imm[11:0];
 assign csr2rd = ecall ? MCAUSE : 0;
 assign csr = csr1rd;
@@ -240,6 +241,7 @@ assign exu_snpc = snpc;
 assign exu_dnpc = dnpc;
 assign exu_imm  = imm ;
 assign exu_shamt= shamt;
+assign idu_valid = ifu_valid;
 
 function integer clog2;
 	input integer value;

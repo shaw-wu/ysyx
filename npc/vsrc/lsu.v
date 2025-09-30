@@ -16,6 +16,7 @@ module ysyx_25010009_lsu #(
 	input										jal		 ,
 	input										jalr	 ,
 `endif
+  input										exu_valid,
 	input [ADDR_WIDTH -1:0] pc		 ,
 	input [DATA_WIDTH -1:0] mwdata ,
 	input										memwr  ,
@@ -42,6 +43,7 @@ module ysyx_25010009_lsu #(
 	output [            3:0] ram_mask,
 	// lsu <> wbu
 `ifdef VERILATOR
+	output									 lsu_valid ,
 	output 									 wbu_ebreak,
 	output [DATA_WIDTH -1:0] wbu_inst	 ,
 	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
@@ -89,6 +91,7 @@ assign wbu_rs1  = rs1	;
 assign wbu_jal	= jal ;
 assign wbu_jalr	= jalr;
 `endif
+assign lsu_valid = exu_valid;
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;
 assign wbu_csr1wr = csr1wr;

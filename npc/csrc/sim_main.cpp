@@ -33,6 +33,7 @@
 int execed_once(int speec);
 
 CPU_state cpu = {};
+
 ISADecodeInfo decode = {};
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 extern "C" void init_disasm(const char *triple);
