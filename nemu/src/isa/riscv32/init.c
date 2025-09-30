@@ -41,11 +41,8 @@ static void restart() {
 	cpu.csrs_valid[MARCHID	] = 1;
   cpu.pc = RESET_VECTOR;
 	cpu.csrs[MSTATUS] = 0x1800;
-<<<<<<< HEAD
-=======
 	cpu.csrs[MVENDORID] = 0x79737978;
 	cpu.csrs[MARCHID] = 0x17d9f59;
->>>>>>> tracer-ysyx
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
