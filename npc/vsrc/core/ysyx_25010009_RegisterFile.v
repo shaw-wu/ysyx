@@ -71,20 +71,20 @@ assign csrs_rdata = csrs[csrs_raddr];
 assign mepc = csrs[MEPC];
 assign mtvec = csrs[MTVEC];
 
-`ifdef VERILATOR
-export "DPI-C" task read_gpr;
-task automatic read_gpr(input int addr, output int unsigned rdata); 
-begin
-	if(addr == 0) rdata = 0;
-	else          rdata = rf[addr];
-end
-endtask
-export "DPI-C" task read_csr;
-task automatic read_csr(input int addr, output int unsigned rdata); 
-begin
-	rdata = csrs[addr];
-end
-endtask
-`endif
+//`ifdef VERILATOR
+//export "DPI-C" task read_gpr;
+//task automatic read_gpr(input int addr, output int unsigned rdata); 
+//begin
+//	if(addr == 0) rdata = 0;
+//	else          rdata = rf[addr];
+//end
+//endtask
+//export "DPI-C" task read_csr;
+//task automatic read_csr(input int addr, output int unsigned rdata); 
+//begin
+//	rdata = csrs[addr];
+//end
+//endtask
+//`endif
 
 endmodule

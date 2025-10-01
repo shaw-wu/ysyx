@@ -9,11 +9,11 @@ module ysyx_25010009_exu #(
 	input clk,
 	input rst,
 	//idu
-`ifdef VERILATOR
-	input										 ebreak	,
-	input  [DATA_WIDTH -1:0] inst		,
-	input  [RS_WIDTH   -1:0] rs1		,
-`endif
+//`ifdef VERILATOR
+//	input										 ebreak	,
+//	input  [DATA_WIDTH -1:0] inst		,
+//	input  [RS_WIDTH   -1:0] rs1		,
+//`endif
 	input										 idu_valid,
 	input  [ADDR_WIDTH -1:0] dnpc   ,
 	input  [ADDR_WIDTH -1:0] pc     ,
@@ -50,15 +50,15 @@ module ysyx_25010009_exu #(
 	output								   isRAW_control,
 	output [ADDR_WIDTH -1:0] exu_dnpc ,
 	//lsu
-`ifdef VERILATOR
-	output 									 lsu_ebreak,
-	output [DATA_WIDTH -1:0] lsu_inst	 ,
-	output [ADDR_WIDTH -1:0] lsu_snpc	 ,
-	output [RS_WIDTH   -1:0] lsu_rs1	 ,
-	output									 lsu_jal   ,
-	output									 lsu_jalr  ,
-	output [ADDR_WIDTH -1:0] lsu_dnpc ,
-`endif
+//`ifdef VERILATOR
+//	output 									 lsu_ebreak,
+//	output [DATA_WIDTH -1:0] lsu_inst	 ,
+//	output [ADDR_WIDTH -1:0] lsu_snpc	 ,
+//	output [RS_WIDTH   -1:0] lsu_rs1	 ,
+//	output									 lsu_jal   ,
+//	output									 lsu_jalr  ,
+//	output [ADDR_WIDTH -1:0] lsu_dnpc ,
+//`endif
 	output									 exu_valid ,
 	output [ADDR_WIDTH -1:0] lsu_pc		 ,
 	output [DATA_WIDTH -1:0] lsu_mwdata,
@@ -190,14 +190,14 @@ assign lsu_csr2wr = csr2wr;
 assign lsu_mask   = mem_mask;
 assign lsu_sext   = mem_sext;
 
-`ifdef VERILATOR
-assign lsu_ebreak = ebreak;
-assign lsu_inst		= inst	;
-assign lsu_snpc   = pc + 4;
-assign lsu_dnpc   = exu_dnpc;
-assign lsu_rs1		= rs1		;
-assign lsu_jal		= is_jal ;
-assign lsu_jalr		= is_jalr;
-`endif
+//`ifdef VERILATOR
+//assign lsu_ebreak = ebreak;
+//assign lsu_inst		= inst	;
+//assign lsu_snpc   = pc + 4;
+//assign lsu_dnpc   = exu_dnpc;
+//assign lsu_rs1		= rs1		;
+//assign lsu_jal		= is_jal ;
+//assign lsu_jalr		= is_jalr;
+//`endif
 
 endmodule

@@ -1,6 +1,5 @@
 //#include <isa.h>
 #include <svdpi.h>
-#include <Vysyx_25010009_top__Dpi.h>
 #include <memory/paddr.h>
 
 #ifdef CONFIG_MTRACE

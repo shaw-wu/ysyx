@@ -25,10 +25,10 @@ module ysyx_25010009_idu #(
 	input  [ADDR_WIDTH -1:0] dnpc	  ,
 	//exu
 	output									 idu_valid ,
-`ifdef VERILATOR
-	output                   exu_ebreak,
-  output [DATA_WIDTH -1:0] exu_inst	 ,
-`endif
+//`ifdef VERILATOR
+//	output                   exu_ebreak,
+//  output [DATA_WIDTH -1:0] exu_inst	 ,
+//`endif
 	output [ADDR_WIDTH -1:0] exu_snpc  ,
 	output [ADDR_WIDTH -1:0] exu_dnpc	 ,
 	output [ADDR_WIDTH -1:0] exu_pc	 	 ,
@@ -135,10 +135,10 @@ wire csrrs = ((opcode == 7'b1110011) && (funct3 == 3'b010));
 wire csrrw = ((opcode == 7'b1110011) && (funct3 == 3'b001));
 wire ecall = inst == 32'h00000073;
 wire mret  = inst == 32'h30200073;
-`ifdef VERILATOR
-assign exu_ebreak = inst == 32'h00100073;
-assign exu_inst = inst;
-`endif
+//`ifdef VERILATOR
+//assign exu_ebreak = inst == 32'h00100073;
+//assign exu_inst = inst;
+//`endif
 
 //type
 localparam TYPE_R = 0;

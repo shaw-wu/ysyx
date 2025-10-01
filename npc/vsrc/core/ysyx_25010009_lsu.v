@@ -7,15 +7,15 @@ module ysyx_25010009_lsu #(
 	input clk,
 	input rst,
 	//exu <> lsu
-`ifdef VERILATOR
-	input 									ebreak ,
-	input [DATA_WIDTH -1:0] inst	 ,
-	input [ADDR_WIDTH -1:0] snpc	 ,
-	input [ADDR_WIDTH -1:0] dnpc	 ,
-	input [RS_WIDTH   -1:0] rs1		 ,
-	input										jal		 ,
-	input										jalr	 ,
-`endif
+//`ifdef VERILATOR
+//	input 									ebreak ,
+//	input [DATA_WIDTH -1:0] inst	 ,
+//	input [ADDR_WIDTH -1:0] snpc	 ,
+//	input [ADDR_WIDTH -1:0] dnpc	 ,
+//	input [RS_WIDTH   -1:0] rs1		 ,
+//	input										jal		 ,
+//	input										jalr	 ,
+//`endif
   input										exu_valid,
 	input [ADDR_WIDTH -1:0] pc		 ,
 	input [DATA_WIDTH -1:0] mwdata ,
@@ -38,22 +38,23 @@ module ysyx_25010009_lsu #(
 	//output									 arvalid,
 	output lsu_reqvalid,
 	input  lsu_resvalid,
+	output [1:0] lsu_size,
 	output [ADDR_WIDTH -1:0] lsu_addr ,
 	input  [DATA_WIDTH -1:0] lsu_rdata,
 	output [DATA_WIDTH -1:0] lsu_wdata,
 	output [            3:0] lsu_wmask,
 	output									 lsu_wen	,
-	// lsu <> wbu
-`ifdef VERILATOR
 	output									 lsu_valid ,
-	output 									 wbu_ebreak,
-	output [DATA_WIDTH -1:0] wbu_inst	 ,
-	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
-	output [ADDR_WIDTH -1:0] wbu_dnpc	 ,
-	output [RS_WIDTH   -1:0] wbu_rs1	 ,
-	output									 wbu_jal	 ,
-	output									 wbu_jalr	 ,
-`endif
+	// lsu <> wbu
+//`ifdef VERILATOR
+//	output 									 wbu_ebreak,
+//	output [DATA_WIDTH -1:0] wbu_inst	 ,
+//	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
+//	output [ADDR_WIDTH -1:0] wbu_dnpc	 ,
+//	output [RS_WIDTH   -1:0] wbu_rs1	 ,
+//	output									 wbu_jal	 ,
+//	output									 wbu_jalr	 ,
+//`endif
 	output [ADDR_WIDTH -1:0] wbu_pc		 ,
 	output	 								 wbu_regwr ,	
 	output	 								 wbu_csr1wr,	
@@ -108,17 +109,20 @@ assign re_result = mem_sext ? sr_result : ur_result;
 assign lsu_addr = paddr;
 assign lsu_wdata = mwdata;
 assign lsu_wmask = mem_mask;
+assign lsu_size  = mem_mask == 4'b0001 ? 2'b00 :
+									 mem_mask == 4'b0011 ? 2'b01 :
+									 mem_mask == 4'b1111 ? 2'b10 : 2'b00;
 assign lsu_reqvalid = exu_valid;
 
-`ifdef VERILATOR
-assign wbu_ebreak = ebreak;
-assign wbu_inst = inst;
-assign wbu_snpc = snpc;
-assign wbu_dnpc = dnpc;
-assign wbu_rs1  = rs1	;
-assign wbu_jal	= jal ;
-assign wbu_jalr	= jalr;
-`endif
+//`ifdef VERILATOR
+//assign wbu_ebreak = ebreak;
+//assign wbu_inst = inst;
+//assign wbu_snpc = snpc;
+//assign wbu_dnpc = dnpc;
+//assign wbu_rs1  = rs1	;
+//assign wbu_jal	= jal ;
+//assign wbu_jalr	= jalr;
+//`endif
 assign lsu_valid = current_state == WAIT && lsu_resvalid;
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;

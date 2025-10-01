@@ -1,4 +1,4 @@
-#include <Vysyx_25010009_top__Dpi.h>
+#include <VysyxSoCFull__Dpi.h>
 #include <svdpi.h>
 #include <string.h>
 #include <common.h>

@@ -1,5 +1,5 @@
 #include <svdpi.h>
-#include <Vysyx_25010009_top__Dpi.h>
+#include <VysyxSoCFull__Dpi.h>
 #include <isa.h>
 #include <stdio.h>
 

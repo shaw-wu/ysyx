@@ -6,15 +6,15 @@ module ysyx_25010009_wbu #(
 )(
 	input clk,
 	input rst,
-`ifdef VERILATOR
-	input										 ebreak,
-	input [DATA_WIDTH  -1:0] inst  ,
-	input [ADDR_WIDTH  -1:0] snpc	 ,
-	input [ADDR_WIDTH  -1:0] dnpc	 ,
-	input [RS_WIDTH    -1:0] rs1   ,
-	input                    jal	 ,
-	input										 jalr  ,
-`endif
+//`ifdef VERILATOR
+//	input										 ebreak,
+//	input [DATA_WIDTH  -1:0] inst  ,
+//	input [ADDR_WIDTH  -1:0] snpc	 ,
+//	input [ADDR_WIDTH  -1:0] dnpc	 ,
+//	input [RS_WIDTH    -1:0] rs1   ,
+//	input                    jal	 ,
+//	input										 jalr  ,
+//`endif
 	input										 lsu_valid,
 	input  [ADDR_WIDTH -1:0] pc		 ,
 	// lsu <> wbu
@@ -50,16 +50,16 @@ assign rf_csr_rd2  = csr_rd2;
 assign rf_csr_res1 = csr_res1;
 assign rf_csr_res2 = csr_res2;
 
-`ifdef VERILATOR
-ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr);
-
-export "DPI-C" task read_pc;
-task automatic read_pc(output int unsigned rdata); 
-begin
-	rdata = pc;
-end
-endtask
-`endif
+//`ifdef VERILATOR
+//ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr);
+//
+//export "DPI-C" task read_pc;
+//task automatic read_pc(output int unsigned rdata); 
+//begin
+//	rdata = pc;
+//end
+//endtask
+//`endif
 
 reg reg_speec;
 always @(posedge clk or posedge rst) begin
