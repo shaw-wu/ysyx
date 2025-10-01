@@ -42,6 +42,8 @@ wire [ADDR_WIDTH-1:0] dram_addr ;
 wire [DATA_WIDTH-1:0] dram_rdata;
 wire [DATA_WIDTH-1:0] dram_wdata;
 wire									dram_wen	;
+wire									dram_reqvalid;
+wire									dram_resvalid;
 
 
 wire ifu_idu_valid;
@@ -174,6 +176,8 @@ ysyx_25010009_dram #(
 	.rst	(rst),
 	//.awvalid(dram_awvalid),
 	//.arvalid(dram_arvalid),
+	.reqvalid(dram_reqvalid),
+	.resvalid(dram_resvalid),
 	.addr	 (dram_addr ),
 	.rdata (dram_rdata),
 	.wdata (dram_wdata),
@@ -379,6 +383,8 @@ ysyx_25010009_lsu #(
 	.csr_res2 (exu_lsu_csrs2 ),
 	//.awvalid  (dram_awvalid  ),
 	//.arvalid  (dram_arvalid  ),
+	.lsu_reqvalid(dram_reqvalid),
+	.lsu_resvalid(dram_resvalid),
 	.lsu_addr	 (dram_addr ),
 	.lsu_rdata (dram_rdata),
 	.lsu_wdata (dram_wdata),

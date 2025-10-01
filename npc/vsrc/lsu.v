@@ -36,6 +36,8 @@ module ysyx_25010009_lsu #(
 	// lsu <> ram
 	//output									 awvalid,
 	//output									 arvalid,
+	output lsu_reqvalid,
+	input  lsu_resvalid,
 	output [ADDR_WIDTH -1:0] lsu_addr ,
 	input  [DATA_WIDTH -1:0] lsu_rdata,
 	output [DATA_WIDTH -1:0] lsu_wdata,
@@ -65,14 +67,20 @@ module ysyx_25010009_lsu #(
 );
 
 parameter IDLE = 1'b0;
-parameter WORK = 1'b1;
+parameter WAIT = 1'b1;
 
 reg current_state, next_state;
 
 always @(*) begin
 	case(current_state)
-		IDLE : if(exu_valid) next_state = WORK;
-		WORK :							 next_state = IDLE;
+		IDLE : begin
+			if(exu_valid) next_state = WAIT;
+			else					next_state = IDLE;
+		end
+		WAIT : begin
+			if(lsu_resvalid) next_state = IDLE;
+			else						 next_state = WAIT;
+		end
 	endcase
 end
 
@@ -100,6 +108,7 @@ assign re_result = mem_sext ? sr_result : ur_result;
 assign lsu_addr = paddr;
 assign lsu_wdata = mwdata;
 assign lsu_wmask = mem_mask;
+assign lsu_reqvalid = exu_valid;
 
 `ifdef VERILATOR
 assign wbu_ebreak = ebreak;
@@ -110,7 +119,7 @@ assign wbu_rs1  = rs1	;
 assign wbu_jal	= jal ;
 assign wbu_jalr	= jalr;
 `endif
-assign lsu_valid = current_state == WORK ;
+assign lsu_valid = current_state == WAIT && lsu_resvalid;
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;
 assign wbu_csr1wr = csr1wr;

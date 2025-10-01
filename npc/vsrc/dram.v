@@ -6,6 +6,8 @@ module ysyx_25010009_dram#(
 	input rst,
 	//input							awvalid,
 	//input							arvalid,
+	input	 reqvalid,
+	output resvalid,
 	input	 [		 3:0] wmask,
 	input  [XLEN-1:0] addr ,
 	output [XLEN-1:0] rdata, 
@@ -19,17 +21,26 @@ import "DPI-C" function void dpi_vaddr_write(int unsigned addr, int len, int uns
 wire [31:0] len = wmask == 4'b0001 ? 32'd1 :
 									wmask == 4'b0011 ? 32'd2 :
 									wmask == 4'b1111 ? 32'd4 : 32'd0;
+reg reg_resvalid;
 
 reg [XLEN-1:0] reg_rdata;
 
 always @(posedge clk or posedge rst) begin
-	if(wen) begin
-		dpi_vaddr_write(addr, len, wdata, {31'b0, wen});
+	if(rst) begin
+		reg_resvalid <= 0;
 	end else begin
-		reg_rdata <= dpi_vaddr_read(addr, len, {31'b0, !wen});
+		if(reqvalid) begin
+			if(wen) begin
+				dpi_vaddr_write(addr, len, wdata, {31'b0, wen});
+			end else begin
+				 reg_rdata <= dpi_vaddr_read(addr, len, {31'b0, !wen});
+			end
+		end
+		reg_resvalid <= reqvalid;
 	end
 end
 
 assign rdata = reg_rdata;
+assign resvalid = reg_resvalid;
 
 endmodule
