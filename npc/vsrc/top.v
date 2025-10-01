@@ -32,6 +32,8 @@ localparam MARCHID   = 12'hf12;
 	parameter GPR_NUM = 32;
 `endif
 
+wire irom_reqvalid;
+wire irom_resvalid;
 wire [DATA_WIDTH-1:0] irom_data;
 wire [ADDR_WIDTH-1:0] irom_addr;
 
@@ -165,6 +167,8 @@ ysyx_25010009_irom #(
 ) IROM (
 	.clk (clk),
 	.rst (rst),
+	.reqvalid(irom_reqvalid),
+	.resvalid(irom_resvalid),
 	.addr(irom_addr),
 	.inst(irom_data)
 );
@@ -192,6 +196,8 @@ ysyx_25010009_ifu #(
 ) IFU (
 	.clk(clk),
 	.rst(rst),
+	.reqvalid(irom_reqvalid),
+	.resvalid(irom_resvalid),
 	.finst(irom_data),
 	.addr	(irom_addr),
 	.valid(ifu_idu_valid),

@@ -6,6 +6,8 @@ module ysyx_25010009_ifu #(
 	input clk,
 	input rst,
 	//irom
+	input  resvalid,
+	output reqvalid,
 	input  [DATA_WIDTH-1:0] finst,
 	output [ADDR_WIDTH-1:0] addr,
 	//idu
@@ -26,17 +28,20 @@ wire [ADDR_WIDTH-1:0] ifu_addr;
 reg  [DATA_WIDTH-1:0] delay_inst;
 
 parameter IDLE = 1'b0;
-parameter WORK = 1'b1;
+parameter WAIT = 1'b1;
 
 reg current_state, next_state;
 
 always @(*) begin
 	case(current_state)
 		IDLE : begin
-			if(speec) next_state = WORK; 
+			if(speec) next_state = WAIT; 
 			else      next_state = IDLE;
 		end
-		WORK : next_state = IDLE;
+		WAIT : begin
+			if(resvalid) next_state = IDLE;
+			else				 next_state = WAIT;
+		end
 	endcase
 end
 
@@ -48,8 +53,9 @@ always @(posedge clk or posedge rst) begin
 	end
 end
 
-assign ifu_addr = current_state == IDLE ? pc		: 0;
-assign ifu_inst = current_state == WORK ? finst : 0; 
+assign reqvalid = current_state == IDLE && speec;
+assign ifu_addr = pc;
+assign ifu_inst = current_state == WAIT ? finst : 0; 
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
@@ -61,7 +67,7 @@ always @(posedge clk or posedge rst) begin
 	end
 end
 
-assign valid = current_state == WORK;
+assign valid = current_state == WAIT && resvalid;
 assign addr = ifu_addr;
 
 assign inst = ifu_inst;

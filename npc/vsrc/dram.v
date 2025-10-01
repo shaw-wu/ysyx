@@ -21,7 +21,7 @@ import "DPI-C" function void dpi_vaddr_write(int unsigned addr, int len, int uns
 wire [31:0] len = wmask == 4'b0001 ? 32'd1 :
 									wmask == 4'b0011 ? 32'd2 :
 									wmask == 4'b1111 ? 32'd4 : 32'd0;
-reg reg_resvalid;
+reg [4:0] reg_resvalid;
 
 reg [XLEN-1:0] reg_rdata;
 
@@ -36,11 +36,11 @@ always @(posedge clk or posedge rst) begin
 				 reg_rdata <= dpi_vaddr_read(addr, len, {31'b0, !wen});
 			end
 		end
-		reg_resvalid <= reqvalid;
+		reg_resvalid <= {reg_resvalid[3:0], reqvalid};
 	end
 end
 
 assign rdata = reg_rdata;
-assign resvalid = reg_resvalid;
+assign resvalid = reg_resvalid[4];
 
 endmodule
