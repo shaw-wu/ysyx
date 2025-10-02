@@ -33,8 +33,6 @@
 //    } \
 //	} while(0)
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-
 //int execed_once(int speec);
 
 //CPU_state cpu = {};
@@ -84,8 +82,8 @@ void sim_init(int argc, char** argv ){
 	dut->clock = 0;
 	dut->reset = 1;
 
-	//char *img_file = "./hello-minirv-ysyxsoc.bin"; 
-	char *img_file = "./sw-riscv32e-npc.bin"; 
+	char *img_file = "./hello-minirv-ysyxsoc.bin"; 
+	//char *img_file = "./sw-riscv32e-npc.bin"; 
 	FILE *img = fopen(img_file, "rb");
 	assert(img);
 	fseek(img, 0, SEEK_END);
