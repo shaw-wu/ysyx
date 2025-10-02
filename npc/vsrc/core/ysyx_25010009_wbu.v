@@ -64,7 +64,7 @@ assign rf_csr_res2 = csr_res2;
 reg reg_speec;
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
-		reg_speec <= 1;
+		reg_speec <= 0;
 	end else begin
 		reg_speec <= lsu_valid;
 	end

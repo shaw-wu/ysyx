@@ -5,9 +5,10 @@
 #include "verilated.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <assert.h>
 #include "verilated_vcd_c.h"
-#include <nvboard.h>
+//#include <nvboard.h>
 //#include <ebreak.h>
 //#include <sdb.h>
 //#include <utils.h>
@@ -15,7 +16,9 @@
 //#include <ftrace.h>
 //#include <isa.h>
 #define ENABLE_WAVEFORM
-#define RESET_TIME 10
+#define RESET_TIME 1000
+//#define FLASH_SIZE 1024*1024*16
+#define FLASH_DEPTH 1024*1024*4 
 
 //#define STRIP_TO_CSRC(file) (strstr(file, "csrc/") ? strstr(file, "csrc/") : file)
 //#define IRING_PRINT() \
@@ -48,7 +51,7 @@ static TOP_NAME* dut;
 //bool is_good_trap = false;
 //uint32_t is_jal  = 0;
 //uint32_t is_jalr = 0;
-
+static uint8_t flash_mem [FLASH_DEPTH];
 VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
 																	 
@@ -57,6 +60,11 @@ VerilatedVcdC* tfp = NULL;         // 波形变量
 //void init_rand();
 //void init_difftest(char *ref_so_file, long img_size, int port);
 //void difftest_step(vaddr_t pc, vaddr_t npc);
+
+extern "C" void flash_read(int32_t addr, int32_t *data) {
+	*data = (int32_t)(flash_mem[addr+3] << 24 | flash_mem[addr+2] << 16 | flash_mem[addr+1] << 8 | flash_mem[addr]);
+	//printf("flash_mem[%x] = %x\n", addr, *data);
+}
 
 static void single_cycle() {
   dut->clock = ~dut->clock & 1; dut->eval();
@@ -76,6 +84,20 @@ void sim_init(int argc, char** argv ){
 	dut->clock = 0;
 	dut->reset = 1;
 
+	//char *img_file = "./hello-minirv-ysyxsoc.bin"; 
+	char *img_file = "./sw-riscv32e-npc.bin"; 
+	FILE *img = fopen(img_file, "rb");
+	assert(img);
+	fseek(img, 0, SEEK_END);
+	long imgsize = ftell(img);
+	rewind(img);
+	size_t read_count = fread(flash_mem, 1, imgsize, img);
+  if (read_count != imgsize) {
+    printf("Error reading file.\n");
+    fclose(img);
+  }
+	fclose(img);
+	
 //	if(argc < 3) assert(0);
 //	char *ref_so_file = argv[3];
 //	char *img_file = argv[1];

@@ -75,8 +75,8 @@ reg current_state, next_state;
 always @(*) begin
 	case(current_state)
 		IDLE : begin
-			if(exu_valid) next_state = WAIT;
-			else					next_state = IDLE;
+			if(lsu_reqvalid) next_state = WAIT;
+			else						 next_state = IDLE;
 		end
 		WAIT : begin
 			if(lsu_resvalid) next_state = IDLE;
@@ -96,23 +96,55 @@ end
 wire [DATA_WIDTH-1:0] ur_result;
 wire [DATA_WIDTH-1:0] sr_result;
 wire [DATA_WIDTH-1:0] re_result;
-assign ur_result = mem_mask == 4'b0001 ? {24'b0, lsu_rdata[7 :0]} :
-									 mem_mask == 4'b0011 ? {16'b0, lsu_rdata[15:0]} :
-									 mem_mask == 4'b1111 ?         lsu_rdata        : 32'b0;
-assign sr_result = mem_mask == 4'b0001 ? {{24{lsu_rdata[7 ]}}, lsu_rdata[7 :0]} :
-									 mem_mask == 4'b0011 ? {{16{lsu_rdata[15]}}, lsu_rdata[15:0]} :
+wire [7:0] byte_rdata;
+wire [15:0] half_rdata;
+
+assign byte_rdata = paddr[1:0] == 2'b00 ? lsu_rdata[7 : 0] :
+										paddr[1:0] == 2'b01 ? lsu_rdata[15: 8] :
+										paddr[1:0] == 2'b10 ? lsu_rdata[23:16] : lsu_rdata[31:24];
+assign half_rdata = paddr[1:0] == 2'b00 ? lsu_rdata[15: 0] :
+										paddr[1:0] == 2'b01 ? lsu_rdata[23: 8] :
+										paddr[1:0] == 2'b10 ? lsu_rdata[31:16] : 0;
+assign ur_result = mem_mask == 4'b0001 ? {24'b0, byte_rdata} :
+									 mem_mask == 4'b0011 ? {16'b0, half_rdata} :
+									 mem_mask == 4'b1111 ?         lsu_rdata   : 32'b0;
+assign sr_result = mem_mask == 4'b0001 ? {{24{byte_rdata[7 ]}}, byte_rdata} :
+									 mem_mask == 4'b0011 ? {{16{half_rdata[15]}}, half_rdata[15:0]} :
 									 mem_mask == 4'b1111 ? lsu_rdata : 32'b0;
 assign re_result = mem_sext ? sr_result : ur_result;
 
-//assign awvalid = memwr;
-//assign arvalid = memre;
-assign lsu_addr = paddr;
-assign lsu_wdata = mwdata;
-assign lsu_wmask = mem_mask;
-assign lsu_size  = mem_mask == 4'b0001 ? 2'b00 :
+wire [31:0] byte_wdata;
+wire [31:0] half_wdata;
+
+assign byte_wdata = paddr[1:0] == 2'b00 ? {24'b0, mwdata[7 : 0]		  	} :
+										paddr[1:0] == 2'b01 ? {16'b0, mwdata[7 : 0],  8'b0} :
+										paddr[1:0] == 2'b10 ? { 8'b0, mwdata[7 : 0], 16'b0} : {mwdata[7 : 0], 24'b0}; 
+assign half_wdata = paddr[1:0] == 2'b00 ? {16'b0, mwdata[15: 0]		  	} :
+										paddr[1:0] == 2'b01 ? { 8'b0, mwdata[15: 0],  8'b0} :
+										paddr[1:0] == 2'b10 ? {       mwdata[15: 0], 16'b0} : 0; 
+
+wire [3:0] byte_mask;
+wire [3:0] half_mask;
+assign byte_mask = paddr[1:0] == 2'b00 ? 4'b0001 :
+									 paddr[1:0] == 2'b01 ? 4'b0010 :
+									 paddr[1:0] == 2'b10 ? 4'b0100 : 4'b1000; 
+assign half_mask = paddr[1:0] == 2'b00 ? 4'b0011 :
+									 paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
+
+assign lsu_addr = paddr & 32'hfffffffc;
+assign lsu_wdata = mem_mask == 4'b0001 ? byte_wdata :
+									 mem_mask == 4'b0011 ? half_wdata :
+									 mem_mask == 4'b1111 ? mwdata			: 0;	 
+//assign lsu_wdata = mwdata;
+assign lsu_wmask = mem_mask == 4'b0001 ? byte_mask :
+									 mem_mask == 4'b0011 ? half_mask :
+									 mem_mask == 4'b1111 ? mem_mask	 : 0;
+assign lsu_size  = memre							 ? 2'b10 :
+									 mem_mask == 4'b0001 ? 2'b00 :
 									 mem_mask == 4'b0011 ? 2'b01 :
 									 mem_mask == 4'b1111 ? 2'b10 : 2'b00;
-assign lsu_reqvalid = exu_valid;
+assign lsu_wen = memwr;
+assign lsu_reqvalid = exu_valid && (memre || memwr);
 
 //`ifdef VERILATOR
 //assign wbu_ebreak = ebreak;
@@ -123,7 +155,7 @@ assign lsu_reqvalid = exu_valid;
 //assign wbu_jal	= jal ;
 //assign wbu_jalr	= jalr;
 //`endif
-assign lsu_valid = current_state == WAIT && lsu_resvalid;
+assign lsu_valid = (current_state == WAIT && lsu_resvalid) || (!memre && !memwr && exu_valid);
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;
 assign wbu_csr1wr = csr1wr;

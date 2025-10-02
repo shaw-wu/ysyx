@@ -27,21 +27,26 @@ wire [DATA_WIDTH-1:0] ifu_inst;
 wire [ADDR_WIDTH-1:0] ifu_addr;
 reg  [DATA_WIDTH-1:0] delay_inst;
 
-parameter IDLE = 1'b0;
-parameter WAIT = 1'b1;
+parameter IDLE = 2'b00;
+parameter WAIT_ROM = 2'b01;
+parameter WAIT_SPEEC = 2'b11;
 
-reg current_state, next_state;
+reg [1:0] current_state, next_state;
 
 always @(*) begin
 	case(current_state)
 		IDLE : begin
-			if(speec) next_state = WAIT; 
-			else      next_state = IDLE;
+			next_state = WAIT_ROM; 
 		end
-		WAIT : begin
-			if(resvalid) next_state = IDLE;
-			else				 next_state = WAIT;
+		WAIT_ROM : begin
+			if(resvalid) next_state = WAIT_SPEEC;
+			else				 next_state = WAIT_ROM;
 		end
+		WAIT_SPEEC : begin
+			if(speec) next_state = IDLE;
+		end
+		default :
+			next_state = IDLE;
 	endcase
 end
 
@@ -53,9 +58,9 @@ always @(posedge clk or posedge rst) begin
 	end
 end
 
-assign reqvalid = current_state == IDLE && speec;
+assign reqvalid = current_state == IDLE && !rst;
 assign ifu_addr = pc;
-assign ifu_inst = current_state == WAIT ? finst : 0; 
+assign ifu_inst = finst; 
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
@@ -67,7 +72,7 @@ always @(posedge clk or posedge rst) begin
 	end
 end
 
-assign valid = current_state == WAIT && resvalid;
+assign valid = resvalid;
 assign addr = ifu_addr;
 
 assign inst = ifu_inst;

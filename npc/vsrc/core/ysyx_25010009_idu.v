@@ -212,17 +212,17 @@ assign is_jalr  = jalr;
 assign is_jal   = jal;
 assign is_bxx   = beq || bne || blt || bge || bltu || bgeu;
 assign mwdata = rf_src2;
-assign memwr = ifu_valid && (sb || sh || sw);
+assign memwr = (sb || sh || sw);
 assign memre = lb || lh || lw || lbu || lhu;
 assign mem_mask = sb || lb || lbu ? 4'b0001 :
 									sh || lh || lhu ? 4'b0011 :
 									sw || lw				? 4'b1111 : 4'b0000;
 assign mem_sext = sb || lb || sh || lh || sw || lw;
-assign regwr = ifu_valid && (sll  || slli || srl || srli || sra  || srai || add || addi || sub  || lui   || auipc ||
+assign regwr = (sll  || slli || srl || srli || sra  || srai || add || addi || sub  || lui   || auipc ||
 												 xor_ || xori	|| or_ || ori  || and_ || andi || slt || slti || sltu || sltiu || lb		||
 							 					 lh		|| lw		|| lbu || lhu	 || jal  || jalr || csrrw || csrrc || csrrs);
-assign csr1wr = ifu_valid && (ecall || csrrw || csrrc || csrrs);
-assign csr2wr = ifu_valid &&ecall;
+assign csr1wr = (ecall || csrrw || csrrc || csrrs);
+assign csr2wr = ecall;
 assign csr1rd = ecall ? MEPC : imm[11:0];
 assign csr2rd = ecall ? MCAUSE : 0;
 assign csr = csr1rd;
