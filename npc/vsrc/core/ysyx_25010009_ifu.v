@@ -21,11 +21,11 @@ module ysyx_25010009_ifu #(
 	input									 is_RAW_control,
 	input [ADDR_WIDTH-1:0] exu_dnpc,
 	input									 speec
+	//input									 wub_valid
 );
 
 wire [DATA_WIDTH-1:0] ifu_inst;
 wire [ADDR_WIDTH-1:0] ifu_addr;
-reg  [DATA_WIDTH-1:0] delay_inst;
 
 parameter IDLE = 2'b00;
 parameter WAIT_ROM = 2'b01;
@@ -39,7 +39,8 @@ always @(*) begin
 			next_state = WAIT_ROM; 
 		end
 		WAIT_ROM : begin
-			if(resvalid) next_state = WAIT_SPEEC;
+			if(resvalid && speec)				next_state = IDLE;
+			else if(resvalid && !speec) next_state = WAIT_SPEEC;
 			else				 next_state = WAIT_ROM;
 		end
 		WAIT_SPEEC : begin
@@ -65,10 +66,9 @@ assign ifu_inst = finst;
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
 		pc <= PC_INIT;
-		delay_inst <= 0;
 	end else begin
+		//if(wbu_valid) pc <= exu_dnpc;
 		if(speec) pc <= exu_dnpc;
-		delay_inst <= inst;
 	end
 end
 

@@ -145,6 +145,7 @@ wire [CAR_WIDTH-1:0 ] lsu_wbu_csr2;
 wire [DATA_WIDTH-1:0 ] lsu_wbu_csrs1;
 wire [DATA_WIDTH-1:0 ] lsu_wbu_csrs2;
 
+//wire							    wbu_valid;
 wire [RS_WIDTH  -1:0] wbu_rf_rd	  ;		 
 wire [DATA_WIDTH-1:0] wbu_rf_wdata;	 
 wire wbu_rf_wen; 	 

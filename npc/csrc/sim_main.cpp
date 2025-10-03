@@ -82,7 +82,7 @@ void sim_init(int argc, char** argv ){
 	dut->clock = 0;
 	dut->reset = 1;
 
-	char *img_file = "./hello-minirv-ysyxsoc.bin"; 
+	char *img_file = "./bin/new-dummy-riscv32e-npc.bin"; 
 	//char *img_file = "./sw-riscv32e-npc.bin"; 
 	FILE *img = fopen(img_file, "rb");
 	assert(img);

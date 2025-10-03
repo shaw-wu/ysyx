@@ -67,6 +67,20 @@ module ysyx_25010009_lsu #(
 	output [DATA_WIDTH -1:0] wbu_csr_res2 
 );
 
+localparam UART_ST = 32'h1000_0000;
+localparam UART_EN = 32'h1000_0fff;
+localparam SPI_ST = 32'h1000_1000;
+localparam SPI_EN = 32'h1000_1fff;
+localparam FLASH_ST = 32'h3000_0000;
+localparam FLASH_EN = 32'h3fff_ffff;
+localparam SDRAM_ST = 32'h8000_0000;
+localparam SDRAM_EN = 32'h81ff_ffff;
+
+//wire aligned = (paddr >= FLASH_ST && paddr <= FLASH_EN) || 
+//							 (paddr >= SDRAM_ST && paddr <= SDRAM_EN)   ;
+//wire unaligned = (paddr >= UART_ST && paddr <= UART_EN) || 
+//								 (paddr >= SPI_ST  && paddr <= SPI_EN )   ;
+
 parameter IDLE = 1'b0;
 parameter WAIT = 1'b1;
 
@@ -99,10 +113,12 @@ wire [DATA_WIDTH-1:0] re_result;
 wire [7:0] byte_rdata;
 wire [15:0] half_rdata;
 
-assign byte_rdata = paddr[1:0] == 2'b00 ? lsu_rdata[7 : 0] :
+assign byte_rdata =
+										paddr[1:0] == 2'b00 ? lsu_rdata[7 : 0] :
 										paddr[1:0] == 2'b01 ? lsu_rdata[15: 8] :
 										paddr[1:0] == 2'b10 ? lsu_rdata[23:16] : lsu_rdata[31:24];
-assign half_rdata = paddr[1:0] == 2'b00 ? lsu_rdata[15: 0] :
+assign half_rdata = 
+										paddr[1:0] == 2'b00 ? lsu_rdata[15: 0] :
 										paddr[1:0] == 2'b01 ? lsu_rdata[23: 8] :
 										paddr[1:0] == 2'b10 ? lsu_rdata[31:16] : 0;
 assign ur_result = mem_mask == 4'b0001 ? {24'b0, byte_rdata} :
@@ -125,13 +141,16 @@ assign half_wdata = paddr[1:0] == 2'b00 ? {16'b0, mwdata[15: 0]		  	} :
 
 wire [3:0] byte_mask;
 wire [3:0] half_mask;
-assign byte_mask = paddr[1:0] == 2'b00 ? 4'b0001 :
+assign byte_mask = 
+									 paddr[1:0] == 2'b00 ? 4'b0001 :
 									 paddr[1:0] == 2'b01 ? 4'b0010 :
 									 paddr[1:0] == 2'b10 ? 4'b0100 : 4'b1000; 
-assign half_mask = paddr[1:0] == 2'b00 ? 4'b0011 :
+assign half_mask = 
+									 paddr[1:0] == 2'b00 ? 4'b0011 :
 									 paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
 
-assign lsu_addr = paddr & 32'hfffffffc;
+//assign lsu_addr = aligned ? paddr & 32'hfffffffc : paddr;
+assign lsu_addr = paddr;
 assign lsu_wdata = mem_mask == 4'b0001 ? byte_wdata :
 									 mem_mask == 4'b0011 ? half_wdata :
 									 mem_mask == 4'b1111 ? mwdata			: 0;	 
