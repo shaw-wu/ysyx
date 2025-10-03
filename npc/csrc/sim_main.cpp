@@ -15,7 +15,7 @@
 //#include <macro.h>
 //#include <ftrace.h>
 //#include <isa.h>
-#define ENABLE_WAVEFORM
+//#define ENABLE_WAVEFORM
 #define RESET_TIME 1000
 //#define FLASH_SIZE 1024*1024*16
 #define FLASH_DEPTH 1024*1024*4 
@@ -82,7 +82,7 @@ void sim_init(int argc, char** argv ){
 	dut->clock = 0;
 	dut->reset = 1;
 
-	char *img_file = "./bin/new-dummy-riscv32e-npc.bin"; 
+	char *img_file = "./bin/new-hello-minirv-npc.bin"; 
 	//char *img_file = "./sw-riscv32e-npc.bin"; 
 	FILE *img = fopen(img_file, "rb");
 	assert(img);

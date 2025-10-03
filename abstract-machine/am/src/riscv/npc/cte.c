@@ -2,12 +2,21 @@
 #include <riscv/riscv.h>
 #include <klib.h>
 
+#ifndef __riscv_e
+#define NR_REGS 32
+#else
+#define NR_REGS 16
+#endif
+#define CONTEXT_SIZE  ((NR_REGS + 3) * XLEN)
+#define XLEN  4
+
 static Context* (*user_handler)(Event, Context*) = NULL;
 
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
+			case 0x0000000b : ev.event = EVENT_YIELD; break;
       default: ev.event = EVENT_ERROR; break;
     }
 
@@ -31,7 +40,12 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+	Context *c = (Context *)kstack.end - CONTEXT_SIZE;
+	memset(c, 0, CONTEXT_SIZE);
+	c->mepc  = (uintptr_t)entry;
+	c->mstatus = 0x1800;
+	c->gpr[10] = (uintptr_t)arg;
+  return c;
 }
 
 void yield() {
