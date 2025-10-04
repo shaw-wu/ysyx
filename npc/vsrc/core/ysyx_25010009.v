@@ -49,11 +49,11 @@ wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
 wire [ADDR_WIDTH-1:0] ifu_idu_snpc;
 wire [ADDR_WIDTH-1:0] ifu_idu_dnpc;
 
-//`ifdef VERILATOR
-//wire                   idu_exu_ebreak; 
-//wire [DATA_WIDTH -1:0] idu_exu_a0		 ; 
+`ifdef VERILATOR
+wire                   idu_exu_ebreak; 
+wire [DATA_WIDTH -1:0] idu_exu_a0		 ; 
 //wire [DATA_WIDTH -1:0] idu_exu_inst	 ; 
-//`endif
+`endif
 wire idu_exu_valid;
 wire [ADDR_WIDTH -1:0] idu_exu_snpc	 ; 
 wire [ADDR_WIDTH -1:0] idu_exu_dnpc	 ; 
@@ -90,21 +90,22 @@ wire [RS_WIDTH	-1:0] idu_rf_rs1 ;
 wire [RS_WIDTH	-1:0] idu_rf_rs2 ;
 wire [DATA_WIDTH-1:0] idu_rf_src1;
 wire [DATA_WIDTH-1:0] idu_rf_src2;
+wire [DATA_WIDTH-1:0] idu_rf_a0	 ;
 wire [CAR_WIDTH	-1:0] idu_rf_csr ;
 wire [DATA_WIDTH-1:0] idu_rf_csrs;
 wire [DATA_WIDTH-1:0] idu_rf_mepc;
 wire [DATA_WIDTH-1:0] idu_rf_mtvec;
 
-//`ifdef VERILATOR
-//wire exu_lsu_ebreak;
-//wire [DATA_WIDTH-1:0] exu_lsu_a0  ;
+`ifdef VERILATOR
+wire exu_lsu_ebreak;
+wire [DATA_WIDTH-1:0] exu_lsu_a0  ;
 //wire [DATA_WIDTH-1:0] exu_lsu_inst;
 //wire [ADDR_WIDTH-1:0] exu_lsu_snpc;
 //wire [ADDR_WIDTH-1:0] exu_lsu_dnpc;
 //wire [RS_WIDTH-1:0  ] exu_lsu_rs1	;
 //wire                  exu_lsu_jal ;
 //wire                  exu_lsu_jalr;
-//`endif
+`endif
 wire									exu_lsu_valid ;
 wire [ADDR_WIDTH-1:0] exu_lsu_pc		;
 wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
@@ -124,15 +125,16 @@ wire [DATA_WIDTH-1:0] exu_lsu_csrs1;
 wire [DATA_WIDTH-1:0] exu_lsu_csrs2;
 wire [ADDR_WIDTH-1:0] exu_dnpc;
 
-//`ifdef VERILATOR
-//wire lsu_wbu_ebreak;
+`ifdef VERILATOR
+wire lsu_wbu_ebreak;
+wire [DATA_WIDTH-1:0] lsu_wbu_a0  ;
 //wire [DATA_WIDTH-1:0] lsu_wbu_inst;
 //wire [ADDR_WIDTH-1:0] lsu_wbu_snpc;
 //wire [ADDR_WIDTH-1:0] lsu_wbu_dnpc;
 //wire [RS_WIDTH-1:0  ] lsu_wbu_rs1 ;
 //wire                  lsu_wbu_jal ;
 //wire                  lsu_wbu_jalr;
-//`endif
+`endif
 wire									lsu_wbu_valid;
 wire [ADDR_WIDTH-1:0] lsu_wbu_pc;
 wire									lsu_wbu_regwr;
@@ -203,10 +205,11 @@ ysyx_25010009_idu #(
 	.pc			  (ifu_idu_pc		),
 	.snpc	    (ifu_idu_snpc	),
 	.dnpc	    (ifu_idu_dnpc	),
-//`ifdef VERILATOR
-//	.exu_ebreak(idu_exu_ebreak),
+`ifdef VERILATOR
+	.exu_ebreak(idu_exu_ebreak),
+	.exu_a0		 (idu_exu_a0		),
 //	.exu_inst  (idu_exu_inst	),
-//`endif
+`endif
 	.idu_valid(idu_exu_valid ),
 	.exu_snpc (idu_exu_snpc	 ),
 	.exu_dnpc (idu_exu_dnpc	 ),
@@ -245,6 +248,7 @@ ysyx_25010009_idu #(
 	.rs2		 (idu_rf_rs2		 ),
 	.rf_src1 (idu_rf_src1		 ),
   .rf_src2 (idu_rf_src2 	 ),
+  .rf_a0	 (idu_rf_a0			 ),
 	.mepc	 	 (idu_rf_mepc		 ),
 	.mtvec	 (idu_rf_mtvec	 )
 );
@@ -256,11 +260,12 @@ ysyx_25010009_exu #(
 ) EXU (
 	.clk					(clock					),
 	.rst					(reset					),
-//`ifdef VERILATOR
-//	.ebreak				(idu_exu_ebreak			  ),
+`ifdef VERILATOR
+	.ebreak				(idu_exu_ebreak			  ),
+	.a0						(idu_exu_a0						),
 //	.inst					(idu_exu_inst				  ),
 //	.rs1					(idu_rf_rs1					  ),
-//`endif
+`endif
 	.idu_valid		(idu_exu_valid				),
 	.dnpc					(idu_exu_dnpc					),
 	.pc     			(idu_exu_pc     			),
@@ -294,15 +299,16 @@ ysyx_25010009_exu #(
 	.mtvec				(idu_exu_mtvec				),
 	.isRAW_control(             				),
 	.exu_dnpc			(exu_dnpc						  ),
-//`ifdef VERILATOR
-//	.lsu_ebreak	  (exu_lsu_ebreak				),
+`ifdef VERILATOR
+	.lsu_ebreak	  (exu_lsu_ebreak				),
+	.lsu_a0				(exu_lsu_a0						),
 //	.lsu_inst			(exu_lsu_inst					),
 //	.lsu_snpc			(exu_lsu_snpc					),
 //	.lsu_rs1			(exu_lsu_rs1					),
 //	.lsu_jal			(exu_lsu_jal				  ),
 //	.lsu_jalr			(exu_lsu_jalr				  ),
 //	.lsu_dnpc			(exu_lsu_dnpc				  ),
-//`endif
+`endif
 	.exu_valid		(exu_lsu_valid				),
 	.lsu_pc		 		(exu_lsu_pc		 				),
 	.lsu_mwdata		(exu_lsu_mwdata				),
@@ -330,15 +336,16 @@ ysyx_25010009_lsu #(
 ) LSU (
 	.clk		 (clock						 ),
 	.rst		 (reset		    		 ),
-//`ifdef VERILATOR
-//	.ebreak	  (exu_lsu_ebreak),
+`ifdef VERILATOR
+	.ebreak	  (exu_lsu_ebreak),
+	.a0				(exu_lsu_a0		 ),
 //	.inst			(exu_lsu_inst	 ),
 //	.snpc			(exu_lsu_snpc	 ),
 //	.dnpc			(exu_lsu_dnpc	 ),
 //	.rs1			(exu_lsu_rs1	 ),
 //	.jal			(exu_lsu_jal	 ),
 //	.jalr			(exu_lsu_jalr	 ),
-//`endif
+`endif
   .exu_valid(exu_lsu_valid ),
 	.pc		 		(exu_lsu_pc		 ),
 	.mwdata		(exu_lsu_mwdata),
@@ -364,15 +371,16 @@ ysyx_25010009_lsu #(
 	.lsu_wdata (io_lsu_wdata),
 	.lsu_wmask (io_lsu_wmask),
 	.lsu_wen	 (io_lsu_wen  ),
-//`ifdef VERILATOR
-//	.wbu_ebreak (lsu_wbu_ebreak ),
+`ifdef VERILATOR
+	.wbu_ebreak (lsu_wbu_ebreak ),
+	.wbu_a0			(lsu_wbu_a0			),
 //	.wbu_inst		(lsu_wbu_inst		),
 //	.wbu_snpc		(lsu_wbu_snpc		),
 //	.wbu_dnpc		(lsu_wbu_dnpc		),
 //	.wbu_rs1		(lsu_wbu_rs1    ),
 //	.wbu_jal		(lsu_wbu_jal		),
 //	.wbu_jalr		(lsu_wbu_jalr		),
-//`endif
+`endif
   .lsu_valid   (lsu_wbu_valid  ),
 	.wbu_pc			 (lsu_wbu_pc		 ),
 	.wbu_regwr   (lsu_wbu_regwr	 ),	
@@ -396,15 +404,16 @@ ysyx_25010009_wbu #(
 	.rst		 (reset		    		 ),
 	.lsu_valid(lsu_wbu_valid ),
 	.pc		   (lsu_wbu_pc		 ),
-//`ifdef VERILATOR
-//	.ebreak  (lsu_wbu_ebreak ),
+`ifdef VERILATOR
+	.ebreak  (lsu_wbu_ebreak ),
+	.a0			 (lsu_wbu_a0		 ),
 //	.inst		 (lsu_wbu_inst	 ),
 //	.snpc		 (lsu_wbu_snpc   ),
 //	.dnpc		 (lsu_wbu_dnpc   ),
 //	.rs1		 (lsu_wbu_rs1		 ),
 //	.jal		 (lsu_wbu_jal		 ),
 //	.jalr		 (lsu_wbu_jalr	 ),
-//`endif
+`endif
 	.regwr   (lsu_wbu_regwr	 ),	
 	.csr1wr  (lsu_wbu_csr1wr ),	
 	.csr2wr  (lsu_wbu_csr2wr ),	
@@ -447,6 +456,7 @@ ysyx_25010009_RegisterFile #(
 	.gpr_raddr2	 (idu_rf_rs2		 ),
 	.gpr_rdata1	 (idu_rf_src1		 ),
 	.gpr_rdata2	 (idu_rf_src2		 ),
+	.gpr_a0			 (idu_rf_a0			 ),
 	.gpr_wen		 (wbu_rf_wen		 ),
 	.csrs_wdata1 (wbu_rf_csrs1),
 	.csrs_waddr1 (wbu_rf_csr1 ),

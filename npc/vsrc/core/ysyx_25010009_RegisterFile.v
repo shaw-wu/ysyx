@@ -22,6 +22,7 @@ module ysyx_25010009_RegisterFile #(
 	input [ADDR_WIDTH-1:0] gpr_raddr2,
 	output [DATA_WIDTH-1:0] gpr_rdata1,
 	output [DATA_WIDTH-1:0] gpr_rdata2,
+	output [DATA_WIDTH-1:0] gpr_a0		,
 	input gpr_wen,
 	input [DATA_WIDTH-1:0] csrs_wdata1,
 	input [CAR_WIDTH -1:0] csrs_waddr1,
@@ -67,6 +68,7 @@ end
 
 assign gpr_rdata1 = gpr_raddr1 == 0 ? 0 : rf[gpr_raddr1];
 assign gpr_rdata2 = gpr_raddr2 == 0 ? 0 : rf[gpr_raddr2];
+assign gpr_a0	= rf[10];
 assign csrs_rdata = csrs[csrs_raddr];
 assign mepc = csrs[MEPC];
 assign mtvec = csrs[MTVEC];

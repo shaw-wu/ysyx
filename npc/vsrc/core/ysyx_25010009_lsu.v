@@ -7,15 +7,16 @@ module ysyx_25010009_lsu #(
 	input clk,
 	input rst,
 	//exu <> lsu
-//`ifdef VERILATOR
-//	input 									ebreak ,
+`ifdef VERILATOR
+	input 									ebreak ,
+	input [DATA_WIDTH -1:0] a0		 ,
 //	input [DATA_WIDTH -1:0] inst	 ,
 //	input [ADDR_WIDTH -1:0] snpc	 ,
 //	input [ADDR_WIDTH -1:0] dnpc	 ,
 //	input [RS_WIDTH   -1:0] rs1		 ,
 //	input										jal		 ,
 //	input										jalr	 ,
-//`endif
+`endif
   input										exu_valid,
 	input [ADDR_WIDTH -1:0] pc		 ,
 	input [DATA_WIDTH -1:0] mwdata ,
@@ -46,15 +47,16 @@ module ysyx_25010009_lsu #(
 	output									 lsu_wen	,
 	output									 lsu_valid ,
 	// lsu <> wbu
-//`ifdef VERILATOR
-//	output 									 wbu_ebreak,
+`ifdef VERILATOR
+	output 									 wbu_ebreak,
+	output [DATA_WIDTH -1:0] wbu_a0		 ,
 //	output [DATA_WIDTH -1:0] wbu_inst	 ,
 //	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
 //	output [ADDR_WIDTH -1:0] wbu_dnpc	 ,
 //	output [RS_WIDTH   -1:0] wbu_rs1	 ,
 //	output									 wbu_jal	 ,
 //	output									 wbu_jalr	 ,
-//`endif
+`endif
 	output [ADDR_WIDTH -1:0] wbu_pc		 ,
 	output	 								 wbu_regwr ,	
 	output	 								 wbu_csr1wr,	
@@ -165,15 +167,16 @@ assign lsu_size  = memre							 ? 2'b10 :
 assign lsu_wen = memwr;
 assign lsu_reqvalid = exu_valid && (memre || memwr);
 
-//`ifdef VERILATOR
-//assign wbu_ebreak = ebreak;
+`ifdef VERILATOR
+assign wbu_ebreak = ebreak;
+assign wbu_a0			= a0		;
 //assign wbu_inst = inst;
 //assign wbu_snpc = snpc;
 //assign wbu_dnpc = dnpc;
 //assign wbu_rs1  = rs1	;
 //assign wbu_jal	= jal ;
 //assign wbu_jalr	= jalr;
-//`endif
+`endif
 assign lsu_valid = (current_state == WAIT && lsu_resvalid) || (!memre && !memwr && exu_valid);
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;

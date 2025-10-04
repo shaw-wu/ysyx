@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include "verilated_vcd_c.h"
+#include <debug.h>
 //#include <nvboard.h>
 //#include <ebreak.h>
 //#include <sdb.h>
@@ -43,10 +44,10 @@
 static int sim_time = 5000;
 static TOP_NAME* dut;
 //void nvboard_bind_all_pins(TOP_NAME* top);
-//int end_sim = 0;
+int end_sim = 0;
 //int once_sim = 0;
 //int stop_sim = 0;
-//bool is_good_trap = false;
+bool is_good_trap = false;
 //uint32_t is_jal  = 0;
 //uint32_t is_jalr = 0;
 static uint8_t flash_mem [FLASH_DEPTH];
@@ -83,7 +84,7 @@ void sim_init(int argc, char** argv ){
 	dut->reset = 1;
 
 	char *img_file = "./bin/new-hello-minirv-npc.bin"; 
-	//char *img_file = "./sw-riscv32e-npc.bin"; 
+	//char *img_file = "./bin/hello-minirv-ysyxsoc.bin"; 
 	FILE *img = fopen(img_file, "rb");
 	assert(img);
 	fseek(img, 0, SEEK_END);
@@ -135,13 +136,18 @@ void reset_npc (){
 	}
 }
 
-//void log_trap(){
-//	if(is_good_trap) {
-//		printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, cpu.pc);
-//	} else {
-//		printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, cpu.pc);
-//	}
-//}
+void log_trap(){
+	if(is_good_trap) {
+		printf(ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN));
+	} else {
+		printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
+	}
+	//if(is_good_trap) {
+	//	printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, cpu.pc);
+	//} else {
+	//	printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, cpu.pc);
+	//}
+}
 
 //#ifdef CONFIG_IRINGBUF
 //#define IRINGBUF_DEPTH 16
@@ -236,9 +242,9 @@ void main_loop(){
 		//if(once_sim) {
 		//	trace_and_difftest();
 		//}
-		//if(end_sim) {
-		//	break;
-		//}
+		if(end_sim) {
+			break;
+		}
 	#ifdef ENABLE_WAVEFORM
 		tfp->dump(contextp->time());
 	#endif
@@ -273,8 +279,8 @@ int main(int argc, char** argv) {
 //#ifdef CONFIG_FTRACE
 //	output_ftmem();
 //#endif
-//  log_trap();
+  log_trap();
 	sim_exit();
-//	if(!is_good_trap) return 1;
+	if(!is_good_trap) return 1;
 	return 0;
 }
