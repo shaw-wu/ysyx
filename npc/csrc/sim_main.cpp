@@ -18,8 +18,8 @@
 //#include <isa.h>
 //#define ENABLE_WAVEFORM
 #define RESET_TIME 1000
-//#define FLASH_SIZE 1024*1024*16
-#define FLASH_DEPTH 1024*1024*4 
+#define FLASH_SIZE 1024*1024*16
+//#define FLASH_DEPTH 1024*1024*4 
 
 //#define STRIP_TO_CSRC(file) (strstr(file, "csrc/") ? strstr(file, "csrc/") : file)
 //#define IRING_PRINT() \
@@ -50,7 +50,7 @@ int end_sim = 0;
 bool is_good_trap = false;
 //uint32_t is_jal  = 0;
 //uint32_t is_jalr = 0;
-static uint8_t flash_mem [FLASH_DEPTH];
+static uint8_t flash_mem [FLASH_SIZE];
 VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
 																	 
@@ -83,7 +83,7 @@ void sim_init(int argc, char** argv ){
 	dut->clock = 0;
 	dut->reset = 1;
 
-	char *img_file = "./bin/new-hello-minirv-npc.bin"; 
+	char *img_file = "./bin/new-fceux-minirv-npc.bin"; 
 	//char *img_file = "./bin/hello-minirv-ysyxsoc.bin"; 
 	FILE *img = fopen(img_file, "rb");
 	assert(img);
