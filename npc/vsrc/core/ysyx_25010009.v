@@ -466,8 +466,8 @@ ysyx_25010009_RegisterFile #(
 	.csrs_raddr	 (idu_rf_csr ),
 	.csrs_wen1	 (wbu_rf_cwen1),
 	.csrs_wen2	 (wbu_rf_cwen1),
-	.mepc				 (idu_rf_mepc ),
-	.mtvec			 (idu_rf_mtvec)
+	.rf_mepc	   (idu_rf_mepc ),
+	.rf_mtvec		 (idu_rf_mtvec)
 );
 
 //`ifdef VERILATOR

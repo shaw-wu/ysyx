@@ -13,6 +13,7 @@ void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
 	//uptime_h = inl(RTC_ADDR+4);
 	//uptime_l = inl(RTC_ADDR);
 	uptime->us = (cycle * 1000000) / FREQ;
+	if((uptime->us % 100000000 == 0) && uptime->us >= 100000000) putch('w');
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
