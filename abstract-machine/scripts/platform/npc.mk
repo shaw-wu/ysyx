@@ -15,7 +15,7 @@ LDFLAGS   += --gc-sections -e _start
 
 MAINARGS_MAX_LEN = 64
 MAINARGS_PLACEHOLDER = the_insert-arg_rule_in_Makefile_will_insert_mainargs_here
-CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=$(MAINARGS_PLACEHOLDER)
+CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=$(MAINARGS_PLACEHOLDER) -DMAINARGS=$(mainargs)
 CFLAGS += -I$(AM_HOME)/am/src/riscv/npc 
 
 insert-arg: image

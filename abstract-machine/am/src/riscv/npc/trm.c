@@ -15,7 +15,7 @@ Area heap = RANGE(&_heap_start, PMEM_END);
 #define MAINARGS ""
 #endif
 //static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); // defined in CFLAGS
-static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS; 
+static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS); 
 
 void putch(char ch) {
 	uint8_t LSR = inb(SERIAL_PORT+0x05);
