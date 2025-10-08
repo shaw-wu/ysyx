@@ -5,6 +5,24 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
+int uint2str(uint32_t value, char *buf) {
+  char *p = buf;
+
+  int i = 0;
+  do {
+    p[i++] = '0' + (value % 10);
+    value /= 10;
+  } while (value > 0);
+
+  for (int j = 0; j < i / 2; j++) {
+    char tmp = p[j];
+    p[j] = p[i - 1 - j];
+    p[i - 1 - j] = tmp;
+  }
+  p[i] = '\0';
+  return i;
+}
+
 int int2str(int value, char *buf) {
   char *p = buf;
   int is_negative = 0;
@@ -62,10 +80,28 @@ int printf(const char *fmt, ...) {
 			len++;
     } else {
       f++;  // skip '%'
+			int preNum = ' ';
+			int Nwidth = 0;
+			if (*f >= '0' && *f <= '9') {
+				Nwidth = 0;
+				if(*f == '0'){
+					preNum = '0'; 
+					f++;
+				} 
+				while (*f >= '0' && *f <= '9') {
+					Nwidth = Nwidth * 10 + (*f - '0');
+					f++;
+				}
+			}
       if (*f == 'd') {
         int val = va_arg(args, int);
         char buf[20];
         int l = int2str(val, buf);
+				if(l < Nwidth){
+					for(int j = 0; j < Nwidth-l; j++){
+						putch((char)preNum);
+					}
+				}
         for (int i = 0; i < l; i++) {
 					putch(buf[i]);
 				}
@@ -80,6 +116,11 @@ int printf(const char *fmt, ...) {
         uint32_t val = va_arg(args, uint32_t);
         char buf[20];
         int l = x2str(val, buf);
+				if(l < Nwidth){
+					for(int j = 0; j < Nwidth-l; j++){
+						putch((char)preNum);
+					}
+				}
         for (int i = 0; i < l; i++) {
 					putch(buf[i]);
 				}
@@ -88,6 +129,19 @@ int printf(const char *fmt, ...) {
 				const char c = (char)va_arg(args, int);
 				putch(c);
 				len++;
+			} else if (*f == 'u') {
+        uint32_t val = va_arg(args, uint32_t);
+        char buf[20];
+        int l = uint2str(val, buf);
+				if(l < Nwidth){
+					for(int j = 0; j < Nwidth-l; j++){
+						putch((char)preNum);
+					}
+				}
+        for (int i = 0; i < l; i++) {
+					putch(buf[i]);
+				}
+				len += l;
       } else {
         putch('%');
         putch(*f);
@@ -123,7 +177,7 @@ int sprintf(char *out, const char *fmt, ...) {
       } else if (*f == 's') {
         const char *s = va_arg(args, const char *);
         while (*s) *p++ = *s++;
-      } else if (*f == 's') {
+      } else if (*f == 'x') {
         int val = va_arg(args, uint32_t);
         char buf[20];
         int len = x2str(val, buf);
@@ -131,6 +185,11 @@ int sprintf(char *out, const char *fmt, ...) {
       } else if (*f == 'c') {
 				const char c = (char)va_arg(args, int);
 				*p++ = c;
+			} else if (*f == 'u') {
+        int val = va_arg(args, uint32_t);
+        char buf[20];
+        int len = uint2str(val, buf);
+        for (int i = 0; i < len; i++) *p++ = buf[i];
       } else {
         *p++ = '%';
         *p++ = *f;
