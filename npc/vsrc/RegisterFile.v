@@ -24,7 +24,7 @@ module ysyx_25010009_RegisterFile #(
 	input [DATA_WIDTH-1:0] csrs_wdata2,
 	input [CAR_WIDTH -1:0] csrs_waddr2,
 	output [DATA_WIDTH-1:0] csrs_rdata,
-	input  [CAR_WIDTH -1:0]  csrs_raddr,
+	input  [CAR_WIDTH -1:0] csrs_raddr,
 	input csrs_wen1,
 	input csrs_wen2,
 	output [DATA_WIDTH-1:0] mepc,

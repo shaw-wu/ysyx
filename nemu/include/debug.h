@@ -19,6 +19,20 @@
 #include <common.h>
 #include <stdio.h>
 #include <utils.h>
+#define IRING_PRINT() \
+	do { \
+    int cur = (ptr - 1 + IRINGBUF_DEPTH) % IRINGBUF_DEPTH; \
+    for (int i = 0; i < IRINGBUF_DEPTH; i++) { \
+      if (strlen(iringbuf[i]) == 0) continue; \
+      if (i == cur) \
+        printf(ANSI_FMT("%s", ANSI_FG_RED) "\n", iringbuf[i]); \
+      else \
+        printf("%s\n", iringbuf[i]); \
+    } \
+	} while (0) 
+
+extern char iringbuf[IRINGBUF_DEPTH][128];
+extern int ptr;
 
 #define Log(format, ...) \
     _Log(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_BLUE) "\n", \
