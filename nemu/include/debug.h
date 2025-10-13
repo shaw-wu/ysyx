@@ -19,6 +19,7 @@
 #include <common.h>
 #include <stdio.h>
 #include <utils.h>
+#define IRINGBUF_DEPTH 16
 #define IRING_PRINT() \
 	do { \
     int cur = (ptr - 1 + IRINGBUF_DEPTH) % IRINGBUF_DEPTH; \

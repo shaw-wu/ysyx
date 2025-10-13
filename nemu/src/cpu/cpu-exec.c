@@ -34,6 +34,11 @@ static bool g_print_step = false;
 
 void device_update();
 
+#ifdef CONFIG_IRINGBUF
+char iringbuf[IRINGBUF_DEPTH][128] = {};
+int ptr = 0;
+#endif
+
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
@@ -97,6 +102,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #else
   p[0] = '\0'; // the upstream llvm does not support loongarch32r
 #endif
+	sprintf(iringbuf[ptr++ % IRINGBUF_DEPTH], "%s", s->logbuf);
 
 #endif
 }

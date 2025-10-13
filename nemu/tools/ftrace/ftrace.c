@@ -90,7 +90,7 @@ long check_Sh(FILE* elf, uint32_t shoff, uint16_t shentsize, uint16_t shnum, uin
     //读取该节名称字符串（从 shstrtab 中）
     long sh_name = (long)Shtmp.sh_name;
     fseek(elf, shstr_offset + sh_name, SEEK_SET);
-    ret = fread(sh_strname, 1, sizeof(sh_strname) - 1, elf); // 读取不超过 63 字节
+    ret = fread(sh_strname, 1, sizeof(sh_strname) - 1, elf); 
 
     // 判断是否为 .symtab
     if (strcmp(sh_strname, ".symtab") == 0) {
