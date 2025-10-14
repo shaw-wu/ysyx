@@ -47,7 +47,8 @@ include $(NPC_HOME)/csrc/utils/filelist.mk
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 VSRCS += $(shell find $(abspath ./vsrc/amba) -name "*.v")
 VSRCS += $(shell find $(abspath ./vsrc/bitrev) -name "*.v")
-VSRCS += $(shell find $(abspath ./vsrc/core) -name "*.v")
+#VSRCS += $(shell find $(abspath ./vsrc/core) -name "*.v")
+#VSRCS += ./vsrc/core/ysyx_25010009.v
 VSRCS += $(shell find $(abspath ./vsrc/flash) -name "*.v")
 VSRCS += $(shell find $(abspath ./vsrc/gpio) -name "*.v")
 VSRCS += $(shell find $(abspath ./vsrc/ps2) -name "*.v")
