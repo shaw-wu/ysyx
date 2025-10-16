@@ -75,6 +75,9 @@ static uint64_t now_time;
 word_t mmio_read(paddr_t addr, int len) {
 	word_t ret;
 	if(addr >= TIMER_ADDR && addr < TIMER_END){
+#ifdef CONFIG_DIFFTEST
+		access_device = true;
+#endif
 		if(addr == TIMER_ADDR + 4) {
 			now_time = get_time();
 			ret = now_time >> 32;
@@ -107,6 +110,9 @@ void mmio_write(paddr_t addr, int len, word_t data) {
 //	}
 //#endif
 	if(addr >= SERIAL_ADDR && addr < SERIAL_END){
+#ifdef CONFIG_DIFFTEST
+		access_device = true;
+#endif
 		if(addr == SERIAL_ADDR) {
 			putc((char)data, stderr);
 		} else {

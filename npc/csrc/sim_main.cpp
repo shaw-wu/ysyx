@@ -14,7 +14,7 @@
 #include <macro.h>
 #include <ftrace.h>
 #include <isa.h>
-#define ENABLE_WAVEFORM
+//#define ENABLE_WAVEFORM
 #define RESET_TIME 10
 
 #define STRIP_TO_CSRC(file) (strstr(file, "csrc/") ? strstr(file, "csrc/") : file)
@@ -36,6 +36,7 @@ CPU_state cpu = {};
 ISADecodeInfo decode = {};
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 extern "C" void init_disasm(const char *triple);
+bool access_device = false;
 static int sim_time = 5000;
 static TOP_NAME* dut;
 void nvboard_bind_all_pins(TOP_NAME* top);
@@ -54,6 +55,7 @@ void init_isa();
 void init_rand();
 void init_difftest(char *ref_so_file, long img_size, int port);
 void difftest_step(vaddr_t pc, vaddr_t npc);
+void difftest_skip_ref();
 
 static void single_cycle() {
   dut->clk = ~dut->clk & 1; dut->eval();
@@ -126,6 +128,9 @@ int ptr = 0;
 
 void trace_and_difftest(){
 #ifdef CONFIG_DIFFTEST
+	if(access_device) {
+		difftest_skip_ref();
+	}
 	difftest_step(cpu.pc, cpu.dnpc);
 #endif
 #ifdef CONFIG_FTRACE
@@ -183,6 +188,7 @@ void exec_once(uint32_t n){
 		return;
 	}
 	while(1){
+		access_device = false;
 		once_sim = 0;
 		stop_sim = 0;
 		contextp->timeInc(1);
@@ -205,6 +211,7 @@ void main_loop(){
 	sdb_mainloop();
 #else
 	while(1){
+		access_device = false;
 		once_sim = 0;
 		contextp->timeInc(1);
 		single_cycle();
