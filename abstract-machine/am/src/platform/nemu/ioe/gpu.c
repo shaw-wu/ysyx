@@ -34,13 +34,9 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
 	if(ctl->pixels != NULL){
 		uint32_t pix;
-		//uint32_t addr;
-		//printf("ctl->x = %d, ctl->y = %d\n", ctl->x, ctl->y);
 		for(int j = 0; j < ctl->h; j ++){
 			for(int i = 0; i < ctl->w; i++){
 				pix = *((uint32_t *)ctl->pixels + j * ctl->w + i);
-				//printf("x = %d, y = %d, i = %d, j = %d, w = %d, h = %d, ctl->pix = %x\n", 
-				//				ctl->x + i, ctl->y + j, i, j, ctl->w, ctl->h, pix);
 				outl(FB_ADDR + ((ctl->y + j) * width + (ctl->x + i)) * 4, pix);
 			}
 		}

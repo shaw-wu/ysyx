@@ -70,90 +70,162 @@ int x2str(uint32_t value, char *buf) {
 }
 
 int printf(const char *fmt, ...) {
-	int len = 0;
+  int len = 0;
   va_list args;
   va_start(args, fmt);
 
-  for (const char *f = fmt; *f != '\0'; f++) {
+  for (const char *f = fmt; *f; f++) {
     if (*f != '%') {
-			putch(*f);
-			len++;
-    } else {
-      f++;  // skip '%'
-			int preNum = ' ';
-			int Nwidth = 0;
-			if (*f >= '0' && *f <= '9') {
-				Nwidth = 0;
-				if(*f == '0'){
-					preNum = '0'; 
-					f++;
-				} 
-				while (*f >= '0' && *f <= '9') {
-					Nwidth = Nwidth * 10 + (*f - '0');
-					f++;
-				}
-			}
-      if (*f == 'd') {
+      putch(*f);
+      len++;
+      continue;
+    }
+
+    f++; // skip '%'
+    int preNum = ' ';
+    int Nwidth = 0;
+    if (*f == '0') { preNum = '0'; f++; }
+    while (*f >= '0' && *f <= '9') {
+      Nwidth = Nwidth * 10 + (*f - '0');
+      f++;
+    }
+
+    char buf[32];
+    int l = 0;
+    int pad = 0;
+
+    switch (*f) {
+      case 'd': {
         int val = va_arg(args, int);
-        char buf[20];
-        int l = int2str(val, buf);
-				if(l < Nwidth){
-					for(int j = 0; j < Nwidth-l; j++){
-						putch((char)preNum);
-					}
-				}
-        for (int i = 0; i < l; i++) {
-					putch(buf[i]);
-				}
-				len += l;
-      } else if (*f == 's') {
-        const char *s = va_arg(args, const char *);
-        while (*s) {
-					putch(*s++);
-					len++;
-				}
-      } else if (*f == 'x') {
-        uint32_t val = va_arg(args, uint32_t);
-        char buf[20];
-        int l = x2str(val, buf);
-				if(l < Nwidth){
-					for(int j = 0; j < Nwidth-l; j++){
-						putch((char)preNum);
-					}
-				}
-        for (int i = 0; i < l; i++) {
-					putch(buf[i]);
-				}
-				len += l;
-			} else if (*f == 'c') {
-				const char c = (char)va_arg(args, int);
-				putch(c);
-				len++;
-			} else if (*f == 'u') {
-        uint32_t val = va_arg(args, uint32_t);
-        char buf[20];
-        int l = uint2str(val, buf);
-				if(l < Nwidth){
-					for(int j = 0; j < Nwidth-l; j++){
-						putch((char)preNum);
-					}
-				}
-        for (int i = 0; i < l; i++) {
-					putch(buf[i]);
-				}
-				len += l;
-      } else {
-        putch('%');
-        putch(*f);
-				len++;
+        l = int2str(val, buf);
+        pad = (l < Nwidth) ? Nwidth - l : 0;
+        for (int i = 0; i < pad; i++) putch(preNum);
+        for (int i = 0; i < l; i++) putch(buf[i]);
+        len += l + pad;
+        break;
       }
+      case 'u': {
+        uint32_t val = va_arg(args, uint32_t);
+        l = uint2str(val, buf);
+        pad = (l < Nwidth) ? Nwidth - l : 0;
+        for (int i = 0; i < pad; i++) putch(preNum);
+        for (int i = 0; i < l; i++) putch(buf[i]);
+        len += l + pad;
+        break;
+      }
+      case 'x': {
+        uint32_t val = va_arg(args, uint32_t);
+        l = x2str(val, buf);
+        pad = (l < Nwidth) ? Nwidth - l : 0;
+        for (int i = 0; i < pad; i++) putch(preNum);
+        for (int i = 0; i < l; i++) putch(buf[i]);
+        len += l + pad;
+        break;
+      }
+      case 's': {
+        const char *s = va_arg(args, const char *);
+        while (*s) { putch(*s++); len++; }
+        break;
+      }
+      case 'c': {
+        char c = (char)va_arg(args, int);
+        putch(c); len++; break;
+      }
+      default:
+        putch('%'); putch(*f);
+        len += 2; break;
     }
   }
 
-  putch('\0');  // 结尾 '\0'
   va_end(args);
-  return len;  // 返回写入长度
+  return len;
 }
+
+//int printf(const char *fmt, ...) {
+//	int len = 0;
+//  va_list args;
+//  va_start(args, fmt);
+//
+//  for (const char *f = fmt; *f != '\0'; f++) {
+//    if (*f != '%') {
+//			putch(*f);
+//			len++;
+//    } else {
+//      f++;  // skip '%'
+//			int preNum = ' ';
+//			int Nwidth = 0;
+//			if (*f >= '0' && *f <= '9') {
+//				Nwidth = 0;
+//				if(*f == '0'){
+//					preNum = '0'; 
+//					f++;
+//				} 
+//				while (*f >= '0' && *f <= '9') {
+//					Nwidth = Nwidth * 10 + (*f - '0');
+//					f++;
+//				}
+//			}
+//      if (*f == 'd') {
+//        int val = va_arg(args, int);
+//        char buf[20];
+//        int l = int2str(val, buf);
+//				if(l < Nwidth){
+//					for(int j = 0; j < Nwidth-l; j++){
+//						putch((char)preNum);
+//					}
+//				}
+//        for (int i = 0; i < l; i++) {
+//					putch(buf[i]);
+//				}
+//				len += l;
+//      } else if (*f == 's') {
+//        const char *s = va_arg(args, const char *);
+//        while (*s) {
+//					putch(*s++);
+//					len++;
+//				}
+//      } else if (*f == 'x') {
+//        uint32_t val = va_arg(args, uint32_t);
+//        char buf[20];
+//        int l = x2str(val, buf);
+//				if(l < Nwidth){
+//					for(int j = 0; j < Nwidth-l; j++){
+//						putch((char)preNum);
+//					}
+//				}
+//        for (int i = 0; i < l; i++) {
+//					putch(buf[i]);
+//				}
+//				len += l;
+//			} else if (*f == 'c') {
+//				const char c = (char)va_arg(args, int);
+//				putch(c);
+//				len++;
+//			} else if (*f == 'u') {
+//        uint32_t val = va_arg(args, uint32_t);
+//        char buf[20];
+//        int l = uint2str(val, buf);
+//				if(l < Nwidth){
+//					for(int j = 0; j < Nwidth-l; j++){
+//						putch((char)preNum);
+//					}
+//				}
+//        for (int i = 0; i < l; i++) {
+//					putch(buf[i]);
+//				}
+//				len += l;
+//      } else {
+//        putch('%');
+//        putch(*f);
+//				len++;
+//      }
+//    }
+//  }
+//
+//  putch('\0');  // 结尾 '\0'
+//  va_end(args);
+//  return len;  // 返回写入长度
+//}
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
   panic("Not implemented");

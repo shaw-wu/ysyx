@@ -34,7 +34,7 @@
 
 extern char iringbuf[IRINGBUF_DEPTH][128];
 extern int ptr;
-volatile static int dummy;
+//volatile static int dummy;
 
 #define Log(format, ...) \
     _Log(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_BLUE) "\n", \

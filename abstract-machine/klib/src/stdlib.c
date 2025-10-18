@@ -21,31 +21,60 @@ int abs(int x) {
 }
 
 int atoi(const char* nptr) {
-  int x = 0;
-  while (*nptr == ' ') { nptr ++; }
+  int sign = 1, x = 0;
+  while (*nptr == ' ') nptr++;
+  if (*nptr == '-') { sign = -1; nptr++; }
+  else if (*nptr == '+') nptr++;
   while (*nptr >= '0' && *nptr <= '9') {
-    x = x * 10 + *nptr - '0';
-    nptr ++;
+    x = x * 10 + (*nptr - '0');
+    nptr++;
   }
-  return x;
+  return sign * x;
 }
+//int atoi(const char* nptr) {
+//  int x = 0;
+//  while (*nptr == ' ') { nptr ++; }
+//  while (*nptr >= '0' && *nptr <= '9') {
+//    x = x * 10 + *nptr - '0';
+//    nptr ++;
+//  }
+//  return x;
+//}
 
 void *malloc(size_t size) {
-  // On native, malloc() will be called during initializaion of C runtime.
-  // Therefore do not call panic() here, else it will yield a dead recursion:
-  //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
-	if(heap_ptr == NULL) heap_ptr = heap.start;
-	void *addr = NULL;
-	if(heap_ptr + size < heap.end){
-		addr = heap_ptr;
-		heap_ptr += size;
-	}
-	return addr;
-#endif
-  return NULL;
-}
+  if (heap_ptr == NULL) heap_ptr = heap.start;
 
+//  // 8字节对齐
+//  size = (size + 7) & ~7;
+
+  if (heap_ptr + size > heap.end) {
+    return NULL; // out of memory
+  }
+
+  void *addr = heap_ptr;
+  heap_ptr += size;
+  return addr;
+#else
+  return NULL;
+#endif
+}
+//void *malloc(size_t size) {
+//  // On native, malloc() will be called during initializaion of C runtime.
+//  // Therefore do not call panic() here, else it will yield a dead recursion:
+//  //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
+//#if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
+//	if(heap_ptr == NULL) heap_ptr = heap.start;
+//	void *addr = NULL;
+//	if(heap_ptr + size < heap.end){
+//		addr = heap_ptr;
+//		heap_ptr += size;
+//	}
+//	return addr;
+//#endif
+//  return NULL;
+//}
+//
 void free(void *ptr) {
 }
 
