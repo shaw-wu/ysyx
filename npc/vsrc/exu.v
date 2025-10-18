@@ -171,7 +171,7 @@ assign gpr_res = shift_sel != 2'b00 ? shift_res : alu_result;
 assign gpr_rd  = rd;
 assign csr_rd1 = csr1rd;
 assign csr_rd2 = csr2rd;
-assign csr_res1= is_ecall ? pc + 4				 : 
+assign csr_res1= is_ecall ? pc    				 : 
 								 is_csrrc ? csrs & (~src1) : 
 								 is_csrrs ? csrs |   src1  : 
 								 is_csrrw ?          src1  : 0;
