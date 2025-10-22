@@ -29,7 +29,7 @@ assign rdata = wire_rdata;
 
 import "DPI-C" function void dpi_vaddr_write(int unsigned addr, int len, int unsigned wdata, int wen);
 
-always @(posedge clk or posedge rst) begin
+always @(posedge clk) begin
 		dpi_vaddr_write(waddr, len, wdata, {31'b0, awvalid});
 end
 

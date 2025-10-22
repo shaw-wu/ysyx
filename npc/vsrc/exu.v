@@ -161,7 +161,6 @@ assign is_jmp    = is_jal || is_jalr || (is_bxx && (alu_result == 32'd1));
 assign pcadder_a = is_jalr ? src1 : pc   ;
 assign pcadder_b = is_jmp  ? imm  : 32'd4;
 
-
 assign exu_dnpc  = is_ecall ? mtvec : 
 									 is_mret  ? mepc  : pcadder_result; 
 assign isRAW_control = (exu_dnpc != dnpc); 
