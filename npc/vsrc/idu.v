@@ -18,11 +18,13 @@ module ysyx_25010009_idu #(
 	input clk,
 	input rst,
 	//ifu
+	input										 i_valid,
 	input  [DATA_WIDTH -1:0] inst   ,
 	input  [ADDR_WIDTH -1:0] pc			,
 	input  [ADDR_WIDTH -1:0] snpc	  ,
 	input  [ADDR_WIDTH -1:0] dnpc	  ,
 	//exu
+	output									 o_valid	 ,
 `ifdef VERILATOR
 	output                   exu_ebreak,
   output [DATA_WIDTH -1:0] exu_inst	 ,
@@ -231,6 +233,7 @@ assign is_csrrw = csrrw;
 assign is_ecall = ecall;
 assign is_mret  = mret;
 
+assign o_valid = i_valid;
 assign exu_csrs = csrs;
 assign exu_mepc = mepc;
 assign exu_mtvec= mtvec;

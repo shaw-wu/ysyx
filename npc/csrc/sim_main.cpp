@@ -14,7 +14,7 @@
 #include <macro.h>
 #include <ftrace.h>
 #include <isa.h>
-//#define ENABLE_WAVEFORM
+#define ENABLE_WAVEFORM
 #define RESET_TIME 10
 
 #define STRIP_TO_CSRC(file) (strstr(file, "csrc/") ? strstr(file, "csrc/") : file)
@@ -58,7 +58,11 @@ void difftest_step(vaddr_t pc, vaddr_t npc);
 void difftest_skip_ref();
 
 static void single_cycle() {
+	contextp->timeInc(1);
   dut->clk = ~dut->clk & 1; dut->eval();
+	#ifdef ENABLE_WAVEFORM
+		tfp->dump(contextp->time());
+	#endif
 }
 
 void sim_init(int argc, char** argv ){
@@ -105,7 +109,6 @@ void sim_init(int argc, char** argv ){
 void reset_npc (){
 	int i = 0;
 	while(dut->rst){
-		contextp->timeInc(1);
 		single_cycle();
 		if(i < RESET_TIME) i++;
 		if(i == RESET_TIME) dut->rst = 0;
@@ -183,25 +186,33 @@ void trace_and_difftest(){
 
 void exec_once(uint32_t n){
 	uint32_t i = 0;
+#ifdef MONITOR_EN
 	if(end_sim) {
 		printf("Program execution has ended. To restart the program, exit sdb and run again.\n");
 		return;
 	}
+#endif
 	while(1){
 		access_device = false;
 		once_sim = 0;
+	#ifdef MONITOR_EN
 		stop_sim = 0;
-		contextp->timeInc(1);
+	#endif
 		single_cycle();
+		if(once_sim) {
+			trace_and_difftest();
+	#ifdef MONITOR_EN
+			if(stop_sim) break;
+	#endif
+			i++;
+			if(i == n) break;
+		}
 		if(end_sim) {
 			break;
 		}
-		if(once_sim) {
-			trace_and_difftest();
-			i++;
-			if(stop_sim) break;
-			if(i == n) break;
-		}
+	#ifdef ENABLE_NVBOARD
+		nvboard_update();
+	#endif
 	}
 }
 
@@ -210,24 +221,18 @@ void main_loop(){
 #ifdef MONITOR_EN
 	sdb_mainloop();
 #else
-	while(1){
-		access_device = false;
-		once_sim = 0;
-		contextp->timeInc(1);
-		single_cycle();
-		if(once_sim) {
-			trace_and_difftest();
-		}
-		if(end_sim) {
-			break;
-		}
-	#ifdef ENABLE_WAVEFORM
-		tfp->dump(contextp->time());
-	#endif
-	#ifdef ENABLE_NVBOARD
-		nvboard_update();
-	#endif
-	}
+	exec_once(-1);
+//	while(1){
+//		access_device = false;
+//		once_sim = 0;
+//		single_cycle();
+//		if(once_sim) {
+//			trace_and_difftest();
+//		}
+//		if(end_sim) {
+//			break;
+//		}
+//	}
 #endif
 }
 

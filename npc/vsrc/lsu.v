@@ -7,6 +7,7 @@ module ysyx_25010009_lsu #(
 	input clk,
 	input rst,
 	//exu <> lsu
+	input										i_valid,
 `ifdef VERILATOR
 	input 									ebreak ,
 	input [DATA_WIDTH -1:0] inst	 ,
@@ -41,6 +42,7 @@ module ysyx_25010009_lsu #(
 	output [DATA_WIDTH -1:0] wdata	,
 	output [            3:0] ram_mask,
 	// lsu <> wbu
+	output									 o_valid	 ,
 `ifdef VERILATOR
 	output 									 wbu_ebreak,
 	output [DATA_WIDTH -1:0] wbu_inst	 ,
@@ -73,13 +75,14 @@ assign sr_result = mem_mask == 4'b0001 ? {{24{rdata[7 ]}}, rdata[7 :0]} :
 									 mem_mask == 4'b1111 ?                   rdata        : 32'b0;
 assign re_result = mem_sext ? sr_result : ur_result;
 
-assign awvalid = memwr;
+assign awvalid = memwr && i_valid;
 assign arvalid = memre;
 assign araddr = paddr;
 assign awaddr = paddr;
 assign wdata = mwdata;
 assign ram_mask = mem_mask;
 
+assign o_valid = i_valid;
 `ifdef VERILATOR
 assign wbu_ebreak = ebreak;
 assign wbu_inst = inst;

@@ -9,6 +9,7 @@ module ysyx_25010009_exu #(
 	input clk,
 	input rst,
 	//idu
+	input										 i_valid,
 `ifdef VERILATOR
 	input										 ebreak	,
 	input  [DATA_WIDTH -1:0] inst		,
@@ -49,6 +50,7 @@ module ysyx_25010009_exu #(
 	output								   isRAW_control,
 	output [ADDR_WIDTH -1:0] exu_dnpc ,
 	//lsu
+	output									 o_valid	 ,
 `ifdef VERILATOR
 	output 									 lsu_ebreak,
 	output [DATA_WIDTH -1:0] lsu_inst	 ,
@@ -176,6 +178,7 @@ assign csr_res1= is_ecall ? pc    				 :
 								 is_csrrw ?          src1  : 0;
 assign csr_res2= is_ecall ? 32'hb	 : 0;
 
+assign o_valid    = i_valid;
 assign lsu_pc			= pc		;
 assign lsu_mwdata = mwdata;
 assign lsu_memwr	= memwr ;

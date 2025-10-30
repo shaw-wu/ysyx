@@ -39,11 +39,13 @@ wire [DATA_WIDTH-1:0] dram_rdata;
 wire [ADDR_WIDTH-1:0] dram_waddr;
 wire [DATA_WIDTH-1:0] dram_wdata;
 
+wire									ifu_idu_valid;
 wire [ADDR_WIDTH-1:0] ifu_idu_inst;
 wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
 wire [ADDR_WIDTH-1:0] ifu_idu_snpc;
 wire [ADDR_WIDTH-1:0] ifu_idu_dnpc;
 
+wire									idu_exu_valid;
 `ifdef VERILATOR
 wire                   idu_exu_ebreak; 
 wire [DATA_WIDTH -1:0] idu_exu_a0		 ; 
@@ -89,6 +91,7 @@ wire [DATA_WIDTH-1:0] idu_rf_csrs;
 wire [DATA_WIDTH-1:0] idu_rf_mepc;
 wire [DATA_WIDTH-1:0] idu_rf_mtvec;
 
+wire									exu_lsu_valid;
 `ifdef VERILATOR
 wire exu_lsu_ebreak;
 wire [DATA_WIDTH-1:0] exu_lsu_a0  ;
@@ -117,6 +120,7 @@ wire [DATA_WIDTH-1:0] exu_lsu_csrs1;
 wire [DATA_WIDTH-1:0] exu_lsu_csrs2;
 wire [ADDR_WIDTH-1:0] exu_dnpc;
 
+wire									lsu_wbu_valid;
 `ifdef VERILATOR
 wire lsu_wbu_ebreak;
 wire [DATA_WIDTH-1:0] lsu_wbu_inst;
@@ -178,6 +182,7 @@ ysyx_25010009_ifu #(
 ) IFU (
 	.clk(clk),
 	.rst(rst),
+	.valid(ifu_idu_valid),
 	.finst(irom_data),
 	.addr	(irom_addr),
 	.inst (ifu_idu_inst),
@@ -207,10 +212,12 @@ ysyx_25010009_idu #(
 ) IDU (
 	.clk		 (clk						 ),
 	.rst     (rst     			 ),
+	.i_valid (ifu_idu_valid	 ),
 	.inst    (ifu_idu_inst   ),
 	.pc			 (ifu_idu_pc		 ),
 	.snpc	   (ifu_idu_snpc	 ),
 	.dnpc	   (ifu_idu_dnpc	 ),
+	.o_valid (idu_exu_valid	 ),
 `ifdef VERILATOR
 	.exu_ebreak(idu_exu_ebreak),
 	.exu_inst  (idu_exu_inst	),
@@ -263,6 +270,7 @@ ysyx_25010009_exu #(
 ) EXU (
 	.clk					(clk					),
 	.rst					(rst					),
+	.i_valid			(idu_exu_valid				),
 `ifdef VERILATOR
 	.ebreak				(idu_exu_ebreak			  ),
 	.inst					(idu_exu_inst				  ),
@@ -300,6 +308,7 @@ ysyx_25010009_exu #(
 	.mtvec				(idu_exu_mtvec				),
 	.isRAW_control(             				),
 	.exu_dnpc			(exu_dnpc						  ),
+	.o_valid			(exu_lsu_valid				),
 `ifdef VERILATOR
 	.lsu_ebreak	  (exu_lsu_ebreak				),
 	.lsu_inst			(exu_lsu_inst					),
@@ -335,6 +344,7 @@ ysyx_25010009_lsu #(
 ) LSU (
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
+	.i_valid  (exu_lsu_valid ),
 `ifdef VERILATOR
 	.ebreak	  (exu_lsu_ebreak),
 	.inst			(exu_lsu_inst	 ),
@@ -367,6 +377,7 @@ ysyx_25010009_lsu #(
 	.rdata    (dram_rdata),
 	.awaddr		(dram_waddr),
 	.wdata    (dram_wdata),
+	.o_valid    (lsu_wbu_valid  ),
 `ifdef VERILATOR
 	.wbu_ebreak (lsu_wbu_ebreak ),
 	.wbu_inst		(lsu_wbu_inst		),
@@ -397,6 +408,7 @@ ysyx_25010009_wbu #(
 	.clk		 (clk						 ),
 	.rst		 (rst		    		 ),
 	.pc		   (lsu_wbu_pc		 ),
+	.i_valid (lsu_wbu_valid  ),
 `ifdef VERILATOR
 	.ebreak  (lsu_wbu_ebreak ),
 	.inst		 (lsu_wbu_inst	 ),
@@ -459,7 +471,7 @@ ysyx_25010009_RegisterFile #(
 
 `ifdef VERILATOR
 import "DPI-C" function void speec_once(int speec);
-always @(*) 
+always @(posedge clk) 
 	speec_once({31'b0, speec});
 `endif
 

@@ -2,6 +2,7 @@
 #include <svdpi.h>
 #include <string.h>
 #include <common.h>
+#include <isa.h>
 
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -22,7 +23,8 @@ void isa_reg_display() {
 	word_t reg = 0;
 	for(j = 0; j < 4; j++){
 		for(; i < (j + 1) * 4; i++){
-			read_gpr(i, &reg);
+			reg = cpu.gpr[i];
+			//read_gpr(i, &reg);
 			if(strcmp(regs[i], "s10") == 0 || strcmp(regs[i], "s11") == 0) {
 				printf("%s : 0x%-15x", regs[i], reg);
 			}

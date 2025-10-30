@@ -6,6 +6,7 @@ module ysyx_25010009_wbu #(
 )(
 	input clk,
 	input rst,
+	input										 i_valid,
 `ifdef VERILATOR
 	input										 ebreak,
 	input [DATA_WIDTH  -1:0] inst  ,
@@ -39,18 +40,18 @@ module ysyx_25010009_wbu #(
 	output									 speec
 );
 
-assign rf_gpr_wen   = regwr;
+assign rf_gpr_wen   = regwr && i_valid;
 assign rf_gpr_rd    = rd;
 assign rf_gpr_wdata = gpr_res;
-assign rf_csr_wen1 = csr1wr;
-assign rf_csr_wen2 = csr2wr;
+assign rf_csr_wen1 = csr1wr && i_valid;
+assign rf_csr_wen2 = csr2wr && i_valid;
 assign rf_csr_rd1  = csr_rd1;
 assign rf_csr_rd2  = csr_rd2;
 assign rf_csr_res1 = csr_res1;
 assign rf_csr_res2 = csr_res2;
 
 `ifdef VERILATOR
-ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr);
+ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr, reg_speec);
 
 export "DPI-C" task read_pc;
 task automatic read_pc(output int unsigned rdata); 
@@ -64,7 +65,9 @@ reg reg_speec;
 
 always @(posedge clk or posedge rst) begin
 	if(rst) reg_speec <= 0;
-	else		reg_speec <= 1;
+	else begin
+		if(i_valid) reg_speec <= 1;
+	end
 end
 
 assign speec = reg_speec;
