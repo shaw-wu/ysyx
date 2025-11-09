@@ -86,7 +86,6 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
 		check_dif = 1;
 		end_sim = 1;
-		printf("dut gpr:\n");
     isa_reg_display();
   }
 }
@@ -119,7 +118,6 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   ref_difftest_exec(1);
 
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-	printf("dut.pc = 0x%08x\n", pc);
   checkregs(&ref_r, npc);
 	//if(check_dif) printf("dut.pc = 0x%08x, dut.npc = 0x%08x\n", pc, npc);
 

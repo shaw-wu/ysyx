@@ -17,6 +17,13 @@ module ysyx_25010009_top #(
 	input rst
 );
 
+`ifdef VERILATOR
+reg buf_rst;
+always @(posedge clk) begin
+	buf_rst <= rst;
+end
+`endif
+
 localparam MSTATUS = 12'h0300;
 localparam MTVEC	 = 12'h0305;
 localparam MEPC    = 12'h0341;
@@ -156,7 +163,11 @@ wire speec;
 ysyx_25010009_irom #(
 	.XLEN(DATA_WIDTH)
 ) IROM (
-	.rst (rst),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+`else
+	.rst (rst			 ),
+`endif
 	.addr(irom_addr),
 	.inst(irom_data)
 );
@@ -164,8 +175,12 @@ ysyx_25010009_irom #(
 ysyx_25010009_dram #(
 	.XLEN(DATA_WIDTH)
 ) DRAM (
-	.clk	(clk),
-	.rst	(rst),
+	.clk	(clk		),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+`else
+	.rst (rst			 ),
+`endif
 	.mask		(dram_mask	 ),
 	.awvalid(dram_awvalid),
 	.arvalid(dram_arvalid),
@@ -180,8 +195,12 @@ ysyx_25010009_ifu #(
 	.ADDR_WIDTH(ADDR_WIDTH),
 	.PC_INIT	 (PC_INIT		)
 ) IFU (
-	.clk(clk),
-	.rst(rst),
+	.clk(clk		),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+`else
+	.rst (rst			 ),
+`endif
 	.valid(ifu_idu_valid),
 	.finst(irom_data),
 	.addr	(irom_addr),
@@ -211,7 +230,11 @@ ysyx_25010009_idu #(
 	.MCAUSE 		 (MCAUSE 			) 
 ) IDU (
 	.clk		 (clk						 ),
-	.rst     (rst     			 ),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+`else
+	.rst (rst			 ),
+`endif
 	.i_valid (ifu_idu_valid	 ),
 	.inst    (ifu_idu_inst   ),
 	.pc			 (ifu_idu_pc		 ),
@@ -269,7 +292,11 @@ ysyx_25010009_exu #(
 	.OPSEL_WIDTH(OPSEL_WIDTH)
 ) EXU (
 	.clk					(clk					),
-	.rst					(rst					),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+`else
+	.rst (rst			 ),
+`endif
 	.i_valid			(idu_exu_valid				),
 `ifdef VERILATOR
 	.ebreak				(idu_exu_ebreak			  ),
@@ -343,7 +370,11 @@ ysyx_25010009_lsu #(
 	.CAR_WIDTH (CAR_WIDTH )
 ) LSU (
 	.clk		 (clk						 ),
-	.rst		 (rst		    		 ),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+`else
+	.rst (rst			 ),
+`endif
 	.i_valid  (exu_lsu_valid ),
 `ifdef VERILATOR
 	.ebreak	  (exu_lsu_ebreak),
@@ -406,7 +437,11 @@ ysyx_25010009_wbu #(
 	.CAR_WIDTH (CAR_WIDTH )
 ) WBU (
 	.clk		 (clk						 ),
-	.rst		 (rst		    		 ),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+`else
+	.rst (rst			 ),
+`endif
 	.pc		   (lsu_wbu_pc		 ),
 	.i_valid (lsu_wbu_valid  ),
 `ifdef VERILATOR
@@ -449,7 +484,11 @@ ysyx_25010009_RegisterFile #(
 	.MCAUSE 		 (MCAUSE 			) 
 ) GPR (
 	.clk		 (clk						 ),
-	.rst		 (rst		    		 ),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+`else
+	.rst (rst			 ),
+`endif
 	.gpr_wdata	 (wbu_rf_wdata	 ),
 	.gpr_waddr	 (wbu_rf_rd			 ),
 	.gpr_raddr1	 (idu_rf_rs1		 ),

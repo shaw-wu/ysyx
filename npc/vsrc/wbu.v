@@ -51,7 +51,7 @@ assign rf_csr_res1 = csr_res1;
 assign rf_csr_res2 = csr_res2;
 
 `ifdef VERILATOR
-ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr, reg_speec);
+ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr, speec);
 
 export "DPI-C" task read_pc;
 task automatic read_pc(output int unsigned rdata); 
@@ -61,16 +61,16 @@ end
 endtask
 `endif
 
-reg reg_speec;
+//reg reg_speec;
+//
+//always @(posedge clk or posedge rst) begin
+//	if(rst) reg_speec <= 0;
+//	else begin
+//		if(i_valid) reg_speec <= 1;
+//	end
+//end
 
-always @(posedge clk or posedge rst) begin
-	if(rst) reg_speec <= 0;
-	else begin
-		if(i_valid) reg_speec <= 1;
-	end
-end
-
-assign speec = reg_speec;
+assign speec = i_valid;
 
 endmodule
 	

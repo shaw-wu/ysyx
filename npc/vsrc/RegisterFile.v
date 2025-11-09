@@ -68,7 +68,8 @@ export "DPI-C" task read_gpr;
 task automatic read_gpr(input int addr, output int unsigned rdata); 
 begin
 	if(addr == 0) rdata = 0;
-	else          rdata = rf[addr];
+	else if((addr[4:0] == gpr_waddr) && gpr_wen) rdata = gpr_wdata;
+	else rdata = rf[addr];
 end
 endtask
 `endif

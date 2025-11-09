@@ -24,7 +24,7 @@ always @(posedge clk or posedge rst) begin
 	if(rst) begin
 		pc <= PC_INIT;
 	end else begin
-		if(!rst) pc <= exu_dnpc;
+		pc <= exu_dnpc;
 	end
 end
 
