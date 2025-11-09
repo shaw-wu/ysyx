@@ -41,6 +41,7 @@ module ysyx_25010009_lsu #(
 	output [DATA_WIDTH -1:0] awaddr ,
 	output [DATA_WIDTH -1:0] wdata	,
 	output [            3:0] ram_mask,
+	output [            1:0] ram_size,
 	// lsu <> wbu
 	output									 o_valid	 ,
 `ifdef VERILATOR
@@ -67,20 +68,77 @@ module ysyx_25010009_lsu #(
 wire [DATA_WIDTH-1:0] ur_result;
 wire [DATA_WIDTH-1:0] sr_result;
 wire [DATA_WIDTH-1:0] re_result;
-assign ur_result = mem_mask == 4'b0001 ? {24'b0, rdata[7 :0]} :
-									 mem_mask == 4'b0011 ? {16'b0, rdata[15:0]} :
-									 mem_mask == 4'b1111 ?         rdata        : 32'b0;
-assign sr_result = mem_mask == 4'b0001 ? {{24{rdata[7 ]}}, rdata[7 :0]} :
-									 mem_mask == 4'b0011 ? {{16{rdata[15]}}, rdata[15:0]} :
-									 mem_mask == 4'b1111 ?                   rdata        : 32'b0;
+
+wire [7:0] byte_rdata;
+wire [15:0] half_rdata;
+
+//assign ur_result = mem_mask == 4'b0001 ? {24'b0, rdata[7 :0]} :
+//									 mem_mask == 4'b0011 ? {16'b0, rdata[15:0]} :
+//									 mem_mask == 4'b1111 ?         rdata        : 32'b0;
+//assign sr_result = mem_mask == 4'b0001 ? {{24{rdata[7 ]}}, rdata[7 :0]} :
+//									 mem_mask == 4'b0011 ? {{16{rdata[15]}}, rdata[15:0]} :
+//									 mem_mask == 4'b1111 ?                   rdata        : 32'b0;
+//assign re_result = mem_sext ? sr_result : ur_result;
+
+assign byte_rdata =
+										paddr[1:0] == 2'b00 ? rdata[7 : 0] :
+										paddr[1:0] == 2'b01 ? rdata[15: 8] :
+										paddr[1:0] == 2'b10 ? rdata[23:16] : rdata[31:24];
+assign half_rdata = 
+										paddr[1:0] == 2'b00 ? rdata[15: 0] :
+										paddr[1:0] == 2'b01 ? rdata[23: 8] :
+										paddr[1:0] == 2'b10 ? rdata[31:16] : 0;
+assign ur_result = mem_mask == 4'b0001 ? {24'b0, byte_rdata} :
+									 mem_mask == 4'b0011 ? {16'b0, half_rdata} :
+									 mem_mask == 4'b1111 ?              rdata  : 32'b0;
+assign sr_result = mem_mask == 4'b0001 ? {{24{byte_rdata[7 ]}}, byte_rdata} :
+									 mem_mask == 4'b0011 ? {{16{half_rdata[15]}}, half_rdata[15:0]} :
+									 mem_mask == 4'b1111 ? rdata : 32'b0;
 assign re_result = mem_sext ? sr_result : ur_result;
+
+wire [31:0] byte_wdata;
+wire [31:0] half_wdata;
+
+assign byte_wdata = paddr[1:0] == 2'b00 ? {24'b0, mwdata[7 : 0]		  	} :
+										paddr[1:0] == 2'b01 ? {16'b0, mwdata[7 : 0],  8'b0} :
+										paddr[1:0] == 2'b10 ? { 8'b0, mwdata[7 : 0], 16'b0} : {mwdata[7 : 0], 24'b0}; 
+assign half_wdata = paddr[1:0] == 2'b00 ? {16'b0, mwdata[15: 0]		  	} :
+										paddr[1:0] == 2'b01 ? { 8'b0, mwdata[15: 0],  8'b0} :
+										paddr[1:0] == 2'b10 ? {       mwdata[15: 0], 16'b0} : 0; 
+
+wire [3:0] byte_mask;
+wire [3:0] half_mask;
+assign byte_mask = 
+									 paddr[1:0] == 2'b00 ? 4'b0001 :
+									 paddr[1:0] == 2'b01 ? 4'b0010 :
+									 paddr[1:0] == 2'b10 ? 4'b0100 : 4'b1000; 
+assign half_mask = 
+									 paddr[1:0] == 2'b00 ? 4'b0011 :
+									 paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
+
+//assign lsu_addr = aligned ? paddr & 32'hfffffffc : paddr;
+//assign lsu_wdata = mwdata;
+//assign lsu_size  = memre							 ? 2'b10 :
+//									 mem_mask == 4'b0001 ? 2'b00 :
+//									 mem_mask == 4'b0011 ? 2'b01 :
+//									 mem_mask == 4'b1111 ? 2'b10 : 2'b00;
+//assign lsu_wen = memwr;
 
 assign awvalid = memwr && i_valid;
 assign arvalid = memre;
 assign araddr = paddr;
 assign awaddr = paddr;
-assign wdata = mwdata;
-assign ram_mask = mem_mask;
+//assign wdata = mwdata;
+assign wdata = mem_mask == 4'b0001 ? byte_wdata :
+							 mem_mask == 4'b0011 ? half_wdata :
+							 mem_mask == 4'b1111 ? mwdata			: 0;	 
+//assign ram_mask = mem_mask;
+assign ram_mask = mem_mask == 4'b0001 ? byte_mask :
+									mem_mask == 4'b0011 ? half_mask :
+									mem_mask == 4'b1111 ? mem_mask	 : 0;
+assign ram_size = mem_mask == 4'b0001 ? 0 :
+									mem_mask == 4'b0011 ? 1 :
+									mem_mask == 4'b1111 ? 2 : 0;
 
 assign o_valid = i_valid;
 `ifdef VERILATOR

@@ -19,16 +19,38 @@
 #include <common.h>
 
 static inline word_t host_read(void *addr, int len) {
+	word_t rdata =  *(uint32_t *)addr;
+	switch ((long)addr % 4) {
+		case 0x0: rdata = rdata; break;
+		case 0x1: rdata <<= 8 ; break;
+		case 0x2: rdata <<= 16; break;
+		case 0x3: rdata <<= 24; break;
+		default : break;
+	}
   switch (len) {
-    case 1: return *(uint8_t  *)addr;
-    case 2: return *(uint16_t *)addr;
-    case 4: return *(uint32_t *)addr;
+    case 1: return rdata;
+    case 2: return rdata;
+    case 4: return rdata;
     IFDEF(CONFIG_ISA64, case 8: return *(uint64_t *)addr);
     default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);
   }
+  //switch (len) {
+  //  case 1: return *(uint8_t  *)addr;
+  //  case 2: return *(uint16_t *)addr;
+  //  case 4: return *(uint32_t *)addr;
+  //  IFDEF(CONFIG_ISA64, case 8: return *(uint64_t *)addr);
+  //  default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);
+  //}
 }
 
 static inline void host_write(void *addr, int len, word_t data) {
+	switch ((long)addr % 4) {
+		case 0x0: data = data; break;
+		case 0x1: data >>= 8 ; break;
+		case 0x2: data >>= 16; break;
+		case 0x3: data >>= 24; break;
+		default : break;
+	}
   switch (len) {
     case 1: *(uint8_t  *)addr = data; return;
     case 2: *(uint16_t *)addr = data; return;

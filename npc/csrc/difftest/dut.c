@@ -84,6 +84,7 @@ int check_dif = 0;
 
 static void checkregs(CPU_state *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
+		printf("dut gpr:\n");
 		check_dif = 1;
 		end_sim = 1;
     isa_reg_display();
