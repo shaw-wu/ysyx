@@ -65,7 +65,7 @@ CSRCS += $(shell find $(abspath ./csrc) -name "*.cpp")
 #CSRCS += $(shell find $(abspath ./csrc/difftest) -name "*.c")
 #CSRCS += $(shell find $(abspath ./csrc/isa-difftest) -name "*.c")
 #CSRCS += $(shell find $(abspath ./sim) -name "*.cpp")
-CSRCS += ./sim/ebreak.cpp
+CSRCS += $(shell pwd)/sim/ebreak.cpp
 #CSRCS += $(SRC_AUTO_BIND)
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 

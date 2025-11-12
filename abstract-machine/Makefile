@@ -97,7 +97,6 @@ LDFLAGS  += -z noexecstack $(addprefix -T, $(LDSCRIPTS))
 
 ### Rule (compile): a single `.c` -> `.o` (gcc)
 $(DST_DIR)/%.o: %.c
-	@echo CC = $(CC) 
 	@mkdir -p $(dir $@) && echo + CC $<
 	@$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
 
@@ -114,7 +113,6 @@ $(DST_DIR)/%.o: %.cpp
 ### Rule (compile): a single `.S` -> `.o` (gcc, which preprocesses and calls as)
 $(DST_DIR)/%.o: %.S
 	@mkdir -p $(dir $@) && echo + AS $<
-	@echo SRCS = $(SRCS)
 	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 ifeq ($(MAKECMDGOALS),archive)
@@ -138,8 +136,6 @@ endif
 $(IMAGE).elf: $(LINKAGE) $(LDSCRIPTS)
 	@echo \# Creating image [$(ARCH)]
 	@echo + LD "->" $(IMAGE_REL).elf
-#	@echo LD = $(LD) LDFLAGS = $(LDFLAGS) LINKAGE = $(LINKAGE)
-	@echo SRCS = $(SRCS)
 ifneq ($(filter $(ARCH),native),)
 	@$(CXX) -o $@ -Wl,--whole-archive $(LINKAGE) -Wl,-no-whole-archive $(LDFLAGS_CXX)
 else

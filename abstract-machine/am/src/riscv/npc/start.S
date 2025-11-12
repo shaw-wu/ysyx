@@ -7,5 +7,4 @@ _start:
   la sp, _stack_pointer
   call _trm_init
 
-
-//.size _start, . - _start
+.size _start, . - _start

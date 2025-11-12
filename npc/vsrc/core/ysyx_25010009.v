@@ -19,7 +19,7 @@ module ysyx_25010009 (
 parameter PC_INIT			 = 32'h3000_0000;
 parameter ADDR_WIDTH   = 32; 
 parameter DATA_WIDTH   = 32;
-parameter RS_WIDTH     = 5 ; 
+parameter RS_WIDTH     = 4 ; 
 parameter CAR_WIDTH    = 12; 
 parameter FUNCT3_WIDTH = 3 ; 
 parameter FUNCT7_WIDTH = 7 ; 
@@ -37,11 +37,7 @@ localparam MCYCLEH   = 12'hb01;
 localparam MVENDORID = 12'hf11;
 localparam MARCHID   = 12'hf12;
 
-`ifdef CONFIG_RVE
-	parameter GPR_NUM = 16;
-`else
-	parameter GPR_NUM = 32;
-`endif
+parameter GPR_NUM = 16;
 
 wire ifu_idu_valid;
 wire [ADDR_WIDTH-1:0] ifu_idu_inst;
@@ -49,11 +45,11 @@ wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
 wire [ADDR_WIDTH-1:0] ifu_idu_snpc;
 wire [ADDR_WIDTH-1:0] ifu_idu_dnpc;
 
-`ifdef VERILATOR
-wire                   idu_exu_ebreak; 
-wire [DATA_WIDTH -1:0] idu_exu_a0		 ; 
-//wire [DATA_WIDTH -1:0] idu_exu_inst	 ; 
-`endif
+//`ifdef VERILATOR
+//wire                   idu_exu_ebreak; 
+//wire [DATA_WIDTH -1:0] idu_exu_a0		 ; 
+////wire [DATA_WIDTH -1:0] idu_exu_inst	 ; 
+//`endif
 wire idu_exu_valid;
 wire [ADDR_WIDTH -1:0] idu_exu_snpc	 ; 
 wire [ADDR_WIDTH -1:0] idu_exu_dnpc	 ; 
@@ -96,16 +92,16 @@ wire [DATA_WIDTH-1:0] idu_rf_csrs;
 wire [DATA_WIDTH-1:0] idu_rf_mepc;
 wire [DATA_WIDTH-1:0] idu_rf_mtvec;
 
-`ifdef VERILATOR
-wire exu_lsu_ebreak;
-wire [DATA_WIDTH-1:0] exu_lsu_a0  ;
-//wire [DATA_WIDTH-1:0] exu_lsu_inst;
-//wire [ADDR_WIDTH-1:0] exu_lsu_snpc;
-//wire [ADDR_WIDTH-1:0] exu_lsu_dnpc;
-//wire [RS_WIDTH-1:0  ] exu_lsu_rs1	;
-//wire                  exu_lsu_jal ;
-//wire                  exu_lsu_jalr;
-`endif
+//`ifdef VERILATOR
+//wire exu_lsu_ebreak;
+//wire [DATA_WIDTH-1:0] exu_lsu_a0  ;
+////wire [DATA_WIDTH-1:0] exu_lsu_inst;
+////wire [ADDR_WIDTH-1:0] exu_lsu_snpc;
+////wire [ADDR_WIDTH-1:0] exu_lsu_dnpc;
+////wire [RS_WIDTH-1:0  ] exu_lsu_rs1	;
+////wire                  exu_lsu_jal ;
+////wire                  exu_lsu_jalr;
+//`endif
 wire									exu_lsu_valid ;
 wire [ADDR_WIDTH-1:0] exu_lsu_pc		;
 wire [DATA_WIDTH-1:0] exu_lsu_mwdata;
@@ -125,16 +121,16 @@ wire [DATA_WIDTH-1:0] exu_lsu_csrs1;
 wire [DATA_WIDTH-1:0] exu_lsu_csrs2;
 wire [ADDR_WIDTH-1:0] exu_dnpc;
 
-`ifdef VERILATOR
-wire lsu_wbu_ebreak;
-wire [DATA_WIDTH-1:0] lsu_wbu_a0  ;
-//wire [DATA_WIDTH-1:0] lsu_wbu_inst;
-//wire [ADDR_WIDTH-1:0] lsu_wbu_snpc;
-//wire [ADDR_WIDTH-1:0] lsu_wbu_dnpc;
-//wire [RS_WIDTH-1:0  ] lsu_wbu_rs1 ;
-//wire                  lsu_wbu_jal ;
-//wire                  lsu_wbu_jalr;
-`endif
+//`ifdef VERILATOR
+//wire lsu_wbu_ebreak;
+//wire [DATA_WIDTH-1:0] lsu_wbu_a0  ;
+////wire [DATA_WIDTH-1:0] lsu_wbu_inst;
+////wire [ADDR_WIDTH-1:0] lsu_wbu_snpc;
+////wire [ADDR_WIDTH-1:0] lsu_wbu_dnpc;
+////wire [RS_WIDTH-1:0  ] lsu_wbu_rs1 ;
+////wire                  lsu_wbu_jal ;
+////wire                  lsu_wbu_jalr;
+//`endif
 wire									lsu_wbu_valid;
 wire [ADDR_WIDTH-1:0] lsu_wbu_pc;
 wire									lsu_wbu_regwr;
@@ -205,11 +201,11 @@ ysyx_25010009_idu #(
 	.pc			  (ifu_idu_pc		),
 	.snpc	    (ifu_idu_snpc	),
 	.dnpc	    (ifu_idu_dnpc	),
-`ifdef VERILATOR
-	.exu_ebreak(idu_exu_ebreak),
-	.exu_a0		 (idu_exu_a0		),
-//	.exu_inst  (idu_exu_inst	),
-`endif
+//`ifdef VERILATOR
+//	.exu_ebreak(idu_exu_ebreak),
+//	.exu_a0		 (idu_exu_a0		),
+////	.exu_inst  (idu_exu_inst	),
+//`endif
 	.idu_valid(idu_exu_valid ),
 	.exu_snpc (idu_exu_snpc	 ),
 	.exu_dnpc (idu_exu_dnpc	 ),
@@ -260,12 +256,12 @@ ysyx_25010009_exu #(
 ) EXU (
 	.clk					(clock					),
 	.rst					(reset					),
-`ifdef VERILATOR
-	.ebreak				(idu_exu_ebreak			  ),
-	.a0						(idu_exu_a0						),
-//	.inst					(idu_exu_inst				  ),
-//	.rs1					(idu_rf_rs1					  ),
-`endif
+//`ifdef VERILATOR
+//	.ebreak				(idu_exu_ebreak			  ),
+//	.a0						(idu_exu_a0						),
+////	.inst					(idu_exu_inst				  ),
+////	.rs1					(idu_rf_rs1					  ),
+//`endif
 	.idu_valid		(idu_exu_valid				),
 	.dnpc					(idu_exu_dnpc					),
 	.pc     			(idu_exu_pc     			),
@@ -299,16 +295,16 @@ ysyx_25010009_exu #(
 	.mtvec				(idu_exu_mtvec				),
 	.isRAW_control(             				),
 	.exu_dnpc			(exu_dnpc						  ),
-`ifdef VERILATOR
-	.lsu_ebreak	  (exu_lsu_ebreak				),
-	.lsu_a0				(exu_lsu_a0						),
-//	.lsu_inst			(exu_lsu_inst					),
-//	.lsu_snpc			(exu_lsu_snpc					),
-//	.lsu_rs1			(exu_lsu_rs1					),
-//	.lsu_jal			(exu_lsu_jal				  ),
-//	.lsu_jalr			(exu_lsu_jalr				  ),
-//	.lsu_dnpc			(exu_lsu_dnpc				  ),
-`endif
+//`ifdef VERILATOR
+//	.lsu_ebreak	  (exu_lsu_ebreak				),
+//	.lsu_a0				(exu_lsu_a0						),
+////	.lsu_inst			(exu_lsu_inst					),
+////	.lsu_snpc			(exu_lsu_snpc					),
+////	.lsu_rs1			(exu_lsu_rs1					),
+////	.lsu_jal			(exu_lsu_jal				  ),
+////	.lsu_jalr			(exu_lsu_jalr				  ),
+////	.lsu_dnpc			(exu_lsu_dnpc				  ),
+//`endif
 	.exu_valid		(exu_lsu_valid				),
 	.lsu_pc		 		(exu_lsu_pc		 				),
 	.lsu_mwdata		(exu_lsu_mwdata				),
@@ -336,16 +332,16 @@ ysyx_25010009_lsu #(
 ) LSU (
 	.clk		 (clock						 ),
 	.rst		 (reset		    		 ),
-`ifdef VERILATOR
-	.ebreak	  (exu_lsu_ebreak),
-	.a0				(exu_lsu_a0		 ),
-//	.inst			(exu_lsu_inst	 ),
-//	.snpc			(exu_lsu_snpc	 ),
-//	.dnpc			(exu_lsu_dnpc	 ),
-//	.rs1			(exu_lsu_rs1	 ),
-//	.jal			(exu_lsu_jal	 ),
-//	.jalr			(exu_lsu_jalr	 ),
-`endif
+//`ifdef VERILATOR
+//	.ebreak	  (exu_lsu_ebreak),
+//	.a0				(exu_lsu_a0		 ),
+////	.inst			(exu_lsu_inst	 ),
+////	.snpc			(exu_lsu_snpc	 ),
+////	.dnpc			(exu_lsu_dnpc	 ),
+////	.rs1			(exu_lsu_rs1	 ),
+////	.jal			(exu_lsu_jal	 ),
+////	.jalr			(exu_lsu_jalr	 ),
+//`endif
   .exu_valid(exu_lsu_valid ),
 	.pc		 		(exu_lsu_pc		 ),
 	.mwdata		(exu_lsu_mwdata),
@@ -371,16 +367,16 @@ ysyx_25010009_lsu #(
 	.lsu_wdata (io_lsu_wdata),
 	.lsu_wmask (io_lsu_wmask),
 	.lsu_wen	 (io_lsu_wen  ),
-`ifdef VERILATOR
-	.wbu_ebreak (lsu_wbu_ebreak ),
-	.wbu_a0			(lsu_wbu_a0			),
-//	.wbu_inst		(lsu_wbu_inst		),
-//	.wbu_snpc		(lsu_wbu_snpc		),
-//	.wbu_dnpc		(lsu_wbu_dnpc		),
-//	.wbu_rs1		(lsu_wbu_rs1    ),
-//	.wbu_jal		(lsu_wbu_jal		),
-//	.wbu_jalr		(lsu_wbu_jalr		),
-`endif
+//`ifdef VERILATOR
+//	.wbu_ebreak (lsu_wbu_ebreak ),
+//	.wbu_a0			(lsu_wbu_a0			),
+////	.wbu_inst		(lsu_wbu_inst		),
+////	.wbu_snpc		(lsu_wbu_snpc		),
+////	.wbu_dnpc		(lsu_wbu_dnpc		),
+////	.wbu_rs1		(lsu_wbu_rs1    ),
+////	.wbu_jal		(lsu_wbu_jal		),
+////	.wbu_jalr		(lsu_wbu_jalr		),
+//`endif
   .lsu_valid   (lsu_wbu_valid  ),
 	.wbu_pc			 (lsu_wbu_pc		 ),
 	.wbu_regwr   (lsu_wbu_regwr	 ),	
@@ -404,16 +400,16 @@ ysyx_25010009_wbu #(
 	.rst		 (reset		    		 ),
 	.lsu_valid(lsu_wbu_valid ),
 	.pc		   (lsu_wbu_pc		 ),
-`ifdef VERILATOR
-	.ebreak  (lsu_wbu_ebreak ),
-	.a0			 (lsu_wbu_a0		 ),
-//	.inst		 (lsu_wbu_inst	 ),
-//	.snpc		 (lsu_wbu_snpc   ),
-//	.dnpc		 (lsu_wbu_dnpc   ),
-//	.rs1		 (lsu_wbu_rs1		 ),
-//	.jal		 (lsu_wbu_jal		 ),
-//	.jalr		 (lsu_wbu_jalr	 ),
-`endif
+//`ifdef VERILATOR
+//	.ebreak  (lsu_wbu_ebreak ),
+//	.a0			 (lsu_wbu_a0		 ),
+////	.inst		 (lsu_wbu_inst	 ),
+////	.snpc		 (lsu_wbu_snpc   ),
+////	.dnpc		 (lsu_wbu_dnpc   ),
+////	.rs1		 (lsu_wbu_rs1		 ),
+////	.jal		 (lsu_wbu_jal		 ),
+////	.jalr		 (lsu_wbu_jalr	 ),
+//`endif
 	.regwr   (lsu_wbu_regwr	 ),	
 	.csr1wr  (lsu_wbu_csr1wr ),	
 	.csr2wr  (lsu_wbu_csr2wr ),	
@@ -470,11 +466,11 @@ ysyx_25010009_RegisterFile #(
 	.rf_mtvec		 (idu_rf_mtvec)
 );
 
-//`ifdef VERILATOR
-//import "DPI-C" function void speec_once(int speec);
-//always @(*) 
-//	speec_once({31'b0, speec});
-//`endif
+////`ifdef VERILATOR
+////import "DPI-C" function void speec_once(int speec);
+////always @(*) 
+////	speec_once({31'b0, speec});
+////`endif
 
 endmodule
 
@@ -619,13 +615,13 @@ module ysyx_25010009_ebreak(
 	input [31:0] a0
 );
 
-`ifdef VERILATOR
-//import "DPI-C" function void is_ebreak(int unsigned ebreak, int unsigned pc, int unsigned snpc, int unsigned dnpc, int unsigned inst, int unsigned rd, int unsigned rs1, int unsigned jal, int unsigned jalr);
-import "DPI-C" function void is_ebreak(int unsigned ebreak, int unsigned a0);
-
-always @(posedge clk)
-	is_ebreak({31'b0, ebreak}, a0);
-`endif
+//`ifdef VERILATOR
+////import "DPI-C" function void is_ebreak(int unsigned ebreak, int unsigned pc, int unsigned snpc, int unsigned dnpc, int unsigned inst, int unsigned rd, int unsigned rs1, int unsigned jal, int unsigned jalr);
+//import "DPI-C" function void is_ebreak(int unsigned ebreak, int unsigned a0);
+//
+//always @(posedge clk)
+//	is_ebreak({31'b0, ebreak}, a0);
+//`endif
 
 endmodule
 
@@ -640,12 +636,12 @@ module ysyx_25010009_exu #(
 	input clk,
 	input rst,
 	//idu
-`ifdef VERILATOR
-	input										 ebreak	,
-	input  [DATA_WIDTH -1:0] a0			,
-//	input  [DATA_WIDTH -1:0] inst		,
-//	input  [RS_WIDTH   -1:0] rs1		,
-`endif
+//`ifdef VERILATOR
+//	input										 ebreak	,
+//	input  [DATA_WIDTH -1:0] a0			,
+////	input  [DATA_WIDTH -1:0] inst		,
+////	input  [RS_WIDTH   -1:0] rs1		,
+//`endif
 	input										 idu_valid,
 	input  [ADDR_WIDTH -1:0] dnpc   ,
 	input  [ADDR_WIDTH -1:0] pc     ,
@@ -682,16 +678,16 @@ module ysyx_25010009_exu #(
 	output								   isRAW_control,
 	output [ADDR_WIDTH -1:0] exu_dnpc ,
 	//lsu
-`ifdef VERILATOR
-	output 									 lsu_ebreak,
-	output [DATA_WIDTH -1:0] lsu_a0		 ,
-//	output [DATA_WIDTH -1:0] lsu_inst	 ,
-//	output [ADDR_WIDTH -1:0] lsu_snpc	 ,
-//	output [RS_WIDTH   -1:0] lsu_rs1	 ,
-//	output									 lsu_jal   ,
-//	output									 lsu_jalr  ,
-//	output [ADDR_WIDTH -1:0] lsu_dnpc ,
-`endif
+//`ifdef VERILATOR
+//	output 									 lsu_ebreak,
+//	output [DATA_WIDTH -1:0] lsu_a0		 ,
+////	output [DATA_WIDTH -1:0] lsu_inst	 ,
+////	output [ADDR_WIDTH -1:0] lsu_snpc	 ,
+////	output [RS_WIDTH   -1:0] lsu_rs1	 ,
+////	output									 lsu_jal   ,
+////	output									 lsu_jalr  ,
+////	output [ADDR_WIDTH -1:0] lsu_dnpc ,
+//`endif
 	output									 exu_valid ,
 	output [ADDR_WIDTH -1:0] lsu_pc		 ,
 	output [DATA_WIDTH -1:0] lsu_mwdata,
@@ -823,16 +819,16 @@ assign lsu_csr2wr = csr2wr;
 assign lsu_mask   = mem_mask;
 assign lsu_sext   = mem_sext;
 
-`ifdef VERILATOR
-assign lsu_ebreak = ebreak;
-assign lsu_a0			= a0		;
-//assign lsu_inst		= inst	;
-//assign lsu_snpc   = pc + 4;
-//assign lsu_dnpc   = exu_dnpc;
-//assign lsu_rs1		= rs1		;
-//assign lsu_jal		= is_jal ;
-//assign lsu_jalr		= is_jalr;
-`endif
+//`ifdef VERILATOR
+//assign lsu_ebreak = ebreak;
+//assign lsu_a0			= a0		;
+////assign lsu_inst		= inst	;
+////assign lsu_snpc   = pc + 4;
+////assign lsu_dnpc   = exu_dnpc;
+////assign lsu_rs1		= rs1		;
+////assign lsu_jal		= is_jal ;
+////assign lsu_jalr		= is_jalr;
+//`endif
 
 endmodule
 
@@ -863,11 +859,11 @@ module ysyx_25010009_idu #(
 	input  [ADDR_WIDTH -1:0] dnpc	  ,
 	//exu
 	output									 idu_valid ,
-`ifdef VERILATOR
-	output                   exu_ebreak,
-  output [DATA_WIDTH -1:0] exu_a0		 ,
-//  output [DATA_WIDTH -1:0] exu_inst	 ,
-`endif
+//`ifdef VERILATOR
+//	output                   exu_ebreak,
+//  output [DATA_WIDTH -1:0] exu_a0		 ,
+////  output [DATA_WIDTH -1:0] exu_inst	 ,
+//`endif
 	output [ADDR_WIDTH -1:0] exu_snpc  ,
 	output [ADDR_WIDTH -1:0] exu_dnpc	 ,
 	output [ADDR_WIDTH -1:0] exu_pc	 	 ,
@@ -914,13 +910,13 @@ module ysyx_25010009_idu #(
 localparam OPCODE_ST = 0;
 localparam OPCODE_EN = 6;
 localparam RD_ST     = 7;
-localparam RD_EN     = 11;
+localparam RD_EN     = 10;
 localparam FUNCT3_ST = 12;
 localparam FUNCT3_EN = 14;
 localparam RS1_ST    = 15;
-localparam RS1_EN    = 19;
+localparam RS1_EN    = 18;
 localparam RS2_ST    = 20;
-localparam RS2_EN    = 24;
+localparam RS2_EN    = 23;
 localparam FUNCT7_ST = 25;
 localparam FUNCT7_EN = 31;
 localparam TYPE_WIDTH = 3 ;
@@ -975,11 +971,11 @@ wire csrrs = ((opcode == 7'b1110011) && (funct3 == 3'b010));
 wire csrrw = ((opcode == 7'b1110011) && (funct3 == 3'b001));
 wire ecall = inst == 32'h00000073;
 wire mret  = inst == 32'h30200073;
-`ifdef VERILATOR
-assign exu_ebreak = inst == 32'h00100073;
-assign exu_a0			= rf_a0;
-//assign exu_inst = inst;
-`endif
+//`ifdef VERILATOR
+//assign exu_ebreak = inst == 32'h00100073;
+//assign exu_a0			= rf_a0;
+////assign exu_inst = inst;
+//`endif
 
 //type
 localparam TYPE_R = 0;
@@ -1143,6 +1139,7 @@ always @(*) begin
 		end
 		WAIT_SPEEC : begin
 			if(speec) next_state = IDLE;
+			else			next_state = WAIT_SPEEC;
 		end
 		default :
 			next_state = IDLE;
@@ -1188,16 +1185,16 @@ module ysyx_25010009_lsu #(
 	input clk,
 	input rst,
 	//exu <> lsu
-`ifdef VERILATOR
-	input 									ebreak ,
-	input [DATA_WIDTH -1:0] a0		 ,
-//	input [DATA_WIDTH -1:0] inst	 ,
-//	input [ADDR_WIDTH -1:0] snpc	 ,
-//	input [ADDR_WIDTH -1:0] dnpc	 ,
-//	input [RS_WIDTH   -1:0] rs1		 ,
-//	input										jal		 ,
-//	input										jalr	 ,
-`endif
+//`ifdef VERILATOR
+//	input 									ebreak ,
+//	input [DATA_WIDTH -1:0] a0		 ,
+////	input [DATA_WIDTH -1:0] inst	 ,
+////	input [ADDR_WIDTH -1:0] snpc	 ,
+////	input [ADDR_WIDTH -1:0] dnpc	 ,
+////	input [RS_WIDTH   -1:0] rs1		 ,
+////	input										jal		 ,
+////	input										jalr	 ,
+//`endif
   input										exu_valid,
 	input [ADDR_WIDTH -1:0] pc		 ,
 	input [DATA_WIDTH -1:0] mwdata ,
@@ -1228,16 +1225,16 @@ module ysyx_25010009_lsu #(
 	output									 lsu_wen	,
 	output									 lsu_valid ,
 	// lsu <> wbu
-`ifdef VERILATOR
-	output 									 wbu_ebreak,
-	output [DATA_WIDTH -1:0] wbu_a0		 ,
-//	output [DATA_WIDTH -1:0] wbu_inst	 ,
-//	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
-//	output [ADDR_WIDTH -1:0] wbu_dnpc	 ,
-//	output [RS_WIDTH   -1:0] wbu_rs1	 ,
-//	output									 wbu_jal	 ,
-//	output									 wbu_jalr	 ,
-`endif
+//`ifdef VERILATOR
+//	output 									 wbu_ebreak,
+//	output [DATA_WIDTH -1:0] wbu_a0		 ,
+////	output [DATA_WIDTH -1:0] wbu_inst	 ,
+////	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
+////	output [ADDR_WIDTH -1:0] wbu_dnpc	 ,
+////	output [RS_WIDTH   -1:0] wbu_rs1	 ,
+////	output									 wbu_jal	 ,
+////	output									 wbu_jalr	 ,
+//`endif
 	output [ADDR_WIDTH -1:0] wbu_pc		 ,
 	output	 								 wbu_regwr ,	
 	output	 								 wbu_csr1wr,	
@@ -1279,6 +1276,7 @@ always @(*) begin
 			if(lsu_resvalid) next_state = IDLE;
 			else						 next_state = WAIT;
 		end
+		default : next_state = IDLE;
 	endcase
 end
 
@@ -1348,16 +1346,16 @@ assign lsu_size  = memre							 ? 2'b10 :
 assign lsu_wen = memwr;
 assign lsu_reqvalid = exu_valid && (memre || memwr);
 
-`ifdef VERILATOR
-assign wbu_ebreak = ebreak;
-assign wbu_a0			= a0		;
-//assign wbu_inst = inst;
-//assign wbu_snpc = snpc;
-//assign wbu_dnpc = dnpc;
-//assign wbu_rs1  = rs1	;
-//assign wbu_jal	= jal ;
-//assign wbu_jalr	= jalr;
-`endif
+//`ifdef VERILATOR
+//assign wbu_ebreak = ebreak;
+//assign wbu_a0			= a0		;
+////assign wbu_inst = inst;
+////assign wbu_snpc = snpc;
+////assign wbu_dnpc = dnpc;
+////assign wbu_rs1  = rs1	;
+////assign wbu_jal	= jal ;
+////assign wbu_jalr	= jalr;
+//`endif
 assign lsu_valid = (current_state == WAIT && lsu_resvalid) || (!memre && !memwr && exu_valid);
 assign wbu_pc = pc;
 assign wbu_regwr = regwr;
@@ -1399,7 +1397,7 @@ endmodule
 module ysyx_25010009_RegisterFile #(
 	parameter GPR_NUM    = 16			,
 	parameter CSRS_NUM   = 4096		,
-	parameter ADDR_WIDTH = 5			, 
+	parameter ADDR_WIDTH = 4			, 
 	parameter CAR_WIDTH  = 12			, 
 	parameter DATA_WIDTH = 32			,
 	parameter MSTATUS		 = 12'h300,
@@ -1521,21 +1519,21 @@ assign csrs_rdata = csrs_raddr == MEPC			? mepc			:
 assign rf_mepc = mepc;
 assign rf_mtvec = mtvec;
 
-//`ifdef VERILATOR
-//export "DPI-C" task read_gpr;
-//task automatic read_gpr(input int addr, output int unsigned rdata); 
-//begin
-//	if(addr == 0) rdata = 0;
-//	else          rdata = rf[addr];
-//end
-//endtask
-//export "DPI-C" task read_csr;
-//task automatic read_csr(input int addr, output int unsigned rdata); 
-//begin
-//	rdata = csrs[addr];
-//end
-//endtask
-//`endif
+////`ifdef VERILATOR
+////export "DPI-C" task read_gpr;
+////task automatic read_gpr(input int addr, output int unsigned rdata); 
+////begin
+////	if(addr == 0) rdata = 0;
+////	else          rdata = rf[addr];
+////end
+////endtask
+////export "DPI-C" task read_csr;
+////task automatic read_csr(input int addr, output int unsigned rdata); 
+////begin
+////	rdata = csrs[addr];
+////end
+////endtask
+////`endif
 
 endmodule
 
@@ -1546,31 +1544,31 @@ module ysyx_25010009_SHIFT (
 	output [31:0] out
 );
 
-wire [31:0]  l_shift1,  l_shift2,  l_shift3,  l_shift4,  l_shift5;
-wire [31:0] ru_shift1, ru_shift2, ru_shift3, ru_shift4, ru_shift5;
-wire [31:0] rs_shift1, rs_shift2, rs_shift3, rs_shift4, rs_shift5;
+//wire [31:0]  l_shift1,  l_shift2,  l_shift3,  l_shift4,  l_shift5;
+//wire [31:0] ru_shift1, ru_shift2, ru_shift3, ru_shift4, ru_shift5;
+//wire [31:0] rs_shift1, rs_shift2, rs_shift3, rs_shift4, rs_shift5;
+//
+//assign l_shift1 = shamt[0] ? {       a[30:0],  1'b0} : a       ;
+//assign l_shift2 = shamt[1] ? {l_shift1[29:0],  2'b0} : l_shift1;
+//assign l_shift3 = shamt[2] ? {l_shift2[27:0],  4'b0} : l_shift2;
+//assign l_shift4 = shamt[3] ? {l_shift3[23:0],  8'b0} : l_shift3;
+//assign l_shift5 = shamt[4] ? {l_shift4[15:0], 16'b0} : l_shift4;
+//
+//assign ru_shift1 = shamt[0] ? { 1'b0,         a[31: 1]} : a       ;
+//assign ru_shift2 = shamt[1] ? { 2'b0, ru_shift1[31: 2]} : ru_shift1;
+//assign ru_shift3 = shamt[2] ? { 4'b0, ru_shift2[31: 4]} : ru_shift2;
+//assign ru_shift4 = shamt[3] ? { 8'b0, ru_shift3[31: 8]} : ru_shift3;
+//assign ru_shift5 = shamt[4] ? {16'b0, ru_shift4[31:16]} : ru_shift4;
+//
+//assign rs_shift1 = shamt[0] ? {{ 1{a[31]}},         a[31: 1]} : a       ;
+//assign rs_shift2 = shamt[1] ? {{ 2{a[31]}}, rs_shift1[31: 2]} : rs_shift1;
+//assign rs_shift3 = shamt[2] ? {{ 4{a[31]}}, rs_shift2[31: 4]} : rs_shift2;
+//assign rs_shift4 = shamt[3] ? {{ 8{a[31]}}, rs_shift3[31: 8]} : rs_shift3;
+//assign rs_shift5 = shamt[4] ? {{16{a[31]}}, rs_shift4[31:16]} : rs_shift4;
 
-assign l_shift1 = shamt[0] ? {       a[30:0],  1'b0} : a       ;
-assign l_shift2 = shamt[1] ? {l_shift1[29:0],  2'b0} : l_shift1;
-assign l_shift3 = shamt[2] ? {l_shift2[27:0],  4'b0} : l_shift2;
-assign l_shift4 = shamt[3] ? {l_shift3[23:0],  8'b0} : l_shift3;
-assign l_shift5 = shamt[4] ? {l_shift4[15:0], 16'b0} : l_shift4;
-
-assign ru_shift1 = shamt[0] ? { 1'b0,         a[31: 1]} : a       ;
-assign ru_shift2 = shamt[1] ? { 2'b0, ru_shift1[31: 2]} : ru_shift1;
-assign ru_shift3 = shamt[2] ? { 4'b0, ru_shift2[31: 4]} : ru_shift2;
-assign ru_shift4 = shamt[3] ? { 8'b0, ru_shift3[31: 8]} : ru_shift3;
-assign ru_shift5 = shamt[4] ? {16'b0, ru_shift4[31:16]} : ru_shift4;
-
-assign rs_shift1 = shamt[0] ? {{ 1{a[31]}},         a[31: 1]} : a       ;
-assign rs_shift2 = shamt[1] ? {{ 2{a[31]}}, rs_shift1[31: 2]} : rs_shift1;
-assign rs_shift3 = shamt[2] ? {{ 4{a[31]}}, rs_shift2[31: 4]} : rs_shift2;
-assign rs_shift4 = shamt[3] ? {{ 8{a[31]}}, rs_shift3[31: 8]} : rs_shift3;
-assign rs_shift5 = shamt[4] ? {{16{a[31]}}, rs_shift4[31:16]} : rs_shift4;
-
-assign out = (sel == 2'b01) ?  l_shift5 : 
-						 (sel == 2'b11) ? ru_shift5 :
-						 (sel == 2'b10) ? rs_shift5 :
+assign out = (sel == 2'b01) ? a <<  shamt: 
+						 (sel == 2'b11) ? a >>  shamt:
+						 (sel == 2'b10) ? a >>> shamt:
 						 a;
 
 endmodule
@@ -1583,16 +1581,16 @@ module ysyx_25010009_wbu #(
 )(
 	input clk,
 	input rst,
-`ifdef VERILATOR
-	input										 ebreak,
-	input		[DATA_WIDTH  -1:0] a0  ,
-//	input [DATA_WIDTH  -1:0] inst  ,
-//	input [ADDR_WIDTH  -1:0] snpc	 ,
-//	input [ADDR_WIDTH  -1:0] dnpc	 ,
-//	input [RS_WIDTH    -1:0] rs1   ,
-//	input                    jal	 ,
-//	input										 jalr  ,
-`endif
+//`ifdef VERILATOR
+//	input										 ebreak,
+//	input		[DATA_WIDTH  -1:0] a0  ,
+////	input [DATA_WIDTH  -1:0] inst  ,
+////	input [ADDR_WIDTH  -1:0] snpc	 ,
+////	input [ADDR_WIDTH  -1:0] dnpc	 ,
+////	input [RS_WIDTH    -1:0] rs1   ,
+////	input                    jal	 ,
+////	input										 jalr  ,
+//`endif
 	input										 lsu_valid,
 	input  [ADDR_WIDTH -1:0] pc		 ,
 	// lsu <> wbu
@@ -1629,17 +1627,17 @@ assign rf_csr_rd2  = csr_rd2;
 assign rf_csr_res1 = csr_res1;
 assign rf_csr_res2 = csr_res2;
 
-`ifdef VERILATOR
-//ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr);
-ysyx_25010009_ebreak EBREAK(clk, ebreak, a0);
-
-//export "DPI-C" task read_pc;
-//task automatic read_pc(output int unsigned rdata); 
-//begin
-//	rdata = pc;
-//end
-//endtask
-`endif
+//`ifdef VERILATOR
+////ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr);
+//ysyx_25010009_ebreak EBREAK(clk, ebreak, a0);
+//
+////export "DPI-C" task read_pc;
+////task automatic read_pc(output int unsigned rdata); 
+////begin
+////	rdata = pc;
+////end
+////endtask
+//`endif
 
 //reg reg_speec;
 //always @(posedge clk or posedge rst) begin
