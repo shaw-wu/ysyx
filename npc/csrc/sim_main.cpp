@@ -51,6 +51,7 @@ VerilatedContext* contextp = NULL; // 上下文变量
 VerilatedVcdC* tfp = NULL;         // 波形变量
 																	 
 void init_isa();
+void init_mem();
 
 void init_rand();
 void init_difftest(char *ref_so_file, long img_size, int port);
@@ -67,6 +68,7 @@ static void single_cycle() {
 
 void sim_init(int argc, char** argv ){
 	init_rand();
+	init_mem();
 #ifdef MONITOR_EN
 	init_sdb();
 #endif
@@ -86,7 +88,9 @@ void sim_init(int argc, char** argv ){
 	printf("argv[0] = %s, argv[1] = %s, argv[2] = %s, argv[3] = %s\n", argv[0], argv[1], argv[2], argv[3]);
 	FILE *img = fopen(img_file, "rb");
 	long img_size = load_img(img);
+#ifdef CONFIG_FTRACE
 	init_ftmem();
+#endif
 	fclose(img);
 	init_isa();
 

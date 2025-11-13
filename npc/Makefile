@@ -3,25 +3,29 @@ NXDC_FILE = $(shell pwd)/constr/top.nxdc
 INC_PATH = $(shell pwd)/sim/include
 INC_PATH += $(shell pwd)/include
 INC_PATH += $(shell pwd)/include/memory
+INC_PATH += $(shell pwd)/include/generated
 #INC_PATH += $(shell pwd)/include/device
 LINC_PATH += /usr/include/readline
 LIBS ?=
 
+-include $(NEMU_HOME)/include/config/auto.conf
+-include $(NEMU_HOME)/include/config/auto.conf.cmd
+
 #CONFIG_ITRACE = y
-CONFIG_DIFFTEST = y
+#CONFIG_DIFFTEST = y
 
 GUEST_ISA = riscv32
 VERILATOR = verilator
 MACROS_FLAGS ?=
 #MACROS_FLAGS += -DMONITOR_EN=""
 #MACROS_FLAGS += -DCONFIG_IRINGBUF=""
-MACROS_FLAGS += -DCONFIG_DIFFTEST=""
+#MACROS_FLAGS += -DCONFIG_DIFFTEST=""
 #MACROS_FLAGS += -DCONFIG_ITRACE=""
 #MACROS_FLAGS += -DCONFIG_MTRACE=""
 #MACROS_FLAGS += -DCONFIG_FTRACE=""
-MACROS_FLAGS += -DCONFIG_ISA_riscv=""
-MACROS_FLAGS += -DCONFIG_RVE=1
-MACROS_FLAGS += -DCONFIG_PC_RESET_OFFSET=0x00
+#MACROS_FLAGS += -DCONFIG_ISA_riscv=""
+#MACROS_FLAGS += -DCONFIG_RVE=1
+#MACROS_FLAGS += -DCONFIG_PC_RESET_OFFSET=0x00
 MACROS_FLAGS += -D__GUEST_ISA__="$(GUEST_ISA)"
 #MACROS_FLAGS += -DCONFIG_WATCHPOINT=""
 VERILATOR_CFLAGS += --cc --build --trace
@@ -91,3 +95,4 @@ wave:
 	@gtkwave $(BUILD_DIR)/dump.vcd
 .PHONY: default all sim clean_bd
 include ../Makefile
+include $(NPC_HOME)/scripts/config.mk

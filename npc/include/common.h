@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-//#include <generated/autoconf.h>
+#include <generated/autoconf.h>
 #include <macro.h>
 
 #ifdef CONFIG_TARGET_AM
@@ -16,8 +16,8 @@
 #include <stdlib.h>
 #endif
 
-#define CONFIG_MBASE 0x80000000
-#define CONFIG_MSIZE 0x8000000
+//#define CONFIG_MBASE 0x80000000
+//#define CONFIG_MSIZE 0x8000000
 #if CONFIG_MBASE + CONFIG_MSIZE > 0x100000000ul
 #define PMEM64 1
 #endif
