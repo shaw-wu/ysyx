@@ -6,7 +6,8 @@ module ysyx_25010009_wbu #(
 )(
 	input clk,
 	input rst,
-	input										 i_valid,
+	input										 lsu_wbu_valid,
+	output									 lsu_wbu_ready,
 `ifdef VERILATOR
 	input										 ebreak,
 	input [DATA_WIDTH  -1:0] inst  ,
@@ -40,15 +41,17 @@ module ysyx_25010009_wbu #(
 	output									 speec
 );
 
-assign rf_gpr_wen   = regwr && i_valid;
+assign rf_gpr_wen   = regwr && lsu_wbu_valid;
 assign rf_gpr_rd    = rd;
 assign rf_gpr_wdata = gpr_res;
-assign rf_csr_wen1 = csr1wr && i_valid;
-assign rf_csr_wen2 = csr2wr && i_valid;
+assign rf_csr_wen1 = csr1wr && lsu_wbu_valid;
+assign rf_csr_wen2 = csr2wr && lsu_wbu_valid;
 assign rf_csr_rd1  = csr_rd1;
 assign rf_csr_rd2  = csr_rd2;
 assign rf_csr_res1 = csr_res1;
 assign rf_csr_res2 = csr_res2;
+
+assign lsu_wbu_ready = 1;
 
 `ifdef VERILATOR
 ebreak EBREAK(clk, ebreak, pc, snpc, dnpc, inst, rd, rs1, jal, jalr, speec);
@@ -66,11 +69,11 @@ endtask
 //always @(posedge clk or posedge rst) begin
 //	if(rst) reg_speec <= 0;
 //	else begin
-//		if(i_valid) reg_speec <= 1;
+//		if(lsu_wbu_valid) reg_speec <= 1;
 //	end
 //end
 
-assign speec = i_valid;
+assign speec = lsu_wbu_valid;
 
 endmodule
 	

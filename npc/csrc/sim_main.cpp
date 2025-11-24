@@ -14,7 +14,7 @@
 #include <macro.h>
 #include <ftrace.h>
 #include <isa.h>
-#define ENABLE_WAVEFORM
+//#define CONFIG_WAVEFORM
 #define RESET_TIME 10
 
 #define STRIP_TO_CSRC(file) (strstr(file, "csrc/") ? strstr(file, "csrc/") : file)
@@ -61,7 +61,7 @@ void difftest_skip_ref();
 static void single_cycle() {
 	contextp->timeInc(1);
   dut->clk = ~dut->clk & 1; dut->eval();
-	#ifdef ENABLE_WAVEFORM
+	#ifdef CONFIG_WAVEFORM
 		tfp->dump(contextp->time());
 	#endif
 }
@@ -97,7 +97,7 @@ void sim_init(int argc, char** argv ){
 #ifdef CONFIG_DIFFTEST
 	init_difftest(ref_so_file, img_size, 0);
 #endif
-	#ifdef ENABLE_WAVEFORM
+	#ifdef CONFIG_WAVEFORM
 		Verilated::traceEverOn(true);
 		tfp = new VerilatedVcdC;
 		dut->trace(tfp, 99);
@@ -125,6 +125,7 @@ void log_trap(){
 	} else {
 		printf(ANSI_FMT("[%s:%d %s] npc: ", ANSI_FG_BLUE) ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED) " at pc = 0x%08x\n", STRIP_TO_CSRC(__FILE__), __LINE__, __func__, cpu.pc);
 	}
+	printf(ANSI_FMT("[%s:%d %s] clock cycles = %u\n", ANSI_FG_BLUE), STRIP_TO_CSRC(__FILE__), __LINE__, __func__, dut->counter);
 }
 
 #ifdef CONFIG_IRINGBUF
@@ -241,7 +242,7 @@ void main_loop(){
 }
 
 void sim_exit(){
-#ifdef ENABLE_WAVEFORM
+#ifdef CONFIG_WAVEFORM
 	if(tfp){
 		tfp->close();
 		delete tfp;

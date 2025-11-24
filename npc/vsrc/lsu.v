@@ -7,7 +7,8 @@ module ysyx_25010009_lsu #(
 	input clk,
 	input rst,
 	//exu <> lsu
-	input										i_valid,
+	input										exu_lsu_valid,
+	output									exu_lsu_ready,
 `ifdef VERILATOR
 	input 									ebreak ,
 	input [DATA_WIDTH -1:0] inst	 ,
@@ -43,7 +44,8 @@ module ysyx_25010009_lsu #(
 	output [            3:0] ram_mask,
 	output [            1:0] ram_size,
 	// lsu <> wbu
-	output									 o_valid	 ,
+	output									 lsu_wbu_valid,
+	input										 lsu_wbu_ready,
 `ifdef VERILATOR
 	output 									 wbu_ebreak,
 	output [DATA_WIDTH -1:0] wbu_inst	 ,
@@ -124,7 +126,7 @@ assign half_mask =
 //									 mem_mask == 4'b1111 ? 2'b10 : 2'b00;
 //assign lsu_wen = memwr;
 
-assign awvalid = memwr && i_valid;
+assign awvalid = memwr && exu_lsu_valid;
 assign arvalid = memre;
 assign araddr = paddr;
 assign awaddr = paddr;
@@ -140,7 +142,8 @@ assign ram_size = mem_mask == 4'b0001 ? 0 :
 									mem_mask == 4'b0011 ? 1 :
 									mem_mask == 4'b1111 ? 2 : 0;
 
-assign o_valid = i_valid;
+assign lsu_wbu_valid = exu_lsu_valid;
+assign exu_lsu_ready = 1;
 `ifdef VERILATOR
 assign wbu_ebreak = ebreak;
 assign wbu_inst = inst;

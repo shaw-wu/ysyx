@@ -9,7 +9,8 @@ module ysyx_25010009_ifu #(
 	input  [DATA_WIDTH-1:0] finst,
 	output [ADDR_WIDTH-1:0] addr,
 	//idu
-	output valid,
+	output ifu_idu_valid,
+	input	 ifu_idu_ready,
 	output     [DATA_WIDTH-1:0] inst,
 	output reg [ADDR_WIDTH-1:0] pc  ,
 	output		 [ADDR_WIDTH-1:0] snpc,
@@ -29,7 +30,7 @@ always @(posedge clk or posedge rst) begin
 end
 
 assign addr = pc;
-assign valid = !rst;
+assign ifu_idu_valid = !rst;
 
 assign inst = finst;
 assign snpc = pc + 4;
