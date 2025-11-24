@@ -11,10 +11,12 @@ module ysyx_25010009_top #(
 	parameter OPSEL_WIDTH  = 4 ,
 	parameter OPMUX_WIDTH  = 4 ,
 	parameter PCMUX_WIDTH  = 2 ,
-	parameter INST_BITS		 = 6 
+	parameter INST_BITS		 = 6 ,
+	parameter CNT_WIDTH		 = 32
 )(
 	input clk,
-	input rst
+	input rst,
+	output [CNT_WIDTH-1:0] counter
 );
 
 `ifdef VERILATOR
@@ -48,12 +50,14 @@ wire [ADDR_WIDTH-1:0] dram_waddr;
 wire [DATA_WIDTH-1:0] dram_wdata;
 
 wire									ifu_idu_valid;
+wire									ifu_idu_ready;
 wire [ADDR_WIDTH-1:0] ifu_idu_inst;
 wire [ADDR_WIDTH-1:0] ifu_idu_pc	;
 wire [ADDR_WIDTH-1:0] ifu_idu_snpc;
 wire [ADDR_WIDTH-1:0] ifu_idu_dnpc;
 
 wire									idu_exu_valid;
+wire									idu_exu_ready;
 `ifdef VERILATOR
 wire                   idu_exu_ebreak; 
 wire [DATA_WIDTH -1:0] idu_exu_a0		 ; 
@@ -100,6 +104,7 @@ wire [DATA_WIDTH-1:0] idu_rf_mepc;
 wire [DATA_WIDTH-1:0] idu_rf_mtvec;
 
 wire									exu_lsu_valid;
+wire									exu_lsu_ready;
 `ifdef VERILATOR
 wire exu_lsu_ebreak;
 wire [DATA_WIDTH-1:0] exu_lsu_a0  ;
@@ -129,6 +134,7 @@ wire [DATA_WIDTH-1:0] exu_lsu_csrs2;
 wire [ADDR_WIDTH-1:0] exu_dnpc;
 
 wire									lsu_wbu_valid;
+wire									lsu_wbu_ready;
 `ifdef VERILATOR
 wire lsu_wbu_ebreak;
 wire [DATA_WIDTH-1:0] lsu_wbu_inst;
@@ -203,7 +209,8 @@ ysyx_25010009_ifu #(
 `else
 	.rst (rst			 ),
 `endif
-	.valid(ifu_idu_valid),
+	.ifu_idu_valid(ifu_idu_valid),
+	.ifu_idu_ready(ifu_idu_ready),
 	.finst(irom_data),
 	.addr	(irom_addr),
 	.inst (ifu_idu_inst),
@@ -237,12 +244,14 @@ ysyx_25010009_idu #(
 `else
 	.rst (rst			 ),
 `endif
-	.i_valid (ifu_idu_valid	 ),
+	.ifu_idu_valid(ifu_idu_valid),
+	.ifu_idu_ready(ifu_idu_ready),
 	.inst    (ifu_idu_inst   ),
 	.pc			 (ifu_idu_pc		 ),
 	.snpc	   (ifu_idu_snpc	 ),
 	.dnpc	   (ifu_idu_dnpc	 ),
-	.o_valid (idu_exu_valid	 ),
+	.idu_exu_valid(idu_exu_valid),
+	.idu_exu_ready(idu_exu_ready),
 `ifdef VERILATOR
 	.exu_ebreak(idu_exu_ebreak),
 	.exu_inst  (idu_exu_inst	),
@@ -299,7 +308,8 @@ ysyx_25010009_exu #(
 `else
 	.rst (rst			 ),
 `endif
-	.i_valid			(idu_exu_valid				),
+	.idu_exu_valid(idu_exu_valid),
+	.idu_exu_ready(idu_exu_ready),
 `ifdef VERILATOR
 	.ebreak				(idu_exu_ebreak			  ),
 	.inst					(idu_exu_inst				  ),
@@ -337,7 +347,8 @@ ysyx_25010009_exu #(
 	.mtvec				(idu_exu_mtvec				),
 	.isRAW_control(             				),
 	.exu_dnpc			(exu_dnpc						  ),
-	.o_valid			(exu_lsu_valid				),
+	.exu_lsu_valid(exu_lsu_valid),
+	.exu_lsu_ready(exu_lsu_ready),
 `ifdef VERILATOR
 	.lsu_ebreak	  (exu_lsu_ebreak				),
 	.lsu_inst			(exu_lsu_inst					),
@@ -377,7 +388,8 @@ ysyx_25010009_lsu #(
 `else
 	.rst (rst			 ),
 `endif
-	.i_valid  (exu_lsu_valid ),
+	.exu_lsu_valid(exu_lsu_valid),
+	.exu_lsu_ready(exu_lsu_ready),
 `ifdef VERILATOR
 	.ebreak	  (exu_lsu_ebreak),
 	.inst			(exu_lsu_inst	 ),
@@ -411,7 +423,8 @@ ysyx_25010009_lsu #(
 	.rdata    (dram_rdata),
 	.awaddr		(dram_waddr),
 	.wdata    (dram_wdata),
-	.o_valid    (lsu_wbu_valid  ),
+	.lsu_wbu_valid(lsu_wbu_valid),
+	.lsu_wbu_ready(lsu_wbu_ready),
 `ifdef VERILATOR
 	.wbu_ebreak (lsu_wbu_ebreak ),
 	.wbu_inst		(lsu_wbu_inst		),
@@ -446,7 +459,8 @@ ysyx_25010009_wbu #(
 	.rst (rst			 ),
 `endif
 	.pc		   (lsu_wbu_pc		 ),
-	.i_valid (lsu_wbu_valid  ),
+	.lsu_wbu_valid(lsu_wbu_valid),
+	.lsu_wbu_ready(lsu_wbu_ready),
 `ifdef VERILATOR
 	.ebreak  (lsu_wbu_ebreak ),
 	.inst		 (lsu_wbu_inst	 ),
@@ -509,6 +523,20 @@ ysyx_25010009_RegisterFile #(
 	.csrs_wen2	 (wbu_rf_cwen1),
 	.mepc				 (idu_rf_mepc ),
 	.mtvec			 (idu_rf_mtvec)
+);
+
+ysyx_25010009_counter #(
+	.WIDTH(CNT_WIDTH)
+) CNT (
+	.clk(clk),
+`ifdef VERILATOR
+	.rst (buf_rst	 ),
+	.en	 (!buf_rst ),
+`else
+	.rst (rst			 ),
+	.en  (!rst		 ),
+`endif
+	.cnt (counter	 )
 );
 
 `ifdef VERILATOR
