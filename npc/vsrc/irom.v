@@ -28,13 +28,13 @@ end
 assign inst = wire_rdata;
 `endif
 
-import "DPI-C" function int read_irom(int addr);
-
-reg [XLEN-1:0] rdata;
-always @(*) begin
-	rdata = read_irom(addr);
-end
-
-assign inst = rdata;
+//import "DPI-C" function int read_irom(int addr);
+//
+//reg [XLEN-1:0] rdata;
+//always @(*) begin
+//	rdata = read_irom(addr);
+//end
+//
+//assign inst = rdata;
 
 endmodule
