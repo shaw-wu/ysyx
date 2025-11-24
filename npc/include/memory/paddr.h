@@ -19,8 +19,8 @@
 #include <common.h>
 
 #define DEVICE_BASE 0xa0000000
-#define SERIAL_ADDR (DEVICE_BASE + 0x000003f8)
-#define TIMER_ADDR  (DEVICE_BASE + 0x00000048)
+//#define SERIAL_ADDR (DEVICE_BASE + 0x000003f8)
+//#define TIMER_ADDR  (DEVICE_BASE + 0x00000048)
 
 #define SERIAL_SIZE 0x8 
 #define TIMER_SIZE 0x8 

@@ -4,11 +4,11 @@
 static uint64_t now_time;
 word_t mmio_read(paddr_t addr, int len) {
 	word_t ret;
-	if(addr >= TIMER_ADDR && addr < TIMER_END){
+	if(addr >= CONFIG_RTC_MMIO && addr < CONFIG_RTC_MMIO+8){
 #ifdef CONFIG_DIFFTEST
 		access_device = true;
 #endif
-		if(addr == TIMER_ADDR + 4) {
+		if(addr == CONFIG_RTC_MMIO + 4) {
 			now_time = get_time();
 			ret = now_time >> 32;
 		} else {
@@ -40,11 +40,11 @@ void mmio_write(paddr_t addr, int len, word_t data) {
 //    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);break;
 //	}
 //#endif
-	if(addr >= SERIAL_ADDR && addr < SERIAL_END){
+	if(addr >= CONFIG_SERIAL_MMIO && addr < CONFIG_SERIAL_MMIO+8){
 #ifdef CONFIG_DIFFTEST
 		access_device = true;
 #endif
-		if(addr == SERIAL_ADDR) {
+		if(addr == CONFIG_SERIAL_MMIO) {
 			putc((char)data, stderr);
 		} else {
 			printf("Serial read don't implement.\n");

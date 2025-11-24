@@ -69,7 +69,7 @@ static void single_cycle() {
 void sim_init(int argc, char** argv ){
 	init_rand();
 	init_mem();
-#ifdef MONITOR_EN
+#ifdef CONFIG_MONITOR_EN
 	init_sdb();
 #endif
 #ifdef CONFIG_ITRACE
@@ -190,7 +190,7 @@ void trace_and_difftest(){
 
 void exec_once(uint32_t n){
 	uint32_t i = 0;
-#ifdef MONITOR_EN
+#ifdef CONFIG_MONITOR_EN
 	if(end_sim) {
 		printf("Program execution has ended. To restart the program, exit sdb and run again.\n");
 		return;
@@ -199,13 +199,13 @@ void exec_once(uint32_t n){
 	while(1){
 		access_device = false;
 		once_sim = 0;
-	#ifdef MONITOR_EN
+	#ifdef CONFIG_MONITOR_EN
 		stop_sim = 0;
 	#endif
 		single_cycle();
 		if(once_sim) {
 			trace_and_difftest();
-	#ifdef MONITOR_EN
+	#ifdef CONFIG_MONITOR_EN
 			if(stop_sim) break;
 	#endif
 			i++;
@@ -222,7 +222,7 @@ void exec_once(uint32_t n){
 
 void main_loop(){
 	reset_npc();
-#ifdef MONITOR_EN
+#ifdef CONFIG_MONITOR_EN
 	sdb_mainloop();
 #else
 	exec_once(-1);
