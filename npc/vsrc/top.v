@@ -37,6 +37,8 @@ localparam MCAUSE  = 12'h0342;
 	parameter GPR_NUM = 32;
 `endif
 
+parameter CSR_NUM = 4096;
+
 wire [DATA_WIDTH-1:0] irom_data;
 wire [ADDR_WIDTH-1:0] irom_addr;
 
@@ -493,6 +495,7 @@ ysyx_25010009_wbu #(
 
 ysyx_25010009_RegisterFile #(
 	.GPR_NUM	 (GPR_NUM		),
+	.CSR_NUM	 (CSR_NUM		),
 	.DATA_WIDTH(DATA_WIDTH),
 	.ADDR_WIDTH(RS_WIDTH  ),
 	.MSTATUS		 (MSTATUS			),
@@ -521,8 +524,8 @@ ysyx_25010009_RegisterFile #(
 	.csrs_raddr	 (idu_rf_csr ),
 	.csrs_wen1	 (wbu_rf_cwen1),
 	.csrs_wen2	 (wbu_rf_cwen1),
-	.mepc				 (idu_rf_mepc ),
-	.mtvec			 (idu_rf_mtvec)
+	.rf_mepc		 (idu_rf_mepc ),
+	.rf_mtvec		 (idu_rf_mtvec)
 );
 
 ysyx_25010009_counter #(

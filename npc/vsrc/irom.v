@@ -7,34 +7,22 @@ module ysyx_25010009_irom #(
 	output [XLEN-1:0] inst 
 );
 
-//reg [31:0] rf [0:255];
-//always @(posedge clk or posedge rst) begin
-//	if(rst) begin
-//		integer i;
-//		for(i = 0; i < 256; i=i+1) begin
-//			rf[i] = {DATA_WIDTH{1'b0}};
-//		end
-//end
-//assign inst = rf[addr >> 2];
-`ifdef VERILATOR
-import "DPI-C" function int unsigned vaddr_ifetch(int unsigned addr, int len, int ren);
+reg [31:0] rf [0:255];
 
-reg [XLEN-1:0] wire_rdata;
+wire [31:0] byte_addr = addr >> 2;
 
-always @(*) begin
-	wire_rdata = vaddr_ifetch(addr, 4, {31'b0, !rst});
-end
+assign inst = rf[byte_addr];
 
-assign inst = wire_rdata;
-`endif
-
-//import "DPI-C" function int read_irom(int addr);
+//`ifdef VERILATOR
+//import "DPI-C" function int unsigned vaddr_ifetch(int unsigned addr, int len, int ren);
 //
-//reg [XLEN-1:0] rdata;
+//reg [XLEN-1:0] wire_rdata;
+//
 //always @(*) begin
-//	rdata = read_irom(addr);
+//	wire_rdata = vaddr_ifetch(addr, 4, {31'b0, !rst});
 //end
 //
-//assign inst = rdata;
+//assign inst = wire_rdata;
+//`endif
 
 endmodule
