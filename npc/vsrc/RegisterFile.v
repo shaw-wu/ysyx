@@ -32,7 +32,7 @@ module ysyx_25010009_RegisterFile #(
 );
 
 reg [DATA_WIDTH-1:0] rf [0:GPR_NUM-1];
-//reg [DATA_WIDTH-1:0] csrs [0:CSR_NUM-1];
+reg [DATA_WIDTH-1:0] csrs ;
 reg [DATA_WIDTH-1:0] mstatus;
 reg [DATA_WIDTH-1:0] mtvec;
 reg [DATA_WIDTH-1:0] mepc;
@@ -85,8 +85,8 @@ assign csrs_rdata = csrs_raddr == MEPC    ? mepc    :
 										csrs_raddr == MCAUSE  ? mcause  :
 										csrs_raddr == MSTATUS ? mstatus :
 										csrs_raddr == MTVEC   ? mtvec   : 0;
-assign rf_mepc = csrs[MEPC];
-assign rf_mtvec = csrs[MTVEC];
+assign rf_mepc = mepc;
+assign rf_mtvec = mtvec; 
 
 `ifdef VERILATOR
 export "DPI-C" task read_gpr;

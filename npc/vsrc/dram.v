@@ -23,32 +23,33 @@ wire [XLEN-1:0] wire_wdata = wdata & {{8{mask[3]}}, {8{mask[2]}}, {8{mask[1]}}, 
 wire [XLEN-1:0] byte_waddr = waddr >> 2;
 wire [XLEN-1:0] byte_raddr = raddr >> 2;
 
-reg [31:0] rf [0:255];
-		
-always @(posedge clk or posedge rst) begin
-		if (awvalid) begin
-			rf[byte_waddr] <= rf[byte_waddr] | wire_wdata;
-		end
+//reg [31:0] rf [0:255];
+//		
+////always @(posedge clk or posedge rst) begin
+//always @(posedge clk ) begin
+//		if (awvalid) begin
+//			rf[byte_waddr] <= rf[byte_waddr] | wire_wdata;
+//		end
+//end
+//
+//assign rdata = rf[byte_raddr];
+
+`ifdef VERILATOR
+import "DPI-C" function int unsigned dpi_vaddr_read(int unsigned addr, int len, int ren);
+
+reg [XLEN-1:0] wire_rdata;
+
+always @(*) begin
+	wire_rdata = dpi_vaddr_read(raddr, len, {31'b0, arvalid});
 end
 
-assign rdata = rf[byte_raddr];
+assign rdata = wire_rdata;
 
-//`ifdef VERILATOR
-//import "DPI-C" function int unsigned dpi_vaddr_read(int unsigned addr, int len, int ren);
-//
-//reg [XLEN-1:0] wire_rdata;
-//
-//always @(*) begin
-//	wire_rdata = dpi_vaddr_read(raddr, len, {31'b0, arvalid});
-//end
-//
-//assign rdata = wire_rdata;
-//
-//import "DPI-C" function void dpi_vaddr_write(int unsigned addr, int len, int unsigned wdata, int wen);
-//
-//always @(posedge clk) begin
-//		dpi_vaddr_write(waddr, len, wire_wdata, {31'b0, awvalid});
-//end
-//`endif
+import "DPI-C" function void dpi_vaddr_write(int unsigned addr, int len, int unsigned wdata, int wen);
+
+always @(posedge clk) begin
+		dpi_vaddr_write(waddr, len, wire_wdata, {31'b0, awvalid});
+end
+`endif
 
 endmodule
