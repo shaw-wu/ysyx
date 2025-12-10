@@ -3,8 +3,12 @@
 
 static uint64_t now_time;
 word_t mmio_read(paddr_t addr, int len) {
-	word_t ret;
-	if(addr >= CONFIG_RTC_MMIO && addr < CONFIG_RTC_MMIO+8){
+	word_t ret = 0;
+	if(no_devices){
+		printf("Has no devices config.\n");
+	}
+#if CONFIG_HAS_TIMER
+	else if(addr >= CONFIG_RTC_MMIO && addr < CONFIG_RTC_MMIO+8){
 #ifdef CONFIG_DIFFTEST
 		access_device = true;
 #endif
@@ -14,7 +18,9 @@ word_t mmio_read(paddr_t addr, int len) {
 		} else {
 			ret = now_time;
 		}
-	} else {
+	}
+#endif
+	else {
 		printf("Device addr : 0x%0x can't find.\n", addr);
 	}
 //#ifdef CONFIG_DTRACE
@@ -40,7 +46,11 @@ void mmio_write(paddr_t addr, int len, word_t data) {
 //    default: MUXDEF(CONFIG_RT_CHECK, assert(0), return 0);break;
 //	}
 //#endif
-	if(addr >= CONFIG_SERIAL_MMIO && addr < CONFIG_SERIAL_MMIO+8){
+	if(no_devices){
+		printf("Has no devices config.\n");
+	}
+#if CONFIG_HAS_SERIAL
+	else if(addr >= CONFIG_SERIAL_MMIO && addr < CONFIG_SERIAL_MMIO+8){
 #ifdef CONFIG_DIFFTEST
 		access_device = true;
 #endif
@@ -49,7 +59,9 @@ void mmio_write(paddr_t addr, int len, word_t data) {
 		} else {
 			printf("Serial read don't implement.\n");
 		}
-	} else {
+	}
+#endif
+	else {
 		printf("Device addr : 0x%08x can't find", addr);
 	}
 }

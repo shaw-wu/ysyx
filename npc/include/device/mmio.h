@@ -18,6 +18,12 @@
 
 #include <common.h>
 
+#ifdef CONFIG_DEVICE
+static bool no_devices = false;
+#else
+static bool no_devices = true;
+#endif
+
 word_t mmio_read(paddr_t addr, int len);
 void mmio_write(paddr_t addr, int len, word_t data);
 
