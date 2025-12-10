@@ -9,6 +9,7 @@
 #define CONFIG_MSIZE 0x8000000
 #define CONFIG_ISA_riscv 1
 #define CONFIG_MBASE 0x80000000
+#define CONFIG_WAVEFORM 1
 #define CONFIG_DIFFTEST_REF_PATH "none"
 #define CONFIG_RVE 1
 #define CONFIG_ISA "riscv32"

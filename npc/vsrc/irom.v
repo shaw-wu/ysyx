@@ -2,6 +2,7 @@
 module ysyx_25010009_irom #(
 	parameter XLEN = 32
 )(
+	input							clk ,
 	input							rst ,
 	input  [XLEN-1:0] addr,
 	output [XLEN-1:0] inst 
@@ -16,13 +17,13 @@ module ysyx_25010009_irom #(
 `ifdef VERILATOR
 import "DPI-C" function int unsigned vaddr_ifetch(int unsigned addr, int len, int ren);
 
-reg [XLEN-1:0] wire_rdata;
+reg [XLEN-1:0] rdata;
 
-always @(*) begin
-	wire_rdata = vaddr_ifetch(addr, 4, {31'b0, !rst});
+always @(posedge clk) begin
+	rdata <= vaddr_ifetch(addr, 4, {31'b0, !rst});
 end
 
-assign inst = wire_rdata;
+assign inst = rdata;
 `endif
 
 endmodule

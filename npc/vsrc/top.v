@@ -172,6 +172,7 @@ wire speec;
 ysyx_25010009_irom #(
 	.XLEN(DATA_WIDTH)
 ) IROM (
+	.clk (clk			 ),
 `ifdef VERILATOR
 	.rst (buf_rst	 ),
 `else
@@ -220,7 +221,8 @@ ysyx_25010009_ifu #(
 	.snpc (ifu_idu_snpc),
 	.dnpc (ifu_idu_dnpc),
 	.is_RAW_control(1'b0),
-	.exu_dnpc(exu_dnpc )
+	.exu_dnpc(exu_dnpc  ),
+	.speec	 (speec			)
 );
 
 ysyx_25010009_idu #(

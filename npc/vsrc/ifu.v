@@ -18,19 +18,54 @@ module ysyx_25010009_ifu #(
 	//exu
   /*verilator lint_off UNUSED*/
 	input									 is_RAW_control,
-	input [ADDR_WIDTH-1:0] exu_dnpc
+	input [ADDR_WIDTH-1:0] exu_dnpc,
+	//wbu
+	input	speec
 );
+
+parameter IDLE = 2'b00;
+parameter WAIT = 2'b01;
+parameter WORK = 2'b11;
+
+reg [1:0] current_state, next_state;
+
+always @(*) begin
+	case(current_state) 
+		IDLE : begin
+				next_state = WAIT;
+		end
+		WAIT : begin
+			if(ifu_idu_ready) begin
+				next_state = WORK;
+			end
+		end
+		WORK : begin
+			next_state = WAIT;
+		end
+		default : next_state = IDLE;
+	endcase
+end
+
+always @(posedge clk or posedge rst) begin
+	if(rst) begin
+		current_state <= IDLE;
+	end else begin
+		current_state <= next_state;
+	end
+end
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
 		pc <= PC_INIT;
 	end else begin
-		pc <= exu_dnpc;
+		if(current_state == WAIT) begin
+			pc <= exu_dnpc;
+		end
 	end
 end
 
 assign addr = pc;
-assign ifu_idu_valid = !rst;
+assign ifu_idu_valid = current_state == WAIT;
 
 assign inst = finst;
 assign snpc = pc + 4;
