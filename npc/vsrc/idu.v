@@ -236,7 +236,7 @@ assign is_ecall = ecall;
 assign is_mret  = mret;
 
 assign idu_exu_valid = ifu_idu_valid;
-assign ifu_idu_ready = 1;
+assign ifu_idu_ready = idu_exu_ready;
 assign exu_csrs = csrs;
 assign exu_mepc = mepc;
 assign exu_mtvec= mtvec;

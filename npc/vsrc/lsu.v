@@ -67,6 +67,41 @@ module ysyx_25010009_lsu #(
 	output [DATA_WIDTH -1:0] wbu_csr_res2 
 );
 
+
+parameter IDLE = 2'b00;
+parameter WAIT    = 2'b01;
+parameter WORK    = 2'b11;
+
+reg [1:0] current_state, next_state;
+
+always @(*) begin
+	case(current_state)
+		IDLE : begin
+			if		 (exu_lsu_valid && !memre) next_state = IDLE;
+			else if(exu_lsu_valid &&  memre) next_state = WAIT;
+			else														 next_state = IDLE;
+		end
+		WAIT    : begin
+			if		  (lsu_wbu_ready &&  exu_lsu_valid && !memre) next_state = IDLE;
+			else if (lsu_wbu_ready &&  exu_lsu_valid &&  memre) next_state = WORK;
+			else if (lsu_wbu_ready && !exu_lsu_valid					) next_state = IDLE;
+			else																							  next_state = WAIT;
+		end
+		WORK : begin
+			next_state = WAIT;
+		end
+		default : next_state = IDLE;
+	endcase
+end
+
+always @(posedge clk or posedge rst) begin
+	if(rst) begin
+		current_state <= IDLE;
+	end begin
+		current_state <= next_state;
+	end
+end
+
 wire [DATA_WIDTH-1:0] ur_result;
 wire [DATA_WIDTH-1:0] sr_result;
 wire [DATA_WIDTH-1:0] re_result;
@@ -126,8 +161,8 @@ assign half_mask =
 //									 mem_mask == 4'b1111 ? 2'b10 : 2'b00;
 //assign lsu_wen = memwr;
 
-assign awvalid = memwr && exu_lsu_valid;
-assign arvalid = memre;
+assign awvalid = (current_state == IDLE && memwr && exu_lsu_valid);
+assign arvalid = (current_state == IDLE && memre && exu_lsu_valid) || current_state == WORK;
 assign araddr = paddr;
 assign awaddr = paddr;
 //assign wdata = mwdata;
@@ -142,8 +177,9 @@ assign ram_size = mem_mask == 4'b0001 ? 0 :
 									mem_mask == 4'b0011 ? 1 :
 									mem_mask == 4'b1111 ? 2 : 0;
 
-assign lsu_wbu_valid = exu_lsu_valid;
-assign exu_lsu_ready = 1;
+assign lsu_wbu_valid = current_state == WAIT || (current_state == IDLE && exu_lsu_valid && !memre);	
+assign exu_lsu_ready = current_state == IDLE || current_state == WORK;
+
 `ifdef VERILATOR
 assign wbu_ebreak = ebreak;
 assign wbu_inst = inst;

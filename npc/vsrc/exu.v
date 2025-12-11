@@ -181,7 +181,7 @@ assign csr_res1= is_ecall ? pc    				 :
 assign csr_res2= is_ecall ? 32'hb	 : 0;
 
 assign exu_lsu_valid = idu_exu_valid;
-assign idu_exu_ready = 1;
+assign idu_exu_ready = exu_lsu_ready;
 assign lsu_pc			= pc		;
 assign lsu_mwdata = mwdata;
 assign lsu_memwr	= memwr ;

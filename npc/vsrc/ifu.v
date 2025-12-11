@@ -32,12 +32,12 @@ reg [1:0] current_state, next_state;
 always @(*) begin
 	case(current_state) 
 		IDLE : begin
-				next_state = WAIT;
+			if(speec) next_state = WORK;
 		end
 		WAIT : begin
-			if(ifu_idu_ready) begin
-				next_state = WORK;
-			end
+			if		 (ifu_idu_ready &&  speec) next_state = WORK;
+			else if(ifu_idu_ready && !speec) next_state = IDLE;
+			else														 next_state = WAIT;
 		end
 		WORK : begin
 			next_state = WAIT;
@@ -48,7 +48,7 @@ end
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
-		current_state <= IDLE;
+		current_state <= WORK;
 	end else begin
 		current_state <= next_state;
 	end
@@ -58,7 +58,7 @@ always @(posedge clk or posedge rst) begin
 	if(rst) begin
 		pc <= PC_INIT;
 	end else begin
-		if(current_state == WAIT) begin
+		if(speec) begin
 			pc <= exu_dnpc;
 		end
 	end
