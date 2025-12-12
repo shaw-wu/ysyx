@@ -18,7 +18,7 @@ reg [31:0] len = size == 2'b00 ? 32'd1 :
 									size == 2'b01 ? 32'd2 :	
 									size == 2'b10 ? 32'd4 :	
 									size == 2'b11 ? 32'd8 : 32'd0;	
-reg [XLEN-1:0] reg_wdata = wdata & {{8{mask[3]}}, {8{mask[2]}}, {8{mask[1]}}, {8{mask[0]}}};
+wire [XLEN-1:0] reg_wdata = wdata & {{8{mask[3]}}, {8{mask[2]}}, {8{mask[1]}}, {8{mask[0]}}};
 
 reg [XLEN-1:0] byte_waddr = waddr >> 2;
 reg [XLEN-1:0] byte_raddr = raddr >> 2;
