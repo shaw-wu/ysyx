@@ -4,8 +4,10 @@ module ysyx_25010009_dram#(
 )(
 	input clk,
 	input rst,
-	input							awvalid,
-	input							arvalid,
+	input	 awvalid,
+	output bvalid,
+	input	 arvalid,
+	output rvalid,
 	input	 [		 3:0] mask ,
 	input	 [		 1:0] size ,
 	input  [XLEN-1:0] raddr,
@@ -13,6 +15,58 @@ module ysyx_25010009_dram#(
 	input  [XLEN-1:0] waddr,
 	output [XLEN-1:0] wdata 
 );
+
+wire last_cycle;
+wire [7:0] cnt_max;
+reg [7:0] cnt;
+
+lfsr_8b lfsr(
+	.in(8'b0000_0001),
+	.clk(clk),
+	.s(!last_cycle),
+	.Q(cnt_max)
+);
+
+always @(posedge clk or posedge rst) begin
+	if(rst) cnt <= 0;
+	else cnt <= cnt + 1;
+end
+
+assign last_cycle = cnt == cnt_max;
+
+/*--------------- state machine -----------------*/
+
+parameter IDLE  = 2'b00;
+parameter WORKR = 2'b01;
+parameter WORKW = 2'b10;
+
+reg [1:0] current_state, next_state;
+
+always @(*) begin
+	case(current_state)
+		IDLE :
+			if		 (awvalid) next_state = WORKW;
+			else if(arvalid) next_state = WORKR;
+			else						 next_state = IDLE ;
+		WORKR : 
+			if(last_cycle) next_state = IDLE;
+			else					 next_state = WORKR;
+		WORKW : 
+			if(last_cycle) next_state = IDLE;
+			else					 next_state = WORKW;
+		default : next_state = IDLE;
+	endcase
+end
+
+always @(posedge clk or posedge rst) begin
+	if(rst) begin
+		current_state <= IDLE;
+	end else begin
+		current_state <= next_state;
+	end
+end
+
+/*-----------------------------------------------*/
 
 reg [31:0] len = size == 2'b00 ? 32'd1 :
 									size == 2'b01 ? 32'd2 :	
@@ -38,6 +92,9 @@ reg [XLEN-1:0] byte_raddr = raddr >> 2;
 import "DPI-C" function int unsigned dpi_vaddr_read(int unsigned addr, int len, int ren);
 
 reg [XLEN-1:0] reg_rdata;
+
+assign rvalid = (cnt == cnt_max) && (current_state == WORKR);
+assign bvalid = (cnt == cnt_max) && (current_state == WORKW);
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin

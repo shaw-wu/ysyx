@@ -53,6 +53,7 @@ void mmio_write(paddr_t addr, int len, word_t data) {
 	else if(addr >= CONFIG_SERIAL_MMIO && addr < CONFIG_SERIAL_MMIO+8){
 #ifdef CONFIG_DIFFTEST
 		access_device = true;
+		assert(access_device);
 #endif
 		if(addr == CONFIG_SERIAL_MMIO) {
 			putc((char)data, stderr);

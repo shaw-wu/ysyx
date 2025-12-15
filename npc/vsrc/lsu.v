@@ -37,6 +37,8 @@ module ysyx_25010009_lsu #(
 	// lsu <> ram
 	output									 awvalid,
 	output									 arvalid,
+	input										 bvalid,
+	input									 	 rvalid,
 	output [ADDR_WIDTH -1:0] araddr ,
 	input  [DATA_WIDTH -1:0] rdata	,
 	output [DATA_WIDTH -1:0] awaddr ,
@@ -67,6 +69,49 @@ module ysyx_25010009_lsu #(
 	output [DATA_WIDTH -1:0] wbu_csr_res2 
 );
 
+/*----------------- dram state machine ---------------------*/
+
+parameter DRAM_IDLE  = 3'b000;
+parameter DRAM_WORKW = 3'b001;
+parameter DRAM_WORKR = 3'b010;
+parameter DRAM_WAITW = 3'b011;
+parameter DRAM_WAITR = 3'b110;
+parameter DRAM_DONE  = 3'b111;
+
+reg [2:0] dram_current_state, dram_next_state;
+
+always @(*) begin
+	case(dram_current_state)
+		DRAM_IDLE :
+			if		 (awvalid) dram_next_state = DRAM_WAITW;
+			else if(arvalid) dram_next_state = DRAM_WAITR;
+			else						 dram_next_state = DRAM_IDLE;
+		DRAM_WORKW :
+			dram_next_state = DRAM_WAITW;	
+		DRAM_WORKR :
+			dram_next_state = DRAM_WAITR;	
+		DRAM_WAITW : 
+			if		 (bvalid && awvalid) dram_next_state = DRAM_WORKW;
+			else if(bvalid && arvalid) dram_next_state = DRAM_WORKR;
+			else if(bvalid					 ) dram_next_state = DRAM_IDLE;
+			else											 dram_next_state = DRAM_WAITW;
+		DRAM_WAITR : 
+			if		 (rvalid && awvalid) dram_next_state = DRAM_WORKW;
+			else if(rvalid && arvalid) dram_next_state = DRAM_WORKR;
+			else if(rvalid					 ) dram_next_state = DRAM_IDLE;
+			else											 dram_next_state = DRAM_WAITR;
+		default : dram_next_state = DRAM_IDLE;
+	endcase
+end
+
+always @(posedge clk or posedge rst) begin
+	if(rst) dram_current_state <= DRAM_IDLE;
+	else    dram_current_state <= dram_next_state;
+end
+
+/*----------------------------------------------------------*/
+
+/*----------------- state machine ------------------*/
 
 parameter IDLE = 2'b00;
 parameter WAIT    = 2'b01;
@@ -77,18 +122,17 @@ reg [1:0] current_state, next_state;
 always @(*) begin
 	case(current_state)
 		IDLE : begin
-			if		 (exu_lsu_valid && !memre) next_state = IDLE;
-			else if(exu_lsu_valid &&  memre) next_state = WAIT;
-			else														 next_state = IDLE;
+			if		 (exu_lsu_valid && (memwr || memre)) next_state = WORK;
+			else																			 next_state = IDLE;
 		end
-		WAIT    : begin
-			if		  (lsu_wbu_ready &&  exu_lsu_valid && !memre) next_state = IDLE;
-			else if (lsu_wbu_ready &&  exu_lsu_valid &&  memre) next_state = WORK;
-			else if (lsu_wbu_ready && !exu_lsu_valid					) next_state = IDLE;
-			else																							  next_state = WAIT;
+		WAIT : begin
+			if		  (lsu_wbu_ready && exu_lsu_valid && (memre || memwr)) next_state = WORK;
+			else if (lsu_wbu_ready                    								 ) next_state = IDLE;
+			else																												 next_state = WAIT;
 		end
 		WORK : begin
-			next_state = WAIT;
+			if(bvalid || rvalid) next_state = WAIT;
+			else								 next_state = WORK;
 		end
 		default : next_state = IDLE;
 	endcase
@@ -101,6 +145,8 @@ always @(posedge clk or posedge rst) begin
 		current_state <= next_state;
 	end
 end
+
+/*--------------------------------------------------*/
 
 wire [DATA_WIDTH-1:0] ur_result;
 wire [DATA_WIDTH-1:0] sr_result;
@@ -153,16 +199,8 @@ assign half_mask =
 									 paddr[1:0] == 2'b00 ? 4'b0011 :
 									 paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
 
-//assign lsu_addr = aligned ? paddr & 32'hfffffffc : paddr;
-//assign lsu_wdata = mwdata;
-//assign lsu_size  = memre							 ? 2'b10 :
-//									 mem_mask == 4'b0001 ? 2'b00 :
-//									 mem_mask == 4'b0011 ? 2'b01 :
-//									 mem_mask == 4'b1111 ? 2'b10 : 2'b00;
-//assign lsu_wen = memwr;
-
-assign awvalid = (current_state == IDLE && memwr && exu_lsu_valid);
-assign arvalid = (current_state == IDLE && memre && exu_lsu_valid) || current_state == WORK;
+assign awvalid = (current_state == IDLE && memwr && exu_lsu_valid) || (current_state == WORK && memwr);
+assign arvalid = (current_state == IDLE && memre && exu_lsu_valid) || (current_state == WORK && memre);
 assign araddr = paddr;
 assign awaddr = paddr;
 //assign wdata = mwdata;
@@ -177,8 +215,8 @@ assign ram_size = mem_mask == 4'b0001 ? 0 :
 									mem_mask == 4'b0011 ? 1 :
 									mem_mask == 4'b1111 ? 2 : 0;
 
-assign lsu_wbu_valid = current_state == WAIT || (current_state == IDLE && exu_lsu_valid && !memre);	
-assign exu_lsu_ready = current_state == IDLE || current_state == WORK;
+assign lsu_wbu_valid = current_state == WAIT || (current_state == IDLE && exu_lsu_valid && !memre && !memwr);	
+assign exu_lsu_ready = current_state == IDLE || (current_state == WAIT && lsu_wbu_ready);
 
 `ifdef VERILATOR
 assign wbu_ebreak = ebreak;

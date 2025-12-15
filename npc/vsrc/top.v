@@ -44,6 +44,8 @@ wire [ADDR_WIDTH-1:0] irom_addr;
 
 wire								  dram_awvalid;
 wire								  dram_arvalid;
+wire								  dram_bvalid;
+wire								  dram_rvalid;
 wire [					 3:0] dram_mask ;
 wire [					 1:0] dram_size ;
 wire [ADDR_WIDTH-1:0] dram_raddr;
@@ -195,6 +197,8 @@ ysyx_25010009_dram #(
 	.size   (dram_size	 ),
 	.awvalid(dram_awvalid),
 	.arvalid(dram_arvalid),
+	.bvalid(dram_bvalid),
+	.rvalid(dram_rvalid),
 	.raddr(dram_raddr),
 	.rdata(dram_rdata),
 	.waddr(dram_waddr),
@@ -423,6 +427,8 @@ ysyx_25010009_lsu #(
 	.ram_size (dram_size		 ),
 	.awvalid  (dram_awvalid  ),
 	.arvalid  (dram_arvalid  ),
+	.bvalid  (dram_bvalid  ),
+	.rvalid  (dram_rvalid  ),
 	.araddr		(dram_raddr),
 	.rdata    (dram_rdata),
 	.awaddr		(dram_waddr),

@@ -136,6 +136,7 @@ int ptr = 0;
 
 void trace_and_difftest(){
 #ifdef CONFIG_DIFFTEST
+	printf("access_device = %s\n", access_device ? "true" : "false");
 	if(access_device) {
 		difftest_skip_ref();
 	}
