@@ -13,7 +13,7 @@
 !init.sh
 !ysyxSoC
 /fceux-am
-/nvboard
 /yosys_sta
 /riscv-test-am/*
 /am-kernels
+/nvboard
