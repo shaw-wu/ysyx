@@ -12,6 +12,7 @@
 !.gitignore
 !init.sh
 !ysyxSoC
+!log
 /fceux-am
 /yosys_sta
 /riscv-test-am/*
