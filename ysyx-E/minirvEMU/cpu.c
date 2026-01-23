@@ -21,13 +21,13 @@ typedef struct {
 char *gpr_name[16] = {"$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5"};
         
 
-//#define HALT_ADDR 0x224 //sum
-//char *img_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/img/sum.bin";
-//char *diff_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/sum_diff";
+#define HALT_ADDR 0x224 //sum
+char *img_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/img/sum.bin";
+char *diff_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/sum_diff";
 
-#define HALT_ADDR 0x1218 //mem
-char *img_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/img/mem.bin";
-char *diff_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/mem_diff";
+//#define HALT_ADDR 0x1218 //mem
+//char *img_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/img/mem.bin";
+//char *diff_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/mem_diff";
 cpu ref_cpu;
 FILE *dif = NULL;
 uint32_t PC = 0x00000000;
@@ -303,7 +303,10 @@ int main(){
                 uint32_t temp_pc = inst_cycle(&inst);
                 if(!ebreak)difftest_step(&diff, temp_pc, inst);
                 //R_out();
-                if(done) printf("done\n");
+                if(done) {
+                        if(R[10] == 0) printf("Hit Good Trap!\n");
+                        else           printf("Hit Bad Trap\n");
+                }
                 if(done) break;
                 //break;
         }
