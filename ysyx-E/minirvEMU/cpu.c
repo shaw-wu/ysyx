@@ -2,7 +2,9 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdbool.h>
-#include<assert.h>
+//#include<assert.h>
+#include<am.h>
+#include<klib-macros.h>
 
 #define MEM_SIZE 0xf0000 
 
@@ -21,13 +23,16 @@ typedef struct {
 char *gpr_name[16] = {"$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5"};
         
 
-#define HALT_ADDR 0x224 //sum
-char *img_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/img/sum.bin";
-char *diff_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/sum_diff";
+//#define HALT_ADDR 0x224 //sum
+//char *img_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/img/sum.bin";
+//char *diff_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/sum_diff";
 
 //#define HALT_ADDR 0x1218 //mem
 //char *img_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/img/mem.bin";
 //char *diff_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/mem_diff";
+  
+#define HALT_ADDR 0xdb0//mem
+char *img_file = "/home/shaw/ysyx/ysyx-E/minirvEMU/img/vga.bin";
 cpu ref_cpu;
 FILE *dif = NULL;
 uint32_t PC = 0x00000000;
@@ -36,19 +41,23 @@ uint8_t M[MEM_SIZE] = {};
 bool done = false;
 int ebreak = 0;
 
+#define W 256
+#define H 256
+static uint32_t gpu_buf[W*H];
+
 long load_img(){
-      assert(img_file);
+      //assert(img_file);
       
       FILE *fp = fopen(img_file, "rb");
-      assert(fp);
+      //assert(fp);
 
       fseek(fp, 0, SEEK_END);
       long size = ftell(fp);
       printf("The image size = %ld\n", size);
 
       fseek(fp, 0, SEEK_SET);
-      int ret = fread(M, size, 1, fp);
-      assert(ret == 1);
+      fread(M, size, 1, fp);
+      //assert(ret == 1);
       M[HALT_ADDR] = 0x73;
       M[HALT_ADDR+1] = 0x00;
       M[HALT_ADDR+2] = 0x10;
@@ -57,14 +66,6 @@ long load_img(){
       fclose(fp);
       return size;
 } 
-
-//void read_dif(FILE **fp, char *read){
-//    FILE *f = *fp;
-//    char buf[256];
-//    fgets(buf, sizeof(buf), f); // 读第 1 行
-//    memcpy(read, buf, sizeof(buf));
-//    *fp = f;
-//}
 
 void jmp_fp(FILE **fp, int n){
     FILE *f = *fp;
@@ -108,7 +109,7 @@ void difftest_step(FILE **fp, uint32_t pc, uint32_t inst){
                 fgets(line, sizeof(line), f);
                 uint32_t value;
                 char *p = strstr(line, "0x");
-                assert(p);
+                //assert(p);
                 sscanf(p, "0x%08x", &value);
                 ref_cpu.gpr[i] = value;
         }
@@ -116,19 +117,19 @@ void difftest_step(FILE **fp, uint32_t pc, uint32_t inst){
         fgets(line, sizeof(line), f);
         uint32_t value;
         char *p = strstr(line, "0x");
-        assert(p);
+        //assert(p);
         sscanf(p, "0x%08x", &value);
         ref_cpu.pc = value;
         *fp = f;
 
         if(ref_cpu.pc != dut_cpu.pc){
                 diff_out(pc, inst);
-                assert(0);
+                //assert(0);
         }
         for(int i = 0; i < 16; i++){
                 if(ref_cpu.gpr[i] != dut_cpu.gpr[i]){
                         diff_out(pc, inst);
-                        assert(0);
+                        //assert(0);
                  }
         }
         return;
@@ -181,9 +182,8 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
         opcode = (uint32_t)((inst >> OPCODE_ST) & 0x0000007f);
         funct3 = (uint32_t)((inst >> FUNCT3_ST) & 0x00000007);
         funct7 = (uint32_t)((inst >> FUNCT7_ST) & 0x0000007f);
-        bool add, addi, lui, lw, lbu, sb, sw, jalr = false;
         if(opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0000000){
-                add = true;
+                //add = true;
                 imm = 0; 
                 *regwr = true;
                 *memwr = false;
@@ -191,7 +191,7 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
                 *mem_wdata = 0;
                 *npc = PC + 4;
         } else if(opcode == 0b0010011 && funct3 == 0b000){
-                addi = true;
+                //addi = true;
                 imm = (int32_t)inst >> 20;
                 *regwr = true;
                 *memwr = false;
@@ -199,7 +199,7 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
                 *mem_wdata = 0;
                 *npc = PC + 4;
         } else if(opcode == 0b0110111){
-                lui = true;
+                //lui = true;
                 imm = (uint32_t)(inst & 0xfffff000);
                 *regwr = true;
                 *memwr = false;
@@ -207,7 +207,7 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
                 *mem_wdata = 0;
                 *npc = PC + 4;
         } else if(opcode == 0b0000011 && funct3 == 0b010){
-                lw = true;
+                //lw = true;
                 imm = (int32_t)inst >> 20;
                 *regwr = true;
                 *memwr = false;
@@ -216,7 +216,7 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
                 *mem_wdata = 0;
                 *npc = PC + 4;
         } else if(opcode == 0b0000011 && funct3 == 0b100){
-                lbu = true;
+                //lbu = true;
                 imm = (int32_t)inst >> 20;
                 *regwr = true;
                 *memwr = false;
@@ -225,7 +225,7 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
                 *mem_wdata = 0;
                 *npc = PC + 4;
         } else if(opcode == 0b0100011 && funct3 == 0b000){
-                sb = true;
+                //sb = true;
                 imm = (uint32_t)(((inst >> 7) & 0x0000001f) | (((int32_t)inst >> 20) & 0xffffffe0));
                 *regwr = false;
                 *memwr = true;
@@ -235,7 +235,7 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
                 *mem_wdata = (uint32_t)((src2 << 24) >> 24);
                 *npc = PC + 4;
         } else if(opcode == 0b0100011 && funct3 == 0b010){
-                sw = true;
+                //sw = true;
                 imm = (uint32_t)(((inst >> 7) & 0x0000001f) | (((int32_t)inst >> 20) & 0xffffffe0));
                 *regwr = false;
                 *memwr = true;
@@ -245,7 +245,7 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
                 *mem_wdata = src2;
                 *npc = PC + 4;
         } else if(opcode == 0b1100111 && funct3 == 0b000){
-                jalr= true;
+                //jalr= true;
                 imm = (int32_t)inst >> 20;
                 *regwr = true;
                 *memwr = false;
@@ -258,7 +258,7 @@ void decode_exec(uint32_t inst, bool *regwr, bool *memwr, uint32_t *reg_wdata, u
                 *memwr = false;
         } else{
                 printf("undecode inst : 0x%08x\n", inst);
-                assert(0);
+                //assert(0);
                 return;
         }
         //printf("inst = 0x%02x, src1 = 0x%02x, src2 = 0x%02x, rd = 0x%1x, wdata = 0x%02x, imm = 0x%08x, opcode = 0x%08x\n", inst, src1, src2, *rd, *wdata, imm, opcode);
@@ -276,7 +276,11 @@ uint32_t inst_cycle(uint32_t *ins){
         decode_exec(inst, &regwr, &memwr, &reg_wdata, &mem_wdata, &mem_waddr, &len, &rd, &npc);
         if(regwr) R[rd] = reg_wdata;
         R[0] = 0;
-        if(memwr) write_mem(mem_wdata, mem_waddr, len);
+        if(memwr) {
+            if((mem_waddr >= 0x20000000) && (mem_waddr < 0x20040000)){
+                gpu_buf[(mem_waddr >> 2) & 0xffff] = mem_wdata;
+            }else write_mem(mem_wdata, mem_waddr, len);
+        }
         if(ebreak) done = true ;
         uint32_t t = PC;
         PC = npc;
@@ -291,26 +295,42 @@ void R_out(){
         printf("\n");
 }
 
+void draw(uint32_t *buf) {
+    uint32_t x, y;
+    x = y = 0;
+    io_write(AM_GPU_FBDRAW, x, y, buf, W, H, false);
+    io_write(AM_GPU_FBDRAW, 0, 0, NULL, 0, 0, true);
+}
+
 int main(){
         memset(M, 0, sizeof(M));
         memset(R, 0, sizeof(R));
         load_img();
-        FILE *diff = fopen(diff_file, "rb");
+        //FILE *diff = fopen(diff_file, "rb");
         while(1){
                 uint32_t inst;
-                char dif_buf[256] = {};
+                //char dif_buf[256] = {};
                 //printf("=============================\n");
-                uint32_t temp_pc = inst_cycle(&inst);
-                if(!ebreak)difftest_step(&diff, temp_pc, inst);
+                //uint32_t temp_pc = inst_cycle(&inst);
+                inst_cycle(&inst);
+                //if(!ebreak)difftest_step(&diff, temp_pc, inst);
                 //R_out();
                 if(done) {
                         if(R[10] == 0) printf("Hit Good Trap!\n");
                         else           printf("Hit Bad Trap\n");
                 }
-                if(done) break;
-                //break;
+                if(done) {
+                        draw(gpu_buf);
+                        while(1){
+                            AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
+                            if (ev.keydown == true && ev.keycode != AM_KEY_NONE) {
+                                if(ev.keycode == AM_KEY_ESCAPE) return 0;
+                            }
+                        }
+                        //break;
+                 }
         }
-        fclose(diff);
+        //fclose(diff);
         return 0;
 }
 
