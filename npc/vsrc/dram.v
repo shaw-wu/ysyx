@@ -4,10 +4,10 @@ module ysyx_25010009_dram#(
 )(
 	input clk,
 	input rst,
-	input	 awvalid,
-	output bvalid,
-	input	 arvalid,
-	output rvalid,
+	input  awvalid,
+	output bvalid ,
+	input  arvalid,
+	output rvalid ,
 	input	 [		 3:0] mask ,
 	input	 [		 1:0] size ,
 	input  [XLEN-1:0] raddr,
@@ -45,14 +45,14 @@ reg [1:0] current_state, next_state;
 always @(*) begin
 	case(current_state)
 		IDLE :
-			if		 (awvalid) next_state = WORKW;
+			if  (awvalid) next_state = WORKW;
 			else if(arvalid) next_state = WORKR;
 			else						 next_state = IDLE ;
 		WORKR : 
 			if(last_cycle) next_state = IDLE;
-			else					 next_state = WORKR;
+			else		   next_state = WORKR;
 		WORKW : 
-			if(last_cycle) next_state = IDLE;
+		    if(last_cycle) next_state = IDLE;
 			else					 next_state = WORKW;
 		default : next_state = IDLE;
 	endcase
@@ -111,7 +111,7 @@ assign rdata = reg_rdata;
 import "DPI-C" function void dpi_vaddr_write(int unsigned addr, int len, int unsigned wdata, int wen);
 
 always @(posedge clk) begin
-	if(awvalid) begin
+	if(cnt == cnt_max) begin
 		dpi_vaddr_write(waddr, len, reg_wdata, {31'b0, awvalid});
 	end
 end
