@@ -1,3 +1,4 @@
+`include "soc_conf.vh"
 `timescale 1ns / 1ps
 module ysyx_25010009_dram#(
 	parameter XLEN = 32
@@ -16,23 +17,35 @@ module ysyx_25010009_dram#(
 	output [XLEN-1:0] wdata 
 );
 
-wire last_cycle;
+`ifdef CONFIG_USE_LFSR
+reg mem_work;
 wire [7:0] cnt_max;
 reg [7:0] cnt;
 
 lfsr_8b lfsr(
-	.in(8'b0000_0001),
 	.clk(clk),
-	.s(!last_cycle),
+    .rst(rst),
+	.s(!mem_work),
 	.Q(cnt_max)
 );
 
 always @(posedge clk or posedge rst) begin
 	if(rst) cnt <= 0;
-	else cnt <= cnt + 1;
+    else begin
+        mem_work <= cnt == cnt_max;
+        if(mem_work) cnt <= 0;
+        else if(cnt == cnt_max) cnt <= cnt;
+        else         cnt <= cnt + 1;
+        //cnt <= cnt + 1;
+    end
 end
 
-assign last_cycle = cnt == cnt_max;
+//assign mem_work = cnt >= cnt_max;
+
+`else
+wire mem_work = 1;
+`endif
+
 
 /*--------------- state machine -----------------*/
 
@@ -45,14 +58,14 @@ reg [1:0] current_state, next_state;
 always @(*) begin
 	case(current_state)
 		IDLE :
-			if  (awvalid) next_state = WORKW;
+			if     (awvalid) next_state = WORKW;
 			else if(arvalid) next_state = WORKR;
 			else						 next_state = IDLE ;
 		WORKR : 
-			if(last_cycle) next_state = IDLE;
+			if(mem_work) next_state = IDLE;
 			else		   next_state = WORKR;
 		WORKW : 
-		    if(last_cycle) next_state = IDLE;
+		    if(mem_work) next_state = IDLE;
 			else					 next_state = WORKW;
 		default : next_state = IDLE;
 	endcase
@@ -93,8 +106,8 @@ import "DPI-C" function int unsigned dpi_vaddr_read(int unsigned addr, int len, 
 
 reg [XLEN-1:0] reg_rdata;
 
-assign rvalid = (cnt == cnt_max) && (current_state == WORKR);
-assign bvalid = (cnt == cnt_max) && (current_state == WORKW);
+assign rvalid = (mem_work) && (current_state == WORKR);
+assign bvalid = (mem_work) && (current_state == WORKW);
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
@@ -111,7 +124,8 @@ assign rdata = reg_rdata;
 import "DPI-C" function void dpi_vaddr_write(int unsigned addr, int len, int unsigned wdata, int wen);
 
 always @(posedge clk) begin
-	if(cnt == cnt_max) begin
+	if(awvalid && (current_state == IDLE)) begin
+	//if(awvalid) begin
 		dpi_vaddr_write(waddr, len, reg_wdata, {31'b0, awvalid});
 	end
 end

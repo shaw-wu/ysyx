@@ -31,6 +31,15 @@ silent := -s
 CONF   := $(KCONFIG_PATH)/build/conf
 MCONF  := $(KCONFIG_PATH)/build/mconf
 FIXDEP := $(FIXDEP_PATH)/build/fixdep
+GEN_VH_PY := $(NPC_HOME)/scripts/gen_vh.py
+AUTOCONF_H := $(NPC_HOME)/include/generated/autoconf.h
+SOC_CONF_VH := $(NPC_HOME)/include/generated/soc_conf.vh
+
+define sync_vh
+	@echo "+ SYNC VH [autoconf.h -> soc_conf.vh]"
+	@python3 $(GEN_VH_PY) $(AUTOCONF_H) $(SOC_CONF_VH)
+endef
+
 
 $(CONF):
 	$(Q)$(MAKE) $(silent) -C $(KCONFIG_PATH) NAME=conf
@@ -44,6 +53,7 @@ $(FIXDEP):
 menuconfig: $(MCONF) $(CONF) $(FIXDEP)
 	$(Q)$(MCONF) $(Kconfig)
 	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
+	$(call sync_vh)
 
 savedefconfig: $(CONF)
 	$(Q)$< $(silent) --$@=configs/defconfig $(Kconfig)
@@ -61,6 +71,10 @@ help:
 
 distclean: clean
 	-@rm -rf $(rm-distclean)
+
+#增加一个独立的目标，方便手动更新
+vh:
+	$(call sync_vh)
 
 .PHONY: help distclean
 

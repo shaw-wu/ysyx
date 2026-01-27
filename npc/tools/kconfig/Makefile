@@ -6,6 +6,14 @@ CC = gcc
 CFLAGS += -DYYDEBUG
 INC_PATH += .
 DISTRO = $(shell cat /etc/os-release | grep PRETTY_NAME | sed 's/PRETTY_NAME=//')
+GEN_VH_PY := $(NPC_HOME)/scripts/gen_vh.py
+AUTOCONF_H := $(NPC_HOME)/include/generated/autoconf.h
+SOC_CONF_VH := $(NPC_HOME)/include/generated/soc_conf.vh
+
+define sync_vh
+	@echo "+ SYNC VH [$(AUTOCONF_H) -> $(SOC_CONFIG_VH)]"
+	@python3 $(GEN_VH_PY) $(AUTOCONF_H) $(SOC_CONFIG_VH)
+endef
 
 ifeq ($(DISTRO),"Gentoo Linux")
 LIBS += -ltinfo
@@ -32,9 +40,15 @@ $(obj)/parser.tab.c $(obj)/parser.tab.h: parser.y
 	@bison -v $< --defines=$(obj)/parser.tab.h -o $(obj)/parser.tab.c
 
 conf:
-	@$(MAKE) -s
+	$(MAKE) -s
+	$(call sync_vh)
 
 mconf:
-	@$(MAKE) -s NAME=mconf
+	$(MAKE) -s NAME=mconf
+	$(call sync_vh)
 
+
+#增加一个独立的目标，方便手动更新
+vh:
+	$(call sync_vh)
 .PHONY: conf mconf

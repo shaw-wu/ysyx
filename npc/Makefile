@@ -78,14 +78,15 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOP_NAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
-		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))\
+		-I$(NPC_HOME)/include/generated
 
 all: default
 
 compile:$(BIN)
 	@echo $(info # compile $(BIN))
 	
-sim:$(BIN)
+sim:$(BIN) 
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$^ $(IMG) $(ELF) $(DIFF_REF_SO)
 cleansim:

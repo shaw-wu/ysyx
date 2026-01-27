@@ -141,7 +141,21 @@ endchoice
 
 endmenu
 
+menu "Verilog Macro"
+
+config V_USE_LFSR 
+  bool "Enable LFSR"
+  default n
+  help
+    Generate load/store delay to test bus.
+
+endmenu
+
 menu "Testing and Debugging"
+
+config WAVEFORM 
+  bool "Enable Waveform"
+  default n
 
 config WATCHPOINT
   bool "Enable watchpoint"
