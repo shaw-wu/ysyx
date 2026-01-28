@@ -10,7 +10,7 @@ module ysyx_25010009_ifu #(
 	output [ADDR_WIDTH-1:0] addr,
 	//idu
 	output ifu_idu_valid,
-	input	 ifu_idu_ready,
+	input  ifu_idu_ready,
 	output     [DATA_WIDTH-1:0] inst,
 	output reg [ADDR_WIDTH-1:0] pc  ,
 	output		 [ADDR_WIDTH-1:0] snpc,
@@ -35,7 +35,7 @@ always @(*) begin
 			if(speec) next_state = WORK;
 		end
 		WAIT : begin
-			if		 (ifu_idu_ready &&  speec) next_state = WORK;
+			if     (ifu_idu_ready &&  speec) next_state = WORK;
 			else if(ifu_idu_ready && !speec) next_state = IDLE;
 			else														 next_state = WAIT;
 		end

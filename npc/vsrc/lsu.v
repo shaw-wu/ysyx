@@ -18,15 +18,15 @@ module ysyx_25010009_lsu #(
 	input                   jal ,
 	input                   jalr,
 `endif
-	input [ADDR_WIDTH -1:0] pc		 ,
-	input [DATA_WIDTH -1:0] mwdata ,
-	input										memwr  ,
-	input	 								 	memre  ,
-	input	 								 	regwr  ,	
-	input	 								 	csr1wr ,	
-	input	 								 	csr2wr ,	
-	input	[						 3:0] mem_mask,	
-	input	                  mem_sext,	
+	input [ADDR_WIDTH -1:0] pc	  ,
+	input [DATA_WIDTH -1:0] mwdata,
+	input		memwr   ,
+	input	 	memre   ,
+	input	 	regwr   ,	
+	input	    csr1wr  ,	
+	input       csr2wr  ,	
+	input [3:0] mem_mask,	
+	input	    mem_sext,	
 	input [DATA_WIDTH -1:0] paddr  ,
 	input [RS_WIDTH   -1:0] gpr_rd ,
 	input [DATA_WIDTH -1:0] gpr_res,
@@ -35,104 +35,139 @@ module ysyx_25010009_lsu #(
 	input [DATA_WIDTH -1:0] csr_res1,
 	input [DATA_WIDTH -1:0] csr_res2,   
 	// lsu <> ram
-	output									 awvalid,
-	output									 arvalid,
-	input										 bvalid,
-	input									 	 rvalid,
+	output awvalid,
+	input  awready,
+	output [DATA_WIDTH -1:0] awaddr ,
+    output wvalid,
+    input  wready,
+	output [DATA_WIDTH -1:0] wdata	,
+	output arvalid,
+	input  arready,
+	output [ADDR_WIDTH -1:0] araddr ,
+	output arvalid,
+	input  bvalid,
+	input  rvalid,
 	output [ADDR_WIDTH -1:0] araddr ,
 	input  [DATA_WIDTH -1:0] rdata	,
-	output [DATA_WIDTH -1:0] awaddr ,
-	output [DATA_WIDTH -1:0] wdata	,
 	output [            3:0] ram_mask,
 	output [            1:0] ram_size,
 	// lsu <> wbu
-	output									 lsu_wbu_valid,
-	input										 lsu_wbu_ready,
+	output lsu_wbu_valid,
+	input  lsu_wbu_ready,
 `ifdef VERILATOR
-	output 									 wbu_ebreak,
-	output [DATA_WIDTH -1:0] wbu_inst	 ,
-	output [ADDR_WIDTH -1:0] wbu_snpc	 ,
-	output [ADDR_WIDTH -1:0] wbu_dnpc	 ,
-	output [RS_WIDTH   -1:0] wbu_rs1	 ,
-	output									 wbu_jal	 ,
-	output									 wbu_jalr	 ,
+	output 					 wbu_ebreak,
+	output [DATA_WIDTH -1:0] wbu_inst,
+	output [ADDR_WIDTH -1:0] wbu_snpc,
+	output [ADDR_WIDTH -1:0] wbu_dnpc,
+	output [RS_WIDTH   -1:0] wbu_rs1 ,
+	output wbu_jal ,
+	output wbu_jalr,
 `endif
-	output [ADDR_WIDTH -1:0] wbu_pc		 ,
-	output	 								 wbu_regwr ,	
-	output	 								 wbu_csr1wr,	
-	output	 								 wbu_csr2wr,	
-	output [RS_WIDTH   -1:0] wbu_gpr_rd	,
-	output [DATA_WIDTH -1:0] wbu_gpr_res,
+	output [ADDR_WIDTH -1:0] wbu_pc,
+	output	 				 wbu_regwr   ,	
+	output	 				 wbu_csr1wr  ,	
+	output	 				 wbu_csr2wr  ,	
+	output [RS_WIDTH   -1:0] wbu_gpr_rd	 ,
+	output [DATA_WIDTH -1:0] wbu_gpr_res ,
 	output [CAR_WIDTH  -1:0] wbu_csr_rd1 ,
 	output [CAR_WIDTH  -1:0] wbu_csr_rd2 ,
 	output [DATA_WIDTH -1:0] wbu_csr_res1,
 	output [DATA_WIDTH -1:0] wbu_csr_res2 
 );
 
-/*----------------- dram state machine ---------------------*/
+//Register
+//exu <> lsu bundle
+`ifdef VERILATOR
+reg 				  reg_ebreak;
+reg [DATA_WIDTH -1:0] reg_inst;
+reg [ADDR_WIDTH -1:0] reg_snpc;
+reg [ADDR_WIDTH -1:0] reg_dnpc;
+reg [RS_WIDTH   -1:0] reg_rs1 ;
+reg                   reg_jal ;
+reg                   reg_jalr;
+`endif
+reg reg_memwr ;
+reg reg_memre ;
+reg reg_regwr ;	
+reg reg_csr1wr;	
+reg reg_csr2wr;	
+reg [3:0] reg_mem_mask;	
+reg       reg_mem_sext;	
+reg [ADDR_WIDTH -1:0] reg_pc	;
+reg [DATA_WIDTH -1:0] reg_mwdata;
+reg [DATA_WIDTH -1:0] reg_paddr  ;
+reg [RS_WIDTH   -1:0] reg_gpr_rd ;
+reg [DATA_WIDTH -1:0] reg_gpr_res;
+reg [CAR_WIDTH  -1:0] reg_csr_rd1;
+reg [CAR_WIDTH  -1:0] reg_csr_rd2;
+reg [DATA_WIDTH -1:0] reg_csr_res1;
+reg [DATA_WIDTH -1:0] reg_csr_res2;   
 
-parameter DRAM_IDLE  = 3'b000;
-parameter DRAM_WORKW = 3'b001;
-parameter DRAM_WORKR = 3'b010;
-parameter DRAM_WAITW = 3'b011;
-parameter DRAM_WAITR = 3'b110;
-parameter DRAM_DONE  = 3'b111;
-
-reg [2:0] dram_current_state, dram_next_state;
-
-always @(*) begin
-	case(dram_current_state)
-		DRAM_IDLE :
-			if		 (awvalid) dram_next_state = DRAM_WAITW;
-			else if(arvalid) dram_next_state = DRAM_WAITR;
-			else						 dram_next_state = DRAM_IDLE;
-		DRAM_WORKW :
-			dram_next_state = DRAM_WAITW;	
-		DRAM_WORKR :
-			dram_next_state = DRAM_WAITR;	
-		DRAM_WAITW : 
-			if		 (bvalid && awvalid) dram_next_state = DRAM_WORKW;
-			else if(bvalid && arvalid) dram_next_state = DRAM_WORKR;
-			else if(bvalid					 ) dram_next_state = DRAM_IDLE;
-			else											 dram_next_state = DRAM_WAITW;
-		DRAM_WAITR : 
-			if		 (rvalid && awvalid) dram_next_state = DRAM_WORKW;
-			else if(rvalid && arvalid) dram_next_state = DRAM_WORKR;
-			else if(rvalid					 ) dram_next_state = DRAM_IDLE;
-			else											 dram_next_state = DRAM_WAITR;
-		default : dram_next_state = DRAM_IDLE;
-	endcase
-end
-
-always @(posedge clk or posedge rst) begin
-	if(rst) dram_current_state <= DRAM_IDLE;
-	else    dram_current_state <= dram_next_state;
-end
-
-/*----------------------------------------------------------*/
+///*----------------- dram state machine ---------------------*/
+//
+//parameter DRAM_IDLE  = 3'b000;
+//parameter DRAM_WORKW = 3'b001;
+//parameter DRAM_WORKR = 3'b010;
+//parameter DRAM_WAITW = 3'b011;
+//parameter DRAM_WAITR = 3'b110;
+//parameter DRAM_DONE  = 3'b111;
+//
+//reg [2:0] dram_current_state, dram_next_state;
+//
+//always @(*) begin
+//	case(dram_current_state)
+//		DRAM_IDLE :
+//			if     (awvalid) dram_next_state = DRAM_WAITW;
+//			else if(arvalid) dram_next_state = DRAM_WAITR;
+//			else			 dram_next_state = DRAM_IDLE;
+//		DRAM_WORKW :
+//			dram_next_state = DRAM_WAITW;	
+//		DRAM_WORKR :
+//			dram_next_state = DRAM_WAITR;	
+//		DRAM_WAITW : 
+//			if	   (bvalid && awvalid) dram_next_state = DRAM_WORKW;
+//			else if(bvalid && arvalid) dram_next_state = DRAM_WORKR;
+//			else if(bvalid			 ) dram_next_state = DRAM_IDLE;
+//			else											 dram_next_state = DRAM_WAITW;
+//		DRAM_WAITR : 
+//			if	   (rvalid && awvalid) dram_next_state = DRAM_WORKW;
+//			else if(rvalid && arvalid) dram_next_state = DRAM_WORKR;
+//			else if(rvalid			 ) dram_next_state = DRAM_IDLE;
+//			else					   dram_next_state = DRAM_WAITR;
+//		default : dram_next_state = DRAM_IDLE;
+//	endcase
+//end
+//
+//always @(posedge clk or posedge rst) begin
+//	if(rst) dram_current_state <= DRAM_IDLE;
+//	else    dram_current_state <= dram_next_state;
+//end
+//
+///*----------------------------------------------------------*/
 
 /*----------------- state machine ------------------*/
 
 parameter IDLE = 2'b00;
-parameter WAIT    = 2'b01;
-parameter WORK    = 2'b11;
+parameter WAIT = 2'b01;
+parameter WORK = 2'b11;
 
 reg [1:0] current_state, next_state;
 
 always @(*) begin
 	case(current_state)
 		IDLE : begin
-			if		 (exu_lsu_valid && (memwr || memre)) next_state = WORK;
-			else																			 next_state = IDLE;
+			if      (exu_lsu_valid && (memwr || memre)) next_state = WORK;
+			else if (exu_lsu_valid && !lsu_wbu_ready  ) next_state = WAIT;
+			else                                        next_state = IDLE;
 		end
 		WAIT : begin
-			if		  (lsu_wbu_ready && exu_lsu_valid && (memre || memwr)) next_state = WORK;
-			else if (lsu_wbu_ready                    								 ) next_state = IDLE;
-			else																												 next_state = WAIT;
+			if		(lsu_wbu_ready && exu_lsu_valid && (memre || memwr)) next_state = WORK;
+			else if (lsu_wbu_ready                    				   ) next_state = IDLE;
+			else														 next_state = WAIT;
 		end
 		WORK : begin
-			if(bvalid || rvalid) next_state = WAIT;
-			else								 next_state = WORK;
+			if   (trans_resp) next_state = WAIT;
+			else			  next_state = WORK;
 		end
 		default : next_state = IDLE;
 	endcase
@@ -143,6 +178,34 @@ always @(posedge clk or posedge rst) begin
 		current_state <= IDLE;
 	end begin
 		current_state <= next_state;
+        if(exu_lsu_valid && exu_lsu_ready) begin
+            `ifdef VERILATOR
+            reg 				  reg_ebreak <= ebreak;
+            reg [DATA_WIDTH -1:0] reg_inst <= inst;
+            reg [ADDR_WIDTH -1:0] reg_snpc <= snpc;
+            reg [ADDR_WIDTH -1:0] reg_dnpc <= dnpc;
+            reg [RS_WIDTH   -1:0] reg_rs1  <= rs1 ;
+            reg                   reg_jal  <= jal ;
+            reg                   reg_jalr <= jalr;
+            `endif
+            reg       reg_memwr  <= memwr ;
+            reg       reg_memre  <= memre ;
+            reg       reg_regwr  <= regwr ;	
+            reg       reg_csr1wr <= csr1wr;	
+            reg       reg_csr2wr <= csr2wr;	
+            reg [3:0] reg_mem_mask <= mem_mask;	
+            reg       reg_mem_sext <= mem_sext;	
+            reg [ADDR_WIDTH -1:0] reg_pc	 <= pc	  ;
+            reg [DATA_WIDTH -1:0] reg_mwdata <= mwdata;
+            reg [DATA_WIDTH -1:0] reg_paddr    <= paddr   ;
+            reg [RS_WIDTH   -1:0] reg_gpr_rd   <= gpr_rd  ;
+            reg [DATA_WIDTH -1:0] reg_gpr_res  <= gpr_res ;
+            reg [CAR_WIDTH  -1:0] reg_csr_rd1  <= csr_rd1 ;
+            reg [CAR_WIDTH  -1:0] reg_csr_rd2  <= csr_rd2 ;
+            reg [DATA_WIDTH -1:0] reg_csr_res1 <= csr_res1;
+            reg [DATA_WIDTH -1:0] reg_csr_res2 <= csr_res2;   
+        end
+
 	end
 end
 
@@ -199,10 +262,10 @@ assign half_mask =
 									 paddr[1:0] == 2'b00 ? 4'b0011 :
 									 paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
 
-assign awvalid = (current_state == IDLE && memwr && exu_lsu_valid) || (current_state == WORK && memwr);
-assign arvalid = (current_state == IDLE && memre && exu_lsu_valid) || (current_state == WORK && memre);
-assign araddr = paddr;
-assign awaddr = paddr;
+assign wrtrans_valid = (current_state == IDLE && memwr && exu_lsu_valid) || (current_state == WORK && memwr);
+assign rtrans_valid = (current_state == IDLE && memre && exu_lsu_valid) || (current_state == WORK && memre);
+assign raddr = paddr;
+assign waddr = paddr;
 //assign wdata = mwdata;
 assign wdata = mem_mask == 4'b0001 ? byte_wdata :
 							 mem_mask == 4'b0011 ? half_wdata :
