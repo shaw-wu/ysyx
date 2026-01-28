@@ -35,19 +35,15 @@ module ysyx_25010009_lsu #(
 	input [DATA_WIDTH -1:0] csr_res1,
 	input [DATA_WIDTH -1:0] csr_res2,   
 	// lsu <> ram
-	output awvalid,
-	input  awready,
-	output [DATA_WIDTH -1:0] awaddr ,
-    output wvalid,
-    input  wready,
+    output wtrans_valid,
+    output wtrans_ready,
+    input  wtrans_resp ,
+    output rtrans_valid,
+    output rtrans_ready,
+    input  rtrans_resp ,
+	output [DATA_WIDTH -1:0] waddr ,
 	output [DATA_WIDTH -1:0] wdata	,
-	output arvalid,
-	input  arready,
-	output [ADDR_WIDTH -1:0] araddr ,
-	output arvalid,
-	input  bvalid,
-	input  rvalid,
-	output [ADDR_WIDTH -1:0] araddr ,
+	output [ADDR_WIDTH -1:0] raddr ,
 	input  [DATA_WIDTH -1:0] rdata	,
 	output [            3:0] ram_mask,
 	output [            1:0] ram_size,
@@ -103,6 +99,7 @@ reg [CAR_WIDTH  -1:0] reg_csr_rd2;
 reg [DATA_WIDTH -1:0] reg_csr_res1;
 reg [DATA_WIDTH -1:0] reg_csr_res2;   
 
+wire trans_resp = wtrans_resp || rtrans_resp;
 ///*----------------- dram state machine ---------------------*/
 //
 //parameter DRAM_IDLE  = 3'b000;
@@ -166,8 +163,8 @@ always @(*) begin
 			else														 next_state = WAIT;
 		end
 		WORK : begin
-			if   (trans_resp) next_state = WAIT;
-			else			  next_state = WORK;
+			if(trans_resp) next_state = WAIT;
+			else		   next_state = WORK;
 		end
 		default : next_state = IDLE;
 	endcase
@@ -226,79 +223,77 @@ wire [15:0] half_rdata;
 //									 mem_mask == 4'b1111 ?                   rdata        : 32'b0;
 //assign re_result = mem_sext ? sr_result : ur_result;
 
-assign byte_rdata =
-										paddr[1:0] == 2'b00 ? rdata[7 : 0] :
-										paddr[1:0] == 2'b01 ? rdata[15: 8] :
-										paddr[1:0] == 2'b10 ? rdata[23:16] : rdata[31:24];
-assign half_rdata = 
-										paddr[1:0] == 2'b00 ? rdata[15: 0] :
-										paddr[1:0] == 2'b01 ? rdata[23: 8] :
-										paddr[1:0] == 2'b10 ? rdata[31:16] : 0;
-assign ur_result = mem_mask == 4'b0001 ? {24'b0, byte_rdata} :
-									 mem_mask == 4'b0011 ? {16'b0, half_rdata} :
-									 mem_mask == 4'b1111 ?              rdata  : 32'b0;
-assign sr_result = mem_mask == 4'b0001 ? {{24{byte_rdata[7 ]}}, byte_rdata} :
-									 mem_mask == 4'b0011 ? {{16{half_rdata[15]}}, half_rdata[15:0]} :
-									 mem_mask == 4'b1111 ? rdata : 32'b0;
-assign re_result = mem_sext ? sr_result : ur_result;
+assign byte_rdata = reg_paddr[1:0] == 2'b00 ? rdata[7 : 0] :
+					reg_paddr[1:0] == 2'b01 ? rdata[15: 8] :
+					reg_paddr[1:0] == 2'b10 ? rdata[23:16] : rdata[31:24];
+assign half_rdata = reg_paddr[1:0] == 2'b00 ? rdata[15: 0] :
+					reg_paddr[1:0] == 2'b01 ? rdata[23: 8] :
+					reg_paddr[1:0] == 2'b10 ? rdata[31:16] : 0;
+assign ur_result = reg_mem_mask == 4'b0001 ? {24'b0, byte_rdata} :
+				   reg_mem_mask == 4'b0011 ? {16'b0, half_rdata} :
+				   reg_mem_mask == 4'b1111 ?              rdata  : 32'b0;
+assign sr_result = reg_mem_mask == 4'b0001 ? {{24{byte_rdata[7 ]}}, byte_rdata} :
+				   reg_mem_mask == 4'b0011 ? {{16{half_rdata[15]}}, half_rdata[15:0]} :
+				   reg_mem_mask == 4'b1111 ? rdata : 32'b0;
+assign re_result = reg_mem_sext ? sr_result : ur_result;
 
 wire [31:0] byte_wdata;
 wire [31:0] half_wdata;
 
-assign byte_wdata = paddr[1:0] == 2'b00 ? {24'b0, mwdata[7 : 0]		  	} :
-										paddr[1:0] == 2'b01 ? {16'b0, mwdata[7 : 0],  8'b0} :
-										paddr[1:0] == 2'b10 ? { 8'b0, mwdata[7 : 0], 16'b0} : {mwdata[7 : 0], 24'b0}; 
-assign half_wdata = paddr[1:0] == 2'b00 ? {16'b0, mwdata[15: 0]		  	} :
-										paddr[1:0] == 2'b01 ? { 8'b0, mwdata[15: 0],  8'b0} :
-										paddr[1:0] == 2'b10 ? {       mwdata[15: 0], 16'b0} : 0; 
+assign byte_wdata = reg_paddr[1:0] == 2'b00 ? {24'b0, reg_mwdata[7 : 0]		  } :
+				    reg_paddr[1:0] == 2'b01 ? {16'b0, reg_mwdata[7 : 0],  8'b0} :
+				    reg_paddr[1:0] == 2'b10 ? { 8'b0, reg_mwdata[7 : 0], 16'b0} : {reg_mwdata[7 : 0], 24'b0}; 
+assign half_wdata = reg_paddr[1:0] == 2'b00 ? {16'b0, reg_mwdata[15: 0]		  } :
+				    reg_paddr[1:0] == 2'b01 ? { 8'b0, reg_mwdata[15: 0],  8'b0} :
+				    reg_paddr[1:0] == 2'b10 ? {       reg_mwdata[15: 0], 16'b0} : 0; 
 
 wire [3:0] byte_mask;
 wire [3:0] half_mask;
-assign byte_mask = 
-									 paddr[1:0] == 2'b00 ? 4'b0001 :
-									 paddr[1:0] == 2'b01 ? 4'b0010 :
-									 paddr[1:0] == 2'b10 ? 4'b0100 : 4'b1000; 
-assign half_mask = 
-									 paddr[1:0] == 2'b00 ? 4'b0011 :
-									 paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
+assign byte_mask = reg_paddr[1:0] == 2'b00 ? 4'b0001 :
+				   reg_paddr[1:0] == 2'b01 ? 4'b0010 :
+				   reg_paddr[1:0] == 2'b10 ? 4'b0100 : 4'b1000; 
+assign half_mask = reg_paddr[1:0] == 2'b00 ? 4'b0011 :
+				   reg_paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
 
-assign wrtrans_valid = (current_state == IDLE && memwr && exu_lsu_valid) || (current_state == WORK && memwr);
+assign wtrans_valid = (current_state == IDLE && memwr && exu_lsu_valid) || (current_state == WORK && memwr);
+assign wtrans_ready = (current_state == WORK && reg_memwr);
 assign rtrans_valid = (current_state == IDLE && memre && exu_lsu_valid) || (current_state == WORK && memre);
-assign raddr = paddr;
-assign waddr = paddr;
+assign rtrans_ready = (current_state == WORK && reg_memre);
+assign raddr = reg_paddr;
+assign waddr = reg_paddr;
 //assign wdata = mwdata;
-assign wdata = mem_mask == 4'b0001 ? byte_wdata :
-							 mem_mask == 4'b0011 ? half_wdata :
-							 mem_mask == 4'b1111 ? mwdata			: 0;	 
+assign wdata = reg_mem_mask == 4'b0001 ? byte_wdata :
+			   reg_mem_mask == 4'b0011 ? half_wdata :
+			   reg_mem_mask == 4'b1111 ? reg_mwdata	: 0;	 
 //assign ram_mask = mem_mask;
-assign ram_mask = mem_mask == 4'b0001 ? byte_mask :
-									mem_mask == 4'b0011 ? half_mask :
-									mem_mask == 4'b1111 ? mem_mask	 : 0;
-assign ram_size = mem_mask == 4'b0001 ? 0 :
-									mem_mask == 4'b0011 ? 1 :
-									mem_mask == 4'b1111 ? 2 : 0;
+assign ram_mask = reg_mem_mask == 4'b0001 ? byte_mask    :
+				  reg_mem_mask == 4'b0011 ? half_mask    :
+				  reg_mem_mask == 4'b1111 ? reg_mem_mask : 0;
+assign ram_size = reg_mem_mask == 4'b0001 ? 0 :
+				  reg_mem_mask == 4'b0011 ? 1 :
+				  reg_mem_mask == 4'b1111 ? 2 : 0;
 
 assign lsu_wbu_valid = current_state == WAIT || (current_state == IDLE && exu_lsu_valid && !memre && !memwr);	
 assign exu_lsu_ready = current_state == IDLE || (current_state == WAIT && lsu_wbu_ready);
 
 `ifdef VERILATOR
-assign wbu_ebreak = ebreak;
-assign wbu_inst = inst;
-assign wbu_snpc = snpc;
-assign wbu_dnpc = dnpc;
-assign wbu_rs1  = rs1	;
-assign wbu_jal	= jal ;
-assign wbu_jalr	= jalr;
+assign wbu_ebreak = reg_ebreak;
+assign wbu_inst = reg_inst;
+assign wbu_snpc = reg_snpc;
+assign wbu_dnpc = reg_dnpc;
+assign wbu_rs1  = reg_rs1	;
+assign wbu_jal	= reg_jal ;
+assign wbu_jalr	= reg_jalr;
 `endif
-assign wbu_pc = pc;
-assign wbu_regwr = regwr;
-assign wbu_csr1wr = csr1wr;
-assign wbu_csr2wr = csr2wr;
-assign wbu_gpr_rd = gpr_rd;
-assign wbu_gpr_res = memre ? re_result : gpr_res;
-assign wbu_csr_rd1 = csr_rd1;
-assign wbu_csr_rd2 = csr_rd2;
-assign wbu_csr_res1 = csr_res1;
-assign wbu_csr_res2 = csr_res2;
+assign wbu_pc = reg_pc;
+assign wbu_regwr = reg_regwr;
+assign wbu_csr1wr = reg_csr1wr;
+assign wbu_csr2wr = reg_csr2wr;
+assign wbu_gpr_rd = reg_gpr_rd;
+assign wbu_gpr_res = reg_memre ? re_result : reg_gpr_res;
+assign wbu_csr_rd1 = reg_csr_rd1;
+assign wbu_csr_rd2 = reg_csr_rd2;
+assign wbu_csr_res1 = reg_csr_res1;
+assign wbu_csr_res2 = reg_csr_res2;
 
 endmodule
