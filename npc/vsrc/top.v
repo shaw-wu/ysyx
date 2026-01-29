@@ -32,7 +32,7 @@ module ysyx_25010009_cpu_top#(
     output                  arvalid,
     input                   arready,
     input  [DATA_WIDTH-1:0] rdata  ,
-    input  [           1:0] rresp  ,
+    input  [           2:0] rresp  ,
     input                   rvalid ,
     output                  rready 
 );
@@ -185,12 +185,12 @@ wire [DATA_WIDTH-1:0 ] lsu_wbu_csrs1;
 wire [DATA_WIDTH-1:0 ] lsu_wbu_csrs2;
 
 
-wire lsu_wtrans_valid;
-wire lsu_wtrans_ready;
-wire lsu_wtrans_resp ;
-wire lsu_rtrans_valid;
-wire lsu_rtrans_ready;
-wire lsu_rtrans_resp ;
+wire lsu_wreq  ;
+wire lsu_wready;
+wire lsu_wresp ;
+wire lsu_rreq  ;
+wire lsu_rready;
+wire lsu_rresp ;
 wire [DATA_WIDTH -1:0] lsu_waddr   ;
 wire [DATA_WIDTH -1:0] lsu_wdata   ;
 wire [ADDR_WIDTH -1:0] lsu_raddr   ;
@@ -213,43 +213,44 @@ wire speec;
 //components
 
 ysyx_25010009_lsu_axi_bridge lsu_axi_bridge(
-    .aclk         (clk             ),
-    .areset       (rst             ),
+    .aclk        (clk         ),
+    .areset      (rst         ),
 
-    .araddr       (araddr          ),
-    .arvalid      (arvalid         ),    
-    .arready      (arready         ),
-                          
-    .rdata        (rdata           ),
-    .rresp        (rresp           ),
-    .rvalid       (rvalid          ),
-    .rready       (rready          ),
-                                   
-    .awaddr       (awaddr          ),
-    .awvalid      (awvalid         ),
-    .awready      (awready         ),
-                                   
-    .wdata        (wdata           ),
-    .wstrb        (wstrb           ),
-    .wvalid       (wvalid          ),
-    .wready       (wready          ),
-                                    
-    .bresp        (bresp           ), 
-    .bvalid       (bvalid          ),
+    .araddr      (araddr      ),
+    .arvalid     (arvalid     ),    
+    .arready     (arready     ),
+                         
+    .rdata       (rdata       ),
+    .rresp       (rresp       ),
+    .rvalid      (rvalid      ),
+    .rready      (rready      ),
+                              
+    .awaddr      (awaddr      ),
+    .awvalid     (awvalid     ),
+    .awready     (awready     ),
+                              
+    .wdata       (wdata       ),
+    .wstrb       (wstrb       ),
+    .wvalid      (wvalid      ),
+    .wready      (wready      ),
+                               
+    .bresp       (bresp       ), 
+    .bvalid      (bvalid      ),
+    .bready      (bvalid      ),
 
-    .wtrans_valid (lsu_wtrans_valid),
-    .wtrans_ready (lsu_wtrans_ready),
-    .wtrans_resp  (lsu_wtrans_resp ),
-    .rtrans_valid (lsu_rtrans_valid),
-    .rtrans_ready (lsu_rtrans_ready),
-    .rtrans_resp  (lsu_rtrans_resp ),
-    .waddr        (lsu_waddr       ),
-    .wdata        (lsu_wdata       ),
-    .raddr        (lsu_raddr       ),
-    .rdata        (lsu_rdata       ),
-    .ram_mask     (lsu_ram_mask    ),
-    .ram_size     (lsu_ram_size    ),
-    .bready       (bready          )
+    .cpu_wreq    (lsu_wreq    ),
+    .cpu_wready  (lsu_wready  ),
+    .cpu_wresp   (lsu_wresp   ),
+    .cpu_rreq    (lsu_rreq)   ),
+    .cpu_rready  (lsu_rready  ),
+    .cpu_rresp   (lsu_rresp   ),
+    .cpu_waddr   (lsu_waddr   ),
+    .cpu_wdata   (lsu_wdata   ),
+    .cpu_raddr   (lsu_raddr   ),
+    .cpu_rdata   (lsu_rdata   ),
+    .cpu_ram_mask(lsu_ram_mask),
+    .cpu_ram_size(lsu_ram_size),
+    .cpu_bready  (bready      )
 );
 
 ysyx_25010009_ifu #(
@@ -443,76 +444,68 @@ ysyx_25010009_lsu #(
 `else
 	.rst(rst	),
 `endif
-	.exu_lsu_valid(exu_lsu_valid),
-	.exu_lsu_ready(exu_lsu_ready),
+	.exu_lsu_valid(exu_lsu_valid ),
+	.exu_lsu_ready(exu_lsu_ready ),
 `ifdef VERILATOR
-	.ebreak	      (exu_lsu_ebreak  ),
-	.inst		  (exu_lsu_inst	   ),
-	.snpc		  (exu_lsu_snpc	   ),
-	.dnpc		  (exu_lsu_dnpc	   ),
-	.rs1		  (exu_lsu_rs1	   ),
-	.jal		  (exu_lsu_jal	   ),
-	.jalr		  (exu_lsu_jalr	   ),
+	.ebreak	      (exu_lsu_ebreak),
+	.inst		  (exu_lsu_inst	 ),
+	.snpc		  (exu_lsu_snpc	 ),
+	.dnpc		  (exu_lsu_dnpc	 ),
+	.rs1		  (exu_lsu_rs1	 ),
+	.jal		  (exu_lsu_jal	 ),
+	.jalr		  (exu_lsu_jalr	 ),
 `endif
-	.pc		 	  (exu_lsu_pc	   ),
-	.mwdata		  (exu_lsu_mwdata  ),
-	.mem_mask     (exu_lsu_mask	   ),
-	.mem_sext     (exu_lsu_sext	   ),
-	.memwr 		  (exu_lsu_memwr   ),
-	.memre 		  (exu_lsu_memre   ),
-	.regwr 		  (exu_lsu_regwr   ),	
-	.csr1wr 	  (exu_lsu_csr1wr  ),	
-	.csr2wr 	  (exu_lsu_csr2wr  ),	
-	.paddr        (exu_lsu_paddr   ),
-	.gpr_rd		  (exu_lsu_rd	   ),
-	.gpr_res      (exu_lsu_res     ),
-	.csr_rd1	  (exu_lsu_csr1	   ),
-	.csr_rd2	  (exu_lsu_csr2	   ),
-	.csr_res1     (exu_lsu_csrs1   ),
-	.csr_res2     (exu_lsu_csrs2   ),
-    .wtrans_valid (lsu_wtrans_valid),
-    .wtrans_ready (lsu_wtrans_ready),
-    .wtrans_resp  (lsu_wtrans_resp ),
-    .rtrans_valid (lsu_rtrans_valid),
-    .rtrans_ready (lsu_rtrans_ready),
-    .rtrans_resp  (lsu_rtrans_resp ),
-    .waddr        (lsu_waddr       ),
-    .wdata        (lsu_wdata       ),
-    .raddr        (lsu_raddr       ),
-    .rdata        (lsu_rdata       ),
-    .ram_mask     (lsu_ram_mask    ),
-    .ram_size     (lsu_ram_size    ),
-	.ram_mask     (dram_mask	   ),
-	.ram_size     (dram_size	   ),
-	.awvalid      (dram_awvalid    ),
-	.arvalid      (dram_arvalid    ),
-	.bvalid       (dram_bvalid     ),
-	.rvalid       (dram_rvalid     ),
-	.araddr	      (dram_raddr      ),
-	.rdata        (dram_rdata      ),
-	.awaddr	      (dram_waddr      ),
-	.wdata        (dram_wdata      ),
-	.lsu_wbu_valid(lsu_wbu_valid   ),
-	.lsu_wbu_ready(lsu_wbu_ready   ),
+	.pc		 	  (exu_lsu_pc	 ),
+	.mwdata		  (exu_lsu_mwdata),
+	.mem_mask     (exu_lsu_mask	 ),
+	.mem_sext     (exu_lsu_sext	 ),
+	.memwr 		  (exu_lsu_memwr ),
+	.memre 		  (exu_lsu_memre ),
+	.regwr 		  (exu_lsu_regwr ),	
+	.csr1wr 	  (exu_lsu_csr1wr),	
+	.csr2wr 	  (exu_lsu_csr2wr),	
+	.paddr        (exu_lsu_paddr ),
+	.gpr_rd		  (exu_lsu_rd	 ),
+	.gpr_res      (exu_lsu_res   ),
+	.csr_rd1	  (exu_lsu_csr1	 ),
+	.csr_rd2	  (exu_lsu_csr2	 ),
+	.csr_res1     (exu_lsu_csrs1 ),
+	.csr_res2     (exu_lsu_csrs2 ),
+    .wreq         (lsu_wreq      ),
+    .wready       (lsu_wready    ),
+    .wresp        (lsu_wresp     ),
+    .rreq         (lsu_rreq      ),
+    .rready       (lsu_rready    ),
+    .rresp        (lsu_rresp     ),
+    .waddr        (lsu_waddr     ),
+    .wdata        (lsu_wdata     ),
+    .raddr        (lsu_raddr     ),
+    .rdata        (lsu_rdata     ),
+    .ram_mask     (lsu_ram_mask  ),
+    .ram_size     (lsu_ram_size  ),
+	.ram_mask     (dram_mask	 ),
+	.ram_size     (dram_size	 ),
+	.lsu_wbu_valid(lsu_wbu_valid ),
+	.lsu_wbu_ready(lsu_wbu_ready ),
 `ifdef VERILATOR
-	.wbu_ebreak   (lsu_wbu_ebreak  ),
-	.wbu_inst	  (lsu_wbu_inst	   ),
-	.wbu_snpc	  (lsu_wbu_snpc	   ),
-	.wbu_dnpc	  (lsu_wbu_dnpc	   ),
-	.wbu_rs1	  (lsu_wbu_rs1     ),
-	.wbu_jal	  (lsu_wbu_jal	   ),
-	.wbu_jalr	  (lsu_wbu_jalr	   ),
+	.wbu_ebreak   (lsu_wbu_ebreak),
+	.wbu_inst	  (lsu_wbu_inst	 ),
+	.wbu_snpc	  (lsu_wbu_snpc	 ),
+	.wbu_dnpc	  (lsu_wbu_dnpc	 ),
+	.wbu_rs1	  (lsu_wbu_rs1   ),
+	.wbu_jal	  (lsu_wbu_jal	 ),
+	.wbu_jalr	  (lsu_wbu_jalr	 ),
 `endif
-	.wbu_pc		  (lsu_wbu_pc	   ),
-	.wbu_regwr    (lsu_wbu_regwr   ),	
-	.wbu_csr1wr   (lsu_wbu_csr1wr  ),	
-	.wbu_csr2wr   (lsu_wbu_csr2wr  ),	
-	.wbu_gpr_rd	  (lsu_wbu_rd	   ),
-	.wbu_gpr_res  (lsu_wbu_res	   ),
-	.wbu_csr_rd1  (lsu_wbu_csr1	   ),
-	.wbu_csr_rd2  (lsu_wbu_csr2	   ),
-	.wbu_csr_res1 (lsu_wbu_csrs1   ),
-	.wbu_csr_res2 (lsu_wbu_csrs2   ) 
+	.wbu_pc		  (lsu_wbu_pc	 ),
+	.wbu_regwr    (lsu_wbu_regwr ),	
+	.wbu_csr1wr   (lsu_wbu_csr1wr),	
+	.wbu_csr2wr   (lsu_wbu_csr2wr),	
+	.wbu_gpr_rd	  (lsu_wbu_rd	 ),
+	.wbu_gpr_res  (lsu_wbu_res	 ),
+	.wbu_csr_rd1  (lsu_wbu_csr1	 ),
+	.wbu_csr_rd2  (lsu_wbu_csr2	 ),
+	.wbu_csr_res1 (lsu_wbu_csrs1 ),
+	.wbu_csr_res2 (lsu_wbu_csrs2 ) 
 );
 
 ysyx_25010009_wbu #(

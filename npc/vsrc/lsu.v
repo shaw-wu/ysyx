@@ -35,12 +35,12 @@ module ysyx_25010009_lsu #(
 	input [DATA_WIDTH -1:0] csr_res1,
 	input [DATA_WIDTH -1:0] csr_res2,   
 	// lsu <> ram
-    output wtrans_valid,
-    output wtrans_ready,
-    input  wtrans_resp ,
-    output rtrans_valid,
-    output rtrans_ready,
-    input  rtrans_resp ,
+    output wreq  ,
+    output wready,
+    input  wresp ,
+    output rreq  ,
+    output rready,
+    input  rresp ,
 	output [DATA_WIDTH -1:0] waddr ,
 	output [DATA_WIDTH -1:0] wdata	,
 	output [ADDR_WIDTH -1:0] raddr ,
@@ -255,10 +255,10 @@ assign byte_mask = reg_paddr[1:0] == 2'b00 ? 4'b0001 :
 assign half_mask = reg_paddr[1:0] == 2'b00 ? 4'b0011 :
 				   reg_paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
 
-assign wtrans_valid = (current_state == IDLE && memwr && exu_lsu_valid) || (current_state == WORK && memwr);
-assign wtrans_ready = (current_state == WORK && reg_memwr);
-assign rtrans_valid = (current_state == IDLE && memre && exu_lsu_valid) || (current_state == WORK && memre);
-assign rtrans_ready = (current_state == WORK && reg_memre);
+assign wreq   = (current_state == IDLE && memwr && exu_lsu_valid) || (current_state == WORK && memwr);
+assign wready = (current_state == WORK && reg_memwr);
+assign rreq   = (current_state == IDLE && memre && exu_lsu_valid) || (current_state == WORK && memre);
+assign rready = (current_state == WORK && reg_memre);
 assign raddr = reg_paddr;
 assign waddr = reg_paddr;
 //assign wdata = mwdata;
