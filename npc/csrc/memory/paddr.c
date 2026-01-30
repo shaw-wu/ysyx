@@ -79,13 +79,14 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))) return pmem_read(addr, len);
+    if (likely(in_pmem(addr))) return pmem_read(addr, len);
 	return mmio_read(addr, len);
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
-  mmio_write(addr, len, data);
-	return;
+    if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
+    mmio_write(addr, len, data);
+    //printf("access_device = %s\n", access_device ? "true" : "false");
+    return;
 }
 

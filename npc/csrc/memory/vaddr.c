@@ -25,10 +25,12 @@ void vaddr_write(vaddr_t addr, int len, word_t data) {
 
 word_t dpi_vaddr_read(vaddr_t addr, int len, int ren) {
 	if(!ren) return 0;
-  return paddr_read(addr, len);
+    //printf("read\n");
+    return paddr_read(addr, len);
 }
 
 void dpi_vaddr_write(vaddr_t addr, int len, word_t data, int wen) {
 	if(!wen) return;
-  paddr_write(addr, len, data);
+    //printf("write\n");
+    paddr_write(addr, len, data);
 }

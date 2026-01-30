@@ -136,7 +136,7 @@ int ptr = 0;
 
 void trace_and_difftest(){
 #ifdef CONFIG_DIFFTEST
-	//printf("access_device = %s\n", access_device ? "true" : "false");
+	//printf("1access_device = %s\n", access_device ? "true" : "false");
 	if(access_device) {
 		difftest_skip_ref();
 	}
@@ -199,7 +199,6 @@ void exec_once(uint32_t n){
 	}
 #endif
 	while(1){
-		access_device = false;
 		once_sim = 0;
 	#ifdef CONFIG_MONITOR_EN
 		stop_sim = 0;
@@ -207,6 +206,7 @@ void exec_once(uint32_t n){
 		single_cycle();
 		if(once_sim) {
 			trace_and_difftest();
+		    access_device = false;
 	#ifdef CONFIG_MONITOR_EN
 			if(stop_sim) break;
 	#endif

@@ -23,6 +23,7 @@ word_t mmio_read(paddr_t addr, int len) {
 	else {
 		printf("Device addr : 0x%0x can't find.\n", addr);
 	}
+    //printf("access_device = %s\n", access_device ? "true" : "false");
 //#ifdef CONFIG_DTRACE
 //	switch(len){
 //		case 1: printf(ANSI_FMT("[device_read ]", ANSI_FG_CYAN) " device: %s addr: 0x%08x   rdata: 0x%02x\n", name, addr, ret);break;
@@ -53,7 +54,6 @@ void mmio_write(paddr_t addr, int len, word_t data) {
 	else if(addr >= CONFIG_SERIAL_MMIO && addr < CONFIG_SERIAL_MMIO+8){
 #ifdef CONFIG_DIFFTEST
 		access_device = true;
-		assert(access_device);
 #endif
 		if(addr == CONFIG_SERIAL_MMIO) {
 			putc((char)data, stderr);
@@ -65,4 +65,5 @@ void mmio_write(paddr_t addr, int len, word_t data) {
 	else {
 		printf("Device addr : 0x%08x can't find", addr);
 	}
+    //printf("access_device = %s\n", access_device ? "true" : "false");
 }
