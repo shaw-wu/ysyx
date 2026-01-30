@@ -99,7 +99,7 @@ reg [CAR_WIDTH  -1:0] reg_csr_rd2;
 reg [DATA_WIDTH -1:0] reg_csr_res1;
 reg [DATA_WIDTH -1:0] reg_csr_res2;   
 
-wire trans_resp = wtrans_resp || rtrans_resp;
+wire resp = wresp || rresp;
 ///*----------------- dram state machine ---------------------*/
 //
 //parameter DRAM_IDLE  = 3'b000;
@@ -154,17 +154,19 @@ always @(*) begin
 	case(current_state)
 		IDLE : begin
 			if      (exu_lsu_valid && (memwr || memre)) next_state = WORK;
-			else if (exu_lsu_valid && !lsu_wbu_ready  ) next_state = WAIT;
+			else if (exu_lsu_valid                    ) next_state = WAIT;
 			else                                        next_state = IDLE;
 		end
 		WAIT : begin
-			if		(lsu_wbu_ready && exu_lsu_valid && (memre || memwr)) next_state = WORK;
-			else if (lsu_wbu_ready                    				   ) next_state = IDLE;
-			else														 next_state = WAIT;
+			if		(lsu_wbu_ready &&  exu_lsu_valid && (memre || memwr)) next_state = WORK;
+			else if (lsu_wbu_ready && !exu_lsu_valid                   	) next_state = IDLE;
+			else														  next_state = WAIT;
 		end
 		WORK : begin
-			if(trans_resp) next_state = WAIT;
-			else		   next_state = WORK;
+			if      (resp && lsu_wbu_ready &&  exu_lsu_valid && (memre || memwr)) next_state = WORK;
+			else if (resp && lsu_wbu_ready && !exu_lsu_valid                    ) next_state = IDLE;
+			else if (resp                                                       ) next_state = WAIT;
+			else                                                                  next_state = WORK;
 		end
 		default : next_state = IDLE;
 	endcase
@@ -177,30 +179,30 @@ always @(posedge clk or posedge rst) begin
 		current_state <= next_state;
         if(exu_lsu_valid && exu_lsu_ready) begin
             `ifdef VERILATOR
-            reg 				  reg_ebreak <= ebreak;
-            reg [DATA_WIDTH -1:0] reg_inst <= inst;
-            reg [ADDR_WIDTH -1:0] reg_snpc <= snpc;
-            reg [ADDR_WIDTH -1:0] reg_dnpc <= dnpc;
-            reg [RS_WIDTH   -1:0] reg_rs1  <= rs1 ;
-            reg                   reg_jal  <= jal ;
-            reg                   reg_jalr <= jalr;
+            reg_ebreak   <= ebreak  ;
+            reg_inst     <= inst    ;
+            reg_snpc     <= snpc    ;
+            reg_dnpc     <= dnpc    ;
+            reg_rs1      <= rs1     ;
+            reg_jal      <= jal     ;
+            reg_jalr     <= jalr    ;
             `endif
-            reg       reg_memwr  <= memwr ;
-            reg       reg_memre  <= memre ;
-            reg       reg_regwr  <= regwr ;	
-            reg       reg_csr1wr <= csr1wr;	
-            reg       reg_csr2wr <= csr2wr;	
-            reg [3:0] reg_mem_mask <= mem_mask;	
-            reg       reg_mem_sext <= mem_sext;	
-            reg [ADDR_WIDTH -1:0] reg_pc	 <= pc	  ;
-            reg [DATA_WIDTH -1:0] reg_mwdata <= mwdata;
-            reg [DATA_WIDTH -1:0] reg_paddr    <= paddr   ;
-            reg [RS_WIDTH   -1:0] reg_gpr_rd   <= gpr_rd  ;
-            reg [DATA_WIDTH -1:0] reg_gpr_res  <= gpr_res ;
-            reg [CAR_WIDTH  -1:0] reg_csr_rd1  <= csr_rd1 ;
-            reg [CAR_WIDTH  -1:0] reg_csr_rd2  <= csr_rd2 ;
-            reg [DATA_WIDTH -1:0] reg_csr_res1 <= csr_res1;
-            reg [DATA_WIDTH -1:0] reg_csr_res2 <= csr_res2;   
+            reg_memwr    <= memwr   ;
+            reg_memre    <= memre   ;
+            reg_regwr    <= regwr   ;	
+            reg_csr1wr   <= csr1wr  ;	
+            reg_csr2wr   <= csr2wr  ;	
+            reg_mem_mask <= mem_mask;	
+            reg_mem_sext <= mem_sext;	
+            reg_pc	     <= pc	    ;
+            reg_mwdata   <= mwdata  ;
+            reg_paddr    <= paddr   ;
+            reg_gpr_rd   <= gpr_rd  ;
+            reg_gpr_res  <= gpr_res ;
+            reg_csr_rd1  <= csr_rd1 ;
+            reg_csr_rd2  <= csr_rd2 ;
+            reg_csr_res1 <= csr_res1;
+            reg_csr_res2 <= csr_res2;   
         end
 
 	end
@@ -255,9 +257,9 @@ assign byte_mask = reg_paddr[1:0] == 2'b00 ? 4'b0001 :
 assign half_mask = reg_paddr[1:0] == 2'b00 ? 4'b0011 :
 				   reg_paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
 
-assign wreq   = (current_state == IDLE && memwr && exu_lsu_valid) || (current_state == WORK && memwr);
+assign wreq   = (current_state == WORK && reg_memwr);
 assign wready = (current_state == WORK && reg_memwr);
-assign rreq   = (current_state == IDLE && memre && exu_lsu_valid) || (current_state == WORK && memre);
+assign rreq   = (current_state == WORK && reg_memre);
 assign rready = (current_state == WORK && reg_memre);
 assign raddr = reg_paddr;
 assign waddr = reg_paddr;
@@ -273,8 +275,8 @@ assign ram_size = reg_mem_mask == 4'b0001 ? 0 :
 				  reg_mem_mask == 4'b0011 ? 1 :
 				  reg_mem_mask == 4'b1111 ? 2 : 0;
 
-assign lsu_wbu_valid = current_state == WAIT || (current_state == IDLE && exu_lsu_valid && !memre && !memwr);	
-assign exu_lsu_ready = current_state == IDLE || (current_state == WAIT && lsu_wbu_ready);
+assign lsu_wbu_valid = current_state == WAIT || (current_state == WORK && resp);	
+assign exu_lsu_ready = current_state == IDLE || (current_state == WAIT && lsu_wbu_ready) || (current_state == WORK && lsu_wbu_ready && resp);
 
 `ifdef VERILATOR
 assign wbu_ebreak = reg_ebreak;

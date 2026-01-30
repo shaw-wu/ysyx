@@ -1,4 +1,4 @@
-TOP_NAME = ysyx_25010009_top
+TOP_NAME = ysyx_25010009_soc_top
 NXDC_FILE = $(shell pwd)/constr/top.nxdc
 INC_PATH = $(shell pwd)/sim/include
 INC_PATH += $(shell pwd)/include

@@ -1,7 +1,7 @@
-#include <Vysyx_25010009_top__Dpi.h>
+#include <Vysyx_25010009_soc_top__Dpi.h>
 //#include "irom.h"
 #include <paddr.h>
-#include "Vysyx_25010009_top.h"
+#include "Vysyx_25010009_soc_top.h"
 #include "verilated.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,7 +77,7 @@ void sim_init(int argc, char** argv ){
 #endif
 	contextp = new VerilatedContext;  
 	contextp->commandArgs(argc, argv);
-	dut = new Vysyx_25010009_top;                 
+	dut = new Vysyx_25010009_soc_top;                 
 	dut->clk = 0;
 	dut->rst = 1;
 
@@ -136,7 +136,7 @@ int ptr = 0;
 
 void trace_and_difftest(){
 #ifdef CONFIG_DIFFTEST
-	printf("access_device = %s\n", access_device ? "true" : "false");
+	//printf("access_device = %s\n", access_device ? "true" : "false");
 	if(access_device) {
 		difftest_skip_ref();
 	}

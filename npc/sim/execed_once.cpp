@@ -1,5 +1,5 @@
 #include <svdpi.h>
-#include <Vysyx_25010009_top__Dpi.h>
+#include <Vysyx_25010009_soc_top__Dpi.h>
 
 extern int once_sim;
 

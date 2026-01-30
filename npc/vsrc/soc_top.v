@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 module ysyx_25010009_soc_top #(
 	parameter ADDR_WIDTH   = 32, 
 	parameter DATA_WIDTH   = 32,
@@ -15,64 +16,6 @@ always @(posedge clk) begin
 end
 `endif
 
-wire [ADDR_BITS-1:0] cpu_m_awaddr ;
-wire                 cpu_m_awvalid;
-wire                 cpu_m_awready;
-wire [DATA_BITS-1:0] cpu_m_wdata  ;
-wire [          3:0] cpu_m_wstrb  ;
-wire                 cpu_m_wvalid ;
-wire                 cpu_m_wready ;
-wire [          2:0] cpu_m_bresp  ;
-wire                 cpu_m_bvalid ;
-wire                 cpu_m_bready ;
-wire [ADDR_BITS-1:0] cpu_m_araddr ;
-wire                 cpu_m_arvalid;
-wire                 cpu_m_arready;
-wire [DATA_BITS-1:0] cpu_m_rdata  ;
-wire [          2:0] cpu_m_rresp  ;
-wire                 cpu_m_rvalid ;
-wire                 cpu_m_rready ;
-
-ysyx_25010009_dram_axi_bridge dram_axi_bridge(
-    .aclk        (clk         ),
-    .areset      (rst         ),
-
-    .araddr      (araddr      ),
-    .arvalid     (arvalid     ),    
-    .arready     (arready     ),
-                         
-    .rdata       (rdata       ),
-    .rresp       (rresp       ),
-    .rvalid      (rvalid      ),
-    .rready      (rready      ),
-                              
-    .awaddr      (awaddr      ),
-    .awvalid     (awvalid     ),
-    .awready     (awready     ),
-                              
-    .wdata       (wdata       ),
-    .wstrb       (wstrb       ),
-    .wvalid      (wvalid      ),
-    .wready      (wready      ),
-                               
-    .bresp       (bresp       ), 
-    .bvalid      (bvalid      ),
-    .bready      (bvalid      ),
-
-    .cpu_wreq    (lsu_wreq    ),
-    .cpu_wready  (lsu_wready  ),
-    .cpu_wresp   (lsu_wresp   ),
-    .cpu_rreq    (lsu_rreq)   ),
-    .cpu_rready  (lsu_rready  ),
-    .cpu_rresp   (lsu_rresp   ),
-    .cpu_waddr   (lsu_waddr   ),
-    .cpu_wdata   (lsu_wdata   ),
-    .cpu_raddr   (lsu_raddr   ),
-    .cpu_rdata   (lsu_rdata   ),
-    .cpu_ram_mask(lsu_ram_mask),
-    .cpu_ram_size(lsu_ram_size),
-    .cpu_bready  (bready      )
-);
 localparam PC_INIT	    = 32'h8000_0000;
 localparam RS_WIDTH     = 5 ; 
 localparam CAR_WIDTH    = 12; 
@@ -84,7 +27,81 @@ localparam OPMUX_WIDTH  = 4 ;
 localparam PCMUX_WIDTH  = 2 ;
 localparam INST_BITS	= 6 ;
 
-ysyx_25010009_cpu_top u_cpu#(
+wire [ADDR_WIDTH-1:0] cpu_m_awaddr ;
+wire [           2:0] cpu_m_awsize ;
+wire                  cpu_m_awvalid;
+wire                  cpu_m_awready;
+wire [DATA_WIDTH-1:0] cpu_m_wdata  ;
+wire [           3:0] cpu_m_wstrb  ;
+wire                  cpu_m_wvalid ;
+wire                  cpu_m_wready ;
+wire [           2:0] cpu_m_bresp  ;
+wire                  cpu_m_bvalid ;
+wire                  cpu_m_bready ;
+wire [ADDR_WIDTH-1:0] cpu_m_araddr ;
+wire [           2:0] cpu_m_arsize ;
+wire                  cpu_m_arvalid;
+wire                  cpu_m_arready;
+wire [DATA_WIDTH-1:0] cpu_m_rdata  ;
+wire [           2:0] cpu_m_rresp  ;
+wire                  cpu_m_rvalid ;
+wire                  cpu_m_rready ;
+
+wire                  mem_we   ;
+wire                  mem_req  ;
+wire                  mem_resp ;
+wire [          31:0] mem_len  ;
+wire [ADDR_WIDTH-1:0] mem_raddr;
+wire [DATA_WIDTH-1:0] mem_rdata;
+wire [ADDR_WIDTH-1:0] mem_waddr;
+wire [DATA_WIDTH-1:0] mem_wdata;
+
+ysyx_25010009_dram_axi_bridge #(
+    .ADDR_WIDTH(ADDR_WIDTH),
+    .DATA_WIDTH(DATA_WIDTH)
+) dram_axi_bridge (
+    .aclk        (clk         ),
+`ifdef VERILATOR
+	.areset      (buf_rst	  ),
+`else
+	.areset      (rst		  ),
+`endif
+
+    .awaddr      (cpu_m_awaddr ),
+    .awsize      (cpu_m_awsize ),
+    .awvalid     (cpu_m_awvalid),
+    .awready     (cpu_m_awready),
+                               
+    .wdata       (cpu_m_wdata  ),
+    .wstrb       (cpu_m_wstrb  ),
+    .wvalid      (cpu_m_wvalid ),
+    .wready      (cpu_m_wready ),
+                                
+    .bresp       (cpu_m_bresp  ), 
+    .bvalid      (cpu_m_bvalid ),
+    .bready      (cpu_m_bready ),
+                               
+    .araddr      (cpu_m_araddr ),
+    .arsize      (cpu_m_arsize ),
+    .arvalid     (cpu_m_arvalid),    
+    .arready     (cpu_m_arready),
+                               
+    .rdata       (cpu_m_rdata  ),
+    .rresp       (cpu_m_rresp  ),
+    .rvalid      (cpu_m_rvalid ),
+    .rready      (cpu_m_rready ),
+                              
+    .we          (mem_we       ),
+    .req         (mem_req      ),
+    .resp        (mem_resp     ),
+    .len         (mem_len      ),
+    .mem_raddr   (mem_raddr    ),
+    .mem_rdata   (mem_rdata    ),
+    .mem_waddr   (mem_waddr    ),
+    .mem_wdata   (mem_wdata    )
+);
+
+ysyx_25010009_cpu_top #(
 	.PC_INIT	 (PC_INIT	  ),
 	.ADDR_WIDTH  (ADDR_WIDTH  ), 
 	.DATA_WIDTH  (DATA_WIDTH  ),
@@ -98,24 +115,34 @@ ysyx_25010009_cpu_top u_cpu#(
 	.PCMUX_WIDTH (PCMUX_WIDTH ),
 	.INST_BITS	 (INST_BITS	  ),
 	.CNT_WIDTH	 (CNT_WIDTH	  )
-)(
-	.clk    (clk    ),
-	.rst    (rst    ),
-	.counter(counter),
+) u_cpu (
+	.clk    (clk          ),
+`ifdef VERILATOR
+	.rst    (buf_rst	  ),
+`else
+	.rst    (rst		  ),
+`endif
+	.counter(counter      ),
     //AXI-LIte
     .awaddr (cpu_m_awaddr ),
+    .awsize (cpu_m_awsize ),
     .awvalid(cpu_m_awvalid),
     .awready(cpu_m_awready),
+
     .wdata  (cpu_m_wdata  ),
     .wstrb  (cpu_m_wstrb  ),
     .wvalid (cpu_m_wvalid ),
     .wready (cpu_m_wready ),
+
     .bresp  (cpu_m_bresp  ),
     .bvalid (cpu_m_bvalid ),
     .bready (cpu_m_bready ),
+
     .araddr (cpu_m_araddr ),
+    .arsize (cpu_m_arsize ),
     .arvalid(cpu_m_arvalid),
     .arready(cpu_m_arready),
+
     .rdata  (cpu_m_rdata  ),
     .rresp  (cpu_m_rresp  ),
     .rvalid (cpu_m_rvalid ),
@@ -125,21 +152,19 @@ ysyx_25010009_cpu_top u_cpu#(
 ysyx_25010009_dram #(
 	.XLEN(DATA_WIDTH)
 ) DRAM (
-	.clk	(clk		),
+	.clk	  (clk	    ),
 `ifdef VERILATOR
-	.rst (buf_rst	 ),
+	.rst      (buf_rst	),
 `else
-	.rst (rst			 ),
+	.rst      (rst		),
 `endif
-	.mask	(dram_mask	 ),
-	.size   (dram_size	 ),
-	.awvalid(dram_awvalid),
-	.arvalid(dram_arvalid),
-	.bvalid(dram_bvalid),
-	.rvalid(dram_rvalid),
-	.raddr(dram_raddr),
-	.rdata(dram_rdata),
-	.waddr(dram_waddr),
-	.wdata(dram_wdata)
+    .we       (mem_we   ),
+	.req      (mem_req  ),
+	.resp     (mem_resp ),
+    .len      (mem_len  ),
+	.mem_raddr(mem_raddr),
+	.mem_rdata(mem_rdata),
+	.mem_waddr(mem_waddr),
+	.mem_wdata(mem_wdata)
 );
 endmodule

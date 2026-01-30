@@ -50,7 +50,7 @@ CONFIG_CC_E_dD=y
 #
 # Verilog Macro
 #
-CONFIG_V_USE_LFSR=y
+# CONFIG_V_USE_LFSR is not set
 # end of Verilog Macro
 
 #
@@ -64,9 +64,11 @@ CONFIG_V_USE_LFSR=y
 # CONFIG_DTRACE is not set
 # CONFIG_FTRACE is not set
 # CONFIG_ETRACE is not set
-# CONFIG_DIFFTEST is not set
-CONFIG_DIFFTEST_REF_PATH="none"
-CONFIG_DIFFTEST_REF_NAME="none"
+CONFIG_DIFFTEST=y
+# CONFIG_DIFFTEST_REF_QEMU is not set
+CONFIG_DIFFTEST_REF_SPIKE=y
+CONFIG_DIFFTEST_REF_PATH="tools/spike-diff"
+CONFIG_DIFFTEST_REF_NAME="spike"
 # end of Testing and Debugging
 
 #
@@ -77,7 +79,6 @@ CONFIG_MSIZE=0x8000000
 CONFIG_PC_RESET_OFFSET=0
 # CONFIG_PMEM_MALLOC is not set
 CONFIG_PMEM_GARRAY=y
-CONFIG_MEM_RANDOM=y
 # end of Memory Configuration
 
 CONFIG_DEVICE=y

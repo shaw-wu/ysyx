@@ -16,19 +16,21 @@ module ysyx_25010009_cpu_top#(
 )(
 	input clk,
 	input rst,
-	output [CNT_WIDTH-1:0] counter,
+	output [CNT_WIDTH -1:0] counter,
     //AXI-LIte
     output [ADDR_WIDTH-1:0] awaddr ,
+    output [           2:0] awsize ,
     output                  awvalid,
     input                   awready,
     output [DATA_WIDTH-1:0] wdata  ,
     output [           3:0] wstrb  ,
     output                  wvalid ,
     input                   wready ,
-    output [           1:0] bresp  ,
-    output                  bvalid ,
-    input                   bready ,
+    input  [           2:0] bresp  ,
+    input                   bvalid ,
+    output                  bready ,
     output [ADDR_WIDTH-1:0] araddr ,
+    output [           2:0] arsize ,
     output                  arvalid,
     input                   arready,
     input  [DATA_WIDTH-1:0] rdata  ,
@@ -38,7 +40,7 @@ module ysyx_25010009_cpu_top#(
 );
 
 localparam MSTATUS = 12'h0300;
-localparam MTVEC	 = 12'h0305;
+localparam MTVEC   = 12'h0305;
 localparam MEPC    = 12'h0341;
 localparam MCAUSE  = 12'h0342;
 
@@ -57,27 +59,11 @@ ysyx_25010009_irom #(
 	.XLEN(DATA_WIDTH)
 ) IROM (
 	.clk (clk	   ),
-`ifdef VERILATOR
-	.rst (buf_rst  ),
-`else
 	.rst (rst	   ),
-`endif
 	.addr(irom_addr),
 	.inst(irom_data)
 );
 
-//
-//wire				  dram_awvalid;
-//wire				  dram_arvalid;
-//wire				  dram_bvalid ;
-//wire				  dram_rvalid ;
-//wire [		     3:0] dram_mask   ;
-//wire [		     1:0] dram_size   ;
-//wire [ADDR_WIDTH-1:0] dram_raddr  ;
-//wire [DATA_WIDTH-1:0] dram_rdata  ;
-//wire [ADDR_WIDTH-1:0] dram_waddr  ;
-//wire [DATA_WIDTH-1:0] dram_wdata  ;
-//
 wire				  ifu_idu_valid;
 wire				  ifu_idu_ready;
 wire [ADDR_WIDTH-1:0] ifu_idu_inst ;
@@ -212,11 +198,15 @@ wire speec;
 
 //components
 
-ysyx_25010009_lsu_axi_bridge lsu_axi_bridge(
+ysyx_25010009_lsu_axi_bridge #(
+    .ADDR_WIDTH(ADDR_WIDTH),
+    .DATA_WIDTH(DATA_WIDTH)
+) lsu_axi_bridge (
     .aclk        (clk         ),
     .areset      (rst         ),
 
     .araddr      (araddr      ),
+    .arsize      (arsize      ),
     .arvalid     (arvalid     ),    
     .arready     (arready     ),
                          
@@ -226,6 +216,7 @@ ysyx_25010009_lsu_axi_bridge lsu_axi_bridge(
     .rready      (rready      ),
                               
     .awaddr      (awaddr      ),
+    .awsize      (awsize      ),
     .awvalid     (awvalid     ),
     .awready     (awready     ),
                               
@@ -236,12 +227,12 @@ ysyx_25010009_lsu_axi_bridge lsu_axi_bridge(
                                
     .bresp       (bresp       ), 
     .bvalid      (bvalid      ),
-    .bready      (bvalid      ),
+    .bready      (bready      ),
 
     .cpu_wreq    (lsu_wreq    ),
     .cpu_wready  (lsu_wready  ),
     .cpu_wresp   (lsu_wresp   ),
-    .cpu_rreq    (lsu_rreq)   ),
+    .cpu_rreq    (lsu_rreq    ),
     .cpu_rready  (lsu_rready  ),
     .cpu_rresp   (lsu_rresp   ),
     .cpu_waddr   (lsu_waddr   ),
@@ -249,8 +240,7 @@ ysyx_25010009_lsu_axi_bridge lsu_axi_bridge(
     .cpu_raddr   (lsu_raddr   ),
     .cpu_rdata   (lsu_rdata   ),
     .cpu_ram_mask(lsu_ram_mask),
-    .cpu_ram_size(lsu_ram_size),
-    .cpu_bready  (bready      )
+    .cpu_ram_size(lsu_ram_size)
 );
 
 ysyx_25010009_ifu #(
@@ -259,11 +249,7 @@ ysyx_25010009_ifu #(
 	.PC_INIT   (PC_INIT   )
 ) IFU (
 	.clk(clk    ),
-`ifdef VERILATOR
-	.rst(buf_rst),
-`else
 	.rst(rst	),
-`endif
 	.ifu_idu_valid(ifu_idu_valid),
 	.ifu_idu_ready(ifu_idu_ready),
 	.finst        (irom_data    ),
@@ -295,11 +281,7 @@ ysyx_25010009_idu #(
 	.MCAUSE 	 (MCAUSE 	  ) 
 ) IDU (
 	.clk(clk    ),
-`ifdef VERILATOR
-	.rst(buf_rst),
-`else
 	.rst(rst	),
-`endif
 	.ifu_idu_valid(ifu_idu_valid),
 	.ifu_idu_ready(ifu_idu_ready),
 	.inst         (ifu_idu_inst ),
@@ -359,11 +341,7 @@ ysyx_25010009_exu #(
 	.OPSEL_WIDTH(OPSEL_WIDTH)
 ) EXU (
 	.clk(clk	),
-`ifdef VERILATOR
-	.rst(buf_rst),
-`else
 	.rst(rst	),
-`endif
 	.idu_exu_valid(idu_exu_valid),
 	.idu_exu_ready(idu_exu_ready),
 `ifdef VERILATOR
@@ -439,11 +417,7 @@ ysyx_25010009_lsu #(
 	.CAR_WIDTH (CAR_WIDTH )
 ) LSU (
 	.clk(clk	),
-`ifdef VERILATOR
-	.rst(buf_rst),
-`else
 	.rst(rst	),
-`endif
 	.exu_lsu_valid(exu_lsu_valid ),
 	.exu_lsu_ready(exu_lsu_ready ),
 `ifdef VERILATOR
@@ -483,8 +457,6 @@ ysyx_25010009_lsu #(
     .rdata        (lsu_rdata     ),
     .ram_mask     (lsu_ram_mask  ),
     .ram_size     (lsu_ram_size  ),
-	.ram_mask     (dram_mask	 ),
-	.ram_size     (dram_size	 ),
 	.lsu_wbu_valid(lsu_wbu_valid ),
 	.lsu_wbu_ready(lsu_wbu_ready ),
 `ifdef VERILATOR
@@ -515,11 +487,7 @@ ysyx_25010009_wbu #(
 	.CAR_WIDTH (CAR_WIDTH )
 ) WBU (
 	.clk(clk	),
-`ifdef VERILATOR
-	.rst(buf_rst),
-`else
 	.rst(rst	),
-`endif
 	.pc		      (lsu_wbu_pc	),
 	.lsu_wbu_valid(lsu_wbu_valid),
 	.lsu_wbu_ready(lsu_wbu_ready),
@@ -564,11 +532,7 @@ ysyx_25010009_RegisterFile #(
 	.MCAUSE    (MCAUSE 	  ) 
 ) GPR (
 	.clk(clk	),
-`ifdef VERILATOR
-	.rst(buf_rst),
-`else
 	.rst(rst	),
-`endif
 	.gpr_wdata	(wbu_rf_wdata),
 	.gpr_waddr	(wbu_rf_rd	 ),
 	.gpr_raddr1	(idu_rf_rs1	 ),
@@ -592,13 +556,8 @@ ysyx_25010009_counter #(
 	.WIDTH(CNT_WIDTH)
 ) CNT (
 	.clk(clk     ),
-`ifdef VERILATOR
-	.rst(buf_rst ),
-	.en	(!buf_rst),
-`else
 	.rst(rst	),
 	.en (!rst	),
-`endif
 	.cnt(counter)
 );
 

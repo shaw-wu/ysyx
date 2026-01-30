@@ -1,12 +1,12 @@
 #include <svdpi.h>
-#include <Vysyx_25010009_top__Dpi.h>
+#include <Vysyx_25010009_soc_top__Dpi.h>
 #include <isa.h>
 #include <stdio.h>
 
 void is_ebreak(uint32_t ebreak, uint32_t pc, uint32_t snpc, uint32_t dnpc, uint32_t inst, uint32_t rd, uint32_t rs1, uint32_t jal, uint32_t jalr, uint32_t speec){
-	svScope scope = svGetScopeFromName("TOP.ysyx_25010009_top.GPR");
+	svScope scope = svGetScopeFromName("TOP.ysyx_25010009_soc_top.u_cpu.GPR");
   if (!scope) {
-      fprintf(stderr, "Error: Cannot find DPI scope!\n");
+      fprintf(stderr, "eberak: Error: Cannot find DPI scope!\n");
       exit(1);
   }
   svSetScope(scope);

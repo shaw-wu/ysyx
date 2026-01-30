@@ -1,4 +1,4 @@
-#include <Vysyx_25010009_top__Dpi.h>
+#include <Vysyx_25010009_soc_top__Dpi.h>
 #include <svdpi.h>
 #include <string.h>
 #include <common.h>
@@ -12,9 +12,9 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-	svScope scope = svGetScopeFromName("TOP.ysyx_25010009_top.GPR");
+	svScope scope = svGetScopeFromName("TOP.ysyx_25010009_soc_top.u_cpu.GPR");
   if (!scope) {
-      fprintf(stderr, "Error: Cannot find DPI scope!\n");
+      fprintf(stderr, "reg : Error: Cannot find DPI scope!\n");
       exit(1);
   }
   svSetScope(scope);
@@ -41,9 +41,9 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 	int i = 0;
 	//读取pc
 	if(strcmp(s, "pc") == 0){
-		svScope scope = svGetScopeFromName("TOP.ysyx_25010009_top.WBU");
+		svScope scope = svGetScopeFromName("TOP.ysyx_25010009_soc_top.u_cpu.WBU");
   	if (!scope) {
-  	    fprintf(stderr, "Error: Cannot find DPI scope!\n");
+  	    fprintf(stderr, "reg: Error: Cannot find DPI scope!\n");
   	    exit(1);
   	}
   	svSetScope(scope);
@@ -59,9 +59,9 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 			break;
 		}
 	}
-	svScope scope = svGetScopeFromName("TOP.ysyx_25010009_top.GPR");
+	svScope scope = svGetScopeFromName("TOP.ysyx_25010009_soc_top.u_cpu.GPR");
   if (!scope) {
-      fprintf(stderr, "Error: Cannot find DPI scope!\n");
+      fprintf(stderr, "reg : Error: Cannot find DPI scope!\n");
       exit(1);
   }
   svSetScope(scope);
