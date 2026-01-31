@@ -1,4 +1,4 @@
-module ysyx_25010009_dram_axi_bridge#(
+module ysyx_25010009_sram_axi_bridge#(
 	parameter ADDR_WIDTH   = 32, 
 	parameter DATA_WIDTH   = 32
 )(
@@ -24,7 +24,7 @@ module ysyx_25010009_dram_axi_bridge#(
     output [           2:0] rresp    ,
     output                  rvalid   ,
     input                   rready   ,
-//dram input
+//sram input
     output                  we       ,
 	output                  req      ,
 	input                   resp     ,

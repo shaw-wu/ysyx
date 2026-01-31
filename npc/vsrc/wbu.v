@@ -12,11 +12,11 @@ module ysyx_25010009_wbu #(
 	input										 ebreak,
 	input [DATA_WIDTH  -1:0] inst  ,
 	input [ADDR_WIDTH  -1:0] snpc	 ,
-	input [ADDR_WIDTH  -1:0] dnpc	 ,
 	input [RS_WIDTH    -1:0] rs1   ,
 	input                    jal	 ,
 	input										 jalr  ,
 `endif
+	input [ADDR_WIDTH  -1:0] dnpc	 ,
 	input  [ADDR_WIDTH -1:0] pc		 ,
 	// lsu <> wbu
 	input	 								   regwr ,	
@@ -38,7 +38,9 @@ module ysyx_25010009_wbu #(
 	output [RS_WIDTH   -1:0] rf_gpr_rd	,
 	output [DATA_WIDTH -1:0] rf_gpr_wdata,
 	output									 rf_gpr_wen  ,
-	output									 speec
+    //wbu <> ifu
+    output [ADDR_WIDTH -1:0] wbu_dnpc   ,
+	output				     speec
 );
 
 assign rf_gpr_wen   = regwr && lsu_wbu_valid;
@@ -73,7 +75,13 @@ endtask
 //	end
 //end
 
-assign speec = lsu_wbu_valid;
+reg reg_speec;
+always @(posedge clk, posedge rst) begin
+    if(rst) reg_speec <= 0;
+    else    reg_speec <= lsu_wbu_valid && lsu_wbu_ready;
+end
+assign speec = reg_speec;
+assign wbu_dnpc = dnpc;
 
 endmodule
 	

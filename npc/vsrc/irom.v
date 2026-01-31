@@ -2,8 +2,8 @@
 module ysyx_25010009_irom #(
 	parameter XLEN = 32
 )(
-	input							clk ,
-	input							rst ,
+	input			  clk ,
+	input			  rst ,
 	input  [XLEN-1:0] addr,
 	output [XLEN-1:0] inst 
 );

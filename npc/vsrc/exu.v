@@ -49,7 +49,6 @@ module ysyx_25010009_exu #(
 	//ifu
   /*verilator lint_off UNUSED*/
 	output								   isRAW_control,
-	output [ADDR_WIDTH -1:0] exu_dnpc ,
 	//lsu
 	output									 exu_lsu_valid,
 	input										 exu_lsu_ready,
@@ -60,8 +59,8 @@ module ysyx_25010009_exu #(
 	output [RS_WIDTH   -1:0] lsu_rs1	 ,
 	output									 lsu_jal   ,
 	output									 lsu_jalr  ,
-	output [ADDR_WIDTH -1:0] lsu_dnpc ,
 `endif
+	output [ADDR_WIDTH -1:0] lsu_dnpc ,
 	output [ADDR_WIDTH -1:0] lsu_pc		 ,
 	output [DATA_WIDTH -1:0] lsu_mwdata,
 	output	 								 lsu_memwr ,
@@ -132,6 +131,7 @@ ysyx_25010009_ALU #(
 	.out(alu_result)
 );
 
+wire [ADDR_WIDTH-1:0] alu_dnpc;
 wire is_shiftl  = opsel == 4'b0110;
 wire is_shiftru = opsel == 4'b0111;
 wire is_shiftrs = opsel == 4'b1000;
@@ -165,9 +165,9 @@ assign is_jmp    = is_jal || is_jalr || (is_bxx && (alu_result == 32'd1));
 assign pcadder_a = is_jalr ? src1 : pc   ;
 assign pcadder_b = is_jmp  ? imm  : 32'd4;
 
-assign exu_dnpc  = is_ecall ? mtvec : 
+assign alu_dnpc  = is_ecall ? mtvec : 
 									 is_mret  ? mepc  : pcadder_result; 
-assign isRAW_control = (exu_dnpc != dnpc); 
+assign isRAW_control = (alu_dnpc != dnpc); 
 
 assign paddr   = alu_result;
 assign gpr_res = shift_sel != 2'b00 ? shift_res : alu_result;
@@ -196,7 +196,7 @@ assign lsu_sext   = mem_sext;
 assign lsu_ebreak = ebreak;
 assign lsu_inst		= inst	;
 assign lsu_snpc   = pc + 4;
-assign lsu_dnpc   = exu_dnpc;
+assign lsu_dnpc   = alu_dnpc;
 assign lsu_rs1		= rs1		;
 assign lsu_jal		= is_jal ;
 assign lsu_jalr		= is_jalr;

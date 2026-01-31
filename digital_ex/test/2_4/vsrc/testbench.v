@@ -1,27 +1,20 @@
 `timescale 1ns /1ps
 module testbench;
 /* verilator lint_off UNUSED*/
-reg [31:0] pc;
-reg [127:0] history;
-reg [31:0] history_length;
-wire [31:0] hash_pc_ghr;
 
-hash_pc_ghr h(
-    .pc						 (pc						 ),
-    .history			 (history			 ),
-    .history_length(history_length),
-		.hash_pc_ghr	 (hash_pc_ghr	 )
+reg [7:0] in;
+reg [7:0] out;
+
+k1 h(
+    .in(in),
+    .out(out)
 );
 
 initial begin
-	pc = 32'h800024ac;
-	history = 128'h65aa9555556;
-	history_length = 32'h20;
 	#1
-	pc = 32'h800024b0;
-	history = 128'h65aa9555556;
-	history_length = 32'h20;
+    in = 8'b11000000;
 	#1
+    in = 8'b11001100;
 	$finish;
 end
 

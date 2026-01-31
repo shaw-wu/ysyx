@@ -15,7 +15,7 @@ endif
 ######################################################################
 
 #配置选项
-TOP_MODULE = testbench
+TOP_MODULE = testbench 
 SIM_TIME ?= 500000
 ENABLE_WAVEFORM ?= 1
 

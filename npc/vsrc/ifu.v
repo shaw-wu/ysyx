@@ -3,24 +3,27 @@ module ysyx_25010009_ifu #(
 	parameter ADDR_WIDTH = 32,
 	parameter PC_INIT    = 32'h8000_0000
 )(
-	input clk,
-	input rst,
-	//irom
-	input  [DATA_WIDTH-1:0] finst,
-	output [ADDR_WIDTH-1:0] addr,
-	//idu
-	output ifu_idu_valid,
-	input  ifu_idu_ready,
-	output     [DATA_WIDTH-1:0] inst,
-	output reg [ADDR_WIDTH-1:0] pc  ,
-	output		 [ADDR_WIDTH-1:0] snpc,
-	output     [ADDR_WIDTH-1:0] dnpc,
-	//exu
-  /*verilator lint_off UNUSED*/
-	input									 is_RAW_control,
-	input [ADDR_WIDTH-1:0] exu_dnpc,
-	//wbu
-	input	speec
+	input                   clk           ,
+	input                   rst           ,
+	//irom <> ifu
+    output                  rreq          ,
+    output                  rdata_ready   ,
+    input                   rdata_valid   ,
+	output [ADDR_WIDTH-1:0] addr          ,
+	input  [DATA_WIDTH-1:0] finst         ,
+	//ifu <> idu
+	output                  ifu_idu_valid ,
+	input                   ifu_idu_ready ,
+	output [DATA_WIDTH-1:0] inst          ,
+	output [ADDR_WIDTH-1:0] pc            ,
+	output [ADDR_WIDTH-1:0] snpc          ,
+	output [ADDR_WIDTH-1:0] dnpc          ,
+	//exu <> ifu
+    /*verilator lint_off UNUSED*/
+	input					is_RAW_control,
+	input  [ADDR_WIDTH-1:0] wbu_dnpc      ,
+	//wbu <> ifu
+	input	                speec
 );
 
 parameter IDLE = 2'b00;
@@ -37,10 +40,13 @@ always @(*) begin
 		WAIT : begin
 			if     (ifu_idu_ready &&  speec) next_state = WORK;
 			else if(ifu_idu_ready && !speec) next_state = IDLE;
-			else														 next_state = WAIT;
+			else						     next_state = WAIT;
 		end
 		WORK : begin
-			next_state = WAIT;
+			if     (rdata_valid &&  ifu_idu_ready &&  speec) next_state = WORK;
+			else if(rdata_valid &&  ifu_idu_ready && !speec) next_state = IDLE;
+			else if(rdata_valid && !ifu_idu_ready          ) next_state = WAIT;
+			else                                             next_state = WORK;
 		end
 		default : next_state = IDLE;
 	endcase
@@ -54,18 +60,23 @@ always @(posedge clk or posedge rst) begin
 	end
 end
 
+reg [ADDR_WIDTH-1:0] reg_pc;
+
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
-		pc <= PC_INIT;
+		reg_pc <= PC_INIT;
 	end else begin
 		if(speec) begin
-			pc <= exu_dnpc;
+			reg_pc <= wbu_dnpc;
 		end
 	end
 end
 
+assign pc = reg_pc;
 assign addr = pc;
-assign ifu_idu_valid = current_state == WAIT;
+assign ifu_idu_valid = (current_state == WAIT) || ((current_state == WORK) && rdata_valid && !speec);
+assign rreq        = current_state == WORK;
+assign rdata_ready = current_state == WORK;
 
 assign inst = finst;
 assign snpc = pc + 4;

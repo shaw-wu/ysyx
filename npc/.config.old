@@ -50,7 +50,7 @@ CONFIG_CC_E_dD=y
 #
 # Verilog Macro
 #
-# CONFIG_V_USE_LFSR is not set
+CONFIG_V_USE_LFSR=y
 # end of Verilog Macro
 
 #

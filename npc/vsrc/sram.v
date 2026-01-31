@@ -1,6 +1,6 @@
 `include "soc_conf.vh"
 `timescale 1ns / 1ps
-module ysyx_25010009_dram#(
+module ysyx_25010009_sram#(
 	parameter XLEN = 32
 )(
 	input clk,

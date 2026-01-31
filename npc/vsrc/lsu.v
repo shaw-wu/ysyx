@@ -4,71 +4,71 @@ module ysyx_25010009_lsu #(
 	parameter RS_WIDTH    = 5 ,
 	parameter CAR_WIDTH   = 12
 )(
-	input clk,
-	input rst,
+	input                    clk          ,
+	input                    rst          ,
 	//exu <> lsu
-	input	exu_lsu_valid,
-	output	exu_lsu_ready,
+	input	                 exu_lsu_valid,
+	output	                 exu_lsu_ready,
 `ifdef VERILATOR
-	input 				    ebreak,
-	input [DATA_WIDTH -1:0] inst,
-	input [ADDR_WIDTH -1:0] snpc,
-	input [ADDR_WIDTH -1:0] dnpc,
-	input [RS_WIDTH   -1:0] rs1	,
-	input                   jal ,
-	input                   jalr,
+	input  				     ebreak       ,
+	input  [DATA_WIDTH -1:0] inst         ,
+	input  [ADDR_WIDTH -1:0] snpc         ,
+	input  [RS_WIDTH   -1:0] rs1	      ,
+	input                    jal          ,
+	input                    jalr         ,
 `endif
-	input [ADDR_WIDTH -1:0] pc	  ,
-	input [DATA_WIDTH -1:0] mwdata,
-	input		memwr   ,
-	input	 	memre   ,
-	input	 	regwr   ,	
-	input	    csr1wr  ,	
-	input       csr2wr  ,	
-	input [3:0] mem_mask,	
-	input	    mem_sext,	
-	input [DATA_WIDTH -1:0] paddr  ,
-	input [RS_WIDTH   -1:0] gpr_rd ,
-	input [DATA_WIDTH -1:0] gpr_res,
-	input [CAR_WIDTH  -1:0] csr_rd1	,
-	input [CAR_WIDTH  -1:0] csr_rd2	,
-	input [DATA_WIDTH -1:0] csr_res1,
-	input [DATA_WIDTH -1:0] csr_res2,   
+	input  [ADDR_WIDTH -1:0] dnpc         ,
+	input  [ADDR_WIDTH -1:0] pc	          ,
+	input  [DATA_WIDTH -1:0] mwdata       ,
+	input    	             memwr        ,
+	input     	             memre        ,
+	input     	             regwr        ,	
+	input                    csr1wr       ,	
+	input                    csr2wr       ,	
+	input  [            3:0] mem_mask     ,	
+	input                    mem_sext     ,	
+	input  [DATA_WIDTH -1:0] paddr        ,
+	input  [RS_WIDTH   -1:0] gpr_rd       ,
+	input  [DATA_WIDTH -1:0] gpr_res      ,
+	input  [CAR_WIDTH  -1:0] csr_rd1	  ,
+	input  [CAR_WIDTH  -1:0] csr_rd2	  ,
+	input  [DATA_WIDTH -1:0] csr_res1     ,
+	input  [DATA_WIDTH -1:0] csr_res2     ,   
 	// lsu <> ram
-    output wreq  ,
-    output wready,
-    input  wresp ,
-    output rreq  ,
-    output rready,
-    input  rresp ,
-	output [DATA_WIDTH -1:0] waddr ,
-	output [DATA_WIDTH -1:0] wdata	,
-	output [ADDR_WIDTH -1:0] raddr ,
-	input  [DATA_WIDTH -1:0] rdata	,
-	output [            3:0] ram_mask,
-	output [            1:0] ram_size,
+    output                   wreq         ,
+    output                   back_ready   ,
+    input                    back_valid   ,
+    output                   rreq         ,
+    output                   rdata_ready  ,
+    input                    rdata_valid  ,
+	output [DATA_WIDTH -1:0] waddr        ,
+	output [DATA_WIDTH -1:0] wdata	      ,
+	output [ADDR_WIDTH -1:0] raddr        ,
+	input  [DATA_WIDTH -1:0] rdata	      ,
+	output [            3:0] ram_mask     ,
+	output [            1:0] ram_size     ,
 	// lsu <> wbu
-	output lsu_wbu_valid,
-	input  lsu_wbu_ready,
+	output                   lsu_wbu_valid,
+	input                    lsu_wbu_ready,
 `ifdef VERILATOR
-	output 					 wbu_ebreak,
-	output [DATA_WIDTH -1:0] wbu_inst,
-	output [ADDR_WIDTH -1:0] wbu_snpc,
-	output [ADDR_WIDTH -1:0] wbu_dnpc,
-	output [RS_WIDTH   -1:0] wbu_rs1 ,
-	output wbu_jal ,
-	output wbu_jalr,
+	output 					 wbu_ebreak   ,
+	output [DATA_WIDTH -1:0] wbu_inst     ,
+	output [ADDR_WIDTH -1:0] wbu_snpc     ,
+	output [RS_WIDTH   -1:0] wbu_rs1      ,
+	output                   wbu_jal      ,
+	output                   wbu_jalr     ,
 `endif
-	output [ADDR_WIDTH -1:0] wbu_pc,
-	output	 				 wbu_regwr   ,	
-	output	 				 wbu_csr1wr  ,	
-	output	 				 wbu_csr2wr  ,	
-	output [RS_WIDTH   -1:0] wbu_gpr_rd	 ,
-	output [DATA_WIDTH -1:0] wbu_gpr_res ,
-	output [CAR_WIDTH  -1:0] wbu_csr_rd1 ,
-	output [CAR_WIDTH  -1:0] wbu_csr_rd2 ,
-	output [DATA_WIDTH -1:0] wbu_csr_res1,
-	output [DATA_WIDTH -1:0] wbu_csr_res2 
+	output [ADDR_WIDTH -1:0] wbu_dnpc     ,
+	output [ADDR_WIDTH -1:0] wbu_pc       ,
+	output	 				 wbu_regwr    ,	
+	output	 				 wbu_csr1wr   ,	
+	output	 				 wbu_csr2wr   ,	
+	output [RS_WIDTH   -1:0] wbu_gpr_rd	  ,
+	output [DATA_WIDTH -1:0] wbu_gpr_res  ,
+	output [CAR_WIDTH  -1:0] wbu_csr_rd1  ,
+	output [CAR_WIDTH  -1:0] wbu_csr_rd2  ,
+	output [DATA_WIDTH -1:0] wbu_csr_res1 ,
+	output [DATA_WIDTH -1:0] wbu_csr_res2  
 );
 
 //Register
@@ -77,7 +77,6 @@ module ysyx_25010009_lsu #(
 reg 				  reg_ebreak;
 reg [DATA_WIDTH -1:0] reg_inst;
 reg [ADDR_WIDTH -1:0] reg_snpc;
-reg [ADDR_WIDTH -1:0] reg_dnpc;
 reg [RS_WIDTH   -1:0] reg_rs1 ;
 reg                   reg_jal ;
 reg                   reg_jalr;
@@ -89,6 +88,7 @@ reg reg_csr1wr;
 reg reg_csr2wr;	
 reg [3:0] reg_mem_mask;	
 reg       reg_mem_sext;	
+reg [ADDR_WIDTH -1:0] reg_dnpc;
 reg [ADDR_WIDTH -1:0] reg_pc	;
 reg [DATA_WIDTH -1:0] reg_mwdata;
 reg [DATA_WIDTH -1:0] reg_paddr  ;
@@ -99,7 +99,7 @@ reg [CAR_WIDTH  -1:0] reg_csr_rd2;
 reg [DATA_WIDTH -1:0] reg_csr_res1;
 reg [DATA_WIDTH -1:0] reg_csr_res2;   
 
-wire resp = wresp || rresp;
+wire resp = back_valid || rdata_valid;
 ///*----------------- dram state machine ---------------------*/
 //
 //parameter DRAM_IDLE  = 3'b000;
@@ -182,7 +182,6 @@ always @(posedge clk or posedge rst) begin
             reg_ebreak   <= ebreak  ;
             reg_inst     <= inst    ;
             reg_snpc     <= snpc    ;
-            reg_dnpc     <= dnpc    ;
             reg_rs1      <= rs1     ;
             reg_jal      <= jal     ;
             reg_jalr     <= jalr    ;
@@ -195,6 +194,7 @@ always @(posedge clk or posedge rst) begin
             reg_mem_mask <= mem_mask;	
             reg_mem_sext <= mem_sext;	
             reg_pc	     <= pc	    ;
+            reg_dnpc     <= dnpc    ;
             reg_mwdata   <= mwdata  ;
             reg_paddr    <= paddr   ;
             reg_gpr_rd   <= gpr_rd  ;
@@ -257,12 +257,12 @@ assign byte_mask = reg_paddr[1:0] == 2'b00 ? 4'b0001 :
 assign half_mask = reg_paddr[1:0] == 2'b00 ? 4'b0011 :
 				   reg_paddr[1:0] == 2'b10 ? 4'b1100 : 0; 
 
-assign wreq   = (current_state == WORK && reg_memwr);
-assign wready = (current_state == WORK && reg_memwr);
-assign rreq   = (current_state == WORK && reg_memre);
-assign rready = (current_state == WORK && reg_memre);
-assign raddr = reg_paddr;
-assign waddr = reg_paddr;
+assign wreq        = (current_state == WORK && reg_memwr);
+assign back_ready  = (current_state == WORK && reg_memwr);
+assign rreq        = (current_state == WORK && reg_memre);
+assign rdata_ready = (current_state == WORK && reg_memre);
+assign raddr       = reg_paddr;
+assign waddr       = reg_paddr;
 //assign wdata = mwdata;
 assign wdata = reg_mem_mask == 4'b0001 ? byte_wdata :
 			   reg_mem_mask == 4'b0011 ? half_wdata :
