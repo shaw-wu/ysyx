@@ -27,34 +27,6 @@ localparam OPMUX_WIDTH  = 4 ;
 localparam PCMUX_WIDTH  = 2 ;
 localparam INST_BITS	= 6 ;
 
-wire [ADDR_WIDTH-1:0] cpu_m_lsu_awaddr ;
-wire [           2:0] cpu_m_lsu_awsize ;
-wire                  cpu_m_lsu_awvalid;
-wire                  cpu_m_lsu_awready;
-wire [DATA_WIDTH-1:0] cpu_m_lsu_wdata  ;
-wire [           3:0] cpu_m_lsu_wstrb  ;
-wire                  cpu_m_lsu_wvalid ;
-wire                  cpu_m_lsu_wready ;
-wire [           2:0] cpu_m_lsu_bresp  ;
-wire                  cpu_m_lsu_bvalid ;
-wire                  cpu_m_lsu_bready ;
-wire [ADDR_WIDTH-1:0] cpu_m_lsu_araddr ;
-wire [           2:0] cpu_m_lsu_arsize ;
-wire                  cpu_m_lsu_arvalid;
-wire                  cpu_m_lsu_arready;
-wire [DATA_WIDTH-1:0] cpu_m_lsu_rdata  ;
-wire [           2:0] cpu_m_lsu_rresp  ;
-wire                  cpu_m_lsu_rvalid ;
-wire                  cpu_m_lsu_rready ;
-wire [ADDR_WIDTH-1:0] cpu_m_ifu_araddr ;
-wire [           2:0] cpu_m_ifu_arsize ;
-wire                  cpu_m_ifu_arvalid;
-wire                  cpu_m_ifu_arready;
-wire [DATA_WIDTH-1:0] cpu_m_ifu_rdata  ;
-wire [           2:0] cpu_m_ifu_rresp  ;
-wire                  cpu_m_ifu_rvalid ;
-wire                  cpu_m_ifu_rready ;
-
 wire [ADDR_WIDTH-1:0] cpu_m_ram_awaddr ;
 wire [           2:0] cpu_m_ram_awsize ;
 wire                  cpu_m_ram_awvalid;
@@ -129,78 +101,6 @@ ysyx_25010009_sram_axi_bridge #(
     .mem_wdata   (mem_wdata        )
 );
 
-ysyx_25010009_axi_arbiter #(
-	.ADDR_WIDTH  (ADDR_WIDTH  ), 
-	.DATA_WIDTH  (DATA_WIDTH  )
-) axi_arbiter (
-	.clk        (clk              ),
-`ifdef VERILATOR
-	.rst        (buf_rst	      ),
-`else
-	.rst        (rst		      ),
-`endif
-    //cpu AXI-LIte
-    .lsu_awaddr (cpu_m_lsu_awaddr ),
-    .lsu_awsize (cpu_m_lsu_awsize ),
-    .lsu_awvalid(cpu_m_lsu_awvalid),
-    .lsu_awready(cpu_m_lsu_awready),
-
-    .lsu_wdata  (cpu_m_lsu_wdata  ),
-    .lsu_wstrb  (cpu_m_lsu_wstrb  ),
-    .lsu_wvalid (cpu_m_lsu_wvalid ),
-    .lsu_wready (cpu_m_lsu_wready ),
-
-    .lsu_bresp  (cpu_m_lsu_bresp  ),
-    .lsu_bvalid (cpu_m_lsu_bvalid ),
-    .lsu_bready (cpu_m_lsu_bready ),
-
-    .lsu_araddr (cpu_m_lsu_araddr ),
-    .lsu_arsize (cpu_m_lsu_arsize ),
-    .lsu_arvalid(cpu_m_lsu_arvalid),
-    .lsu_arready(cpu_m_lsu_arready),
-
-    .lsu_rdata  (cpu_m_lsu_rdata  ),
-    .lsu_rresp  (cpu_m_lsu_rresp  ),
-    .lsu_rvalid (cpu_m_lsu_rvalid ),
-    .lsu_rready (cpu_m_lsu_rready ),
-
-    .ifu_araddr (cpu_m_ifu_araddr ),
-    .ifu_arsize (cpu_m_ifu_arsize ),
-    .ifu_arvalid(cpu_m_ifu_arvalid),
-    .ifu_arready(cpu_m_ifu_arready),
-
-    .ifu_rdata  (cpu_m_ifu_rdata  ),
-    .ifu_rresp  (cpu_m_ifu_rresp  ),
-    .ifu_rvalid (cpu_m_ifu_rvalid ),
-    .ifu_rready (cpu_m_ifu_rready ),
-    
-    //ram AXI-Lite
-    .ram_awaddr (cpu_m_ram_awaddr ),
-    .ram_awsize (cpu_m_ram_awsize ),
-    .ram_awvalid(cpu_m_ram_awvalid),
-    .ram_awready(cpu_m_ram_awready),
-     
-    .ram_wdata  (cpu_m_ram_wdata  ),
-    .ram_wstrb  (cpu_m_ram_wstrb  ),
-    .ram_wvalid (cpu_m_ram_wvalid ),
-    .ram_wready (cpu_m_ram_wready ),
-     
-    .ram_bresp  (cpu_m_ram_bresp  ), 
-    .ram_bvalid (cpu_m_ram_bvalid ),
-    .ram_bready (cpu_m_ram_bready ),
-     
-    .ram_araddr (cpu_m_ram_araddr ),
-    .ram_arsize (cpu_m_ram_arsize ),
-    .ram_arvalid(cpu_m_ram_arvalid),    
-    .ram_arready(cpu_m_ram_arready),
-    
-    .ram_rdata  (cpu_m_ram_rdata  ),
-    .ram_rresp  (cpu_m_ram_rresp  ),
-    .ram_rvalid (cpu_m_ram_rvalid ),
-    .ram_rready (cpu_m_ram_rready )
-                              
-);
-
 ysyx_25010009_cpu_top #(
 	.PC_INIT	 (PC_INIT	  ),
 	.ADDR_WIDTH  (ADDR_WIDTH  ), 
@@ -216,47 +116,37 @@ ysyx_25010009_cpu_top #(
 	.INST_BITS	 (INST_BITS	  ),
 	.CNT_WIDTH	 (CNT_WIDTH	  )
 ) u_cpu (
-	.clk        (clk              ),
-`ifdef VERILATOR
-	.rst        (buf_rst	      ),
+	.clk              (clk              ),
+`ifdef VERILATOR      
+	.rst              (buf_rst	        ),
 `else
-	.rst        (rst		      ),
+	.rst              (rst		        ),
 `endif
-	.counter    (counter          ),
+	.counter          (counter          ),
     //AXI-LIte
-    .lsu_awaddr (cpu_m_lsu_awaddr ),
-    .lsu_awsize (cpu_m_lsu_awsize ),
-    .lsu_awvalid(cpu_m_lsu_awvalid),
-    .lsu_awready(cpu_m_lsu_awready),
+    .io_master_awaddr (cpu_m_ram_awaddr ),
+    .io_master_awsize (cpu_m_ram_awsize ),
+    .io_master_awvalid(cpu_m_ram_awvalid),
+    .io_master_awready(cpu_m_ram_awready),
 
-    .lsu_wdata  (cpu_m_lsu_wdata  ),
-    .lsu_wstrb  (cpu_m_lsu_wstrb  ),
-    .lsu_wvalid (cpu_m_lsu_wvalid ),
-    .lsu_wready (cpu_m_lsu_wready ),
+    .io_master_wdata  (cpu_m_ram_wdata  ),
+    .io_master_wstrb  (cpu_m_ram_wstrb  ),
+    .io_master_wvalid (cpu_m_ram_wvalid ),
+    .io_master_wready (cpu_m_ram_wready ),
 
-    .lsu_bresp  (cpu_m_lsu_bresp  ),
-    .lsu_bvalid (cpu_m_lsu_bvalid ),
-    .lsu_bready (cpu_m_lsu_bready ),
+    .io_master_bresp  (cpu_m_ram_bresp  ),
+    .io_master_bvalid (cpu_m_ram_bvalid ),
+    .io_master_bready (cpu_m_ram_bready ),
 
-    .lsu_araddr (cpu_m_lsu_araddr ),
-    .lsu_arsize (cpu_m_lsu_arsize ),
-    .lsu_arvalid(cpu_m_lsu_arvalid),
-    .lsu_arready(cpu_m_lsu_arready),
+    .io_master_araddr (cpu_m_ram_araddr ),
+    .io_master_arsize (cpu_m_ram_arsize ),
+    .io_master_arvalid(cpu_m_ram_arvalid),
+    .io_master_arready(cpu_m_ram_arready),
 
-    .lsu_rdata  (cpu_m_lsu_rdata  ),
-    .lsu_rresp  (cpu_m_lsu_rresp  ),
-    .lsu_rvalid (cpu_m_lsu_rvalid ),
-    .lsu_rready (cpu_m_lsu_rready ),
-
-    .ifu_araddr (cpu_m_ifu_araddr ),
-    .ifu_arsize (cpu_m_ifu_arsize ),
-    .ifu_arvalid(cpu_m_ifu_arvalid),
-    .ifu_arready(cpu_m_ifu_arready),
-
-    .ifu_rdata  (cpu_m_ifu_rdata  ),
-    .ifu_rresp  (cpu_m_ifu_rresp  ),
-    .ifu_rvalid (cpu_m_ifu_rvalid ),
-    .ifu_rready (cpu_m_ifu_rready )
+    .io_master_rdata  (cpu_m_ram_rdata  ),
+    .io_master_rresp  (cpu_m_ram_rresp  ),
+    .io_master_rvalid (cpu_m_ram_rvalid ),
+    .io_master_rready (cpu_m_ram_rready )
 );
 
 ysyx_25010009_sram #(

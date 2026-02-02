@@ -18,33 +18,25 @@ module ysyx_25010009_cpu_top#(
 	input rst,
 	output [CNT_WIDTH -1:0] counter    ,
     //AXI-LIte
-    output [ADDR_WIDTH-1:0] lsu_awaddr ,
-    output [           2:0] lsu_awsize ,
-    output                  lsu_awvalid,
-    input                   lsu_awready,
-    output [DATA_WIDTH-1:0] lsu_wdata  ,
-    output [           3:0] lsu_wstrb  ,
-    output                  lsu_wvalid ,
-    input                   lsu_wready ,
-    input  [           2:0] lsu_bresp  ,
-    input                   lsu_bvalid ,
-    output                  lsu_bready ,
-    output [ADDR_WIDTH-1:0] lsu_araddr ,
-    output [           2:0] lsu_arsize ,
-    output                  lsu_arvalid,
-    input                   lsu_arready,
-    input  [DATA_WIDTH-1:0] lsu_rdata  ,
-    input  [           2:0] lsu_rresp  ,
-    input                   lsu_rvalid ,
-    output                  lsu_rready ,
-    output [ADDR_WIDTH-1:0] ifu_araddr ,
-    output [           2:0] ifu_arsize ,
-    output                  ifu_arvalid,
-    input                   ifu_arready,
-    input  [DATA_WIDTH-1:0] ifu_rdata  ,
-    input  [           2:0] ifu_rresp  ,
-    input                   ifu_rvalid ,
-    output                  ifu_rready 
+    output [ADDR_WIDTH-1:0] io_master_awaddr ,
+    output [           2:0] io_master_awsize ,
+    output                  io_master_awvalid,
+    input                   io_master_awready,
+    output [DATA_WIDTH-1:0] io_master_wdata  ,
+    output [           3:0] io_master_wstrb  ,
+    output                  io_master_wvalid ,
+    input                   io_master_wready ,
+    input  [           2:0] io_master_bresp  ,
+    input                   io_master_bvalid ,
+    output                  io_master_bready ,
+    output [ADDR_WIDTH-1:0] io_master_araddr ,
+    output [           2:0] io_master_arsize ,
+    output                  io_master_arvalid,
+    input                   io_master_arready,
+    input  [DATA_WIDTH-1:0] io_master_rdata  ,
+    input  [           2:0] io_master_rresp  ,
+    input                   io_master_rvalid ,
+    output                  io_master_rready 
 );
 
 localparam MSTATUS = 12'h0300;
@@ -59,6 +51,34 @@ localparam MCAUSE  = 12'h0342;
 `endif
 
 parameter CSR_NUM = 4096;
+
+wire [ADDR_WIDTH-1:0] lsu_awaddr ;
+wire [           2:0] lsu_awsize ;
+wire                  lsu_awvalid;
+wire                  lsu_awready;
+wire [DATA_WIDTH-1:0] lsu_wdata  ;
+wire [           3:0] lsu_wstrb  ;
+wire                  lsu_wvalid ;
+wire                  lsu_wready ;
+wire [           2:0] lsu_bresp  ;
+wire                  lsu_bvalid ;
+wire                  lsu_bready ;
+wire [ADDR_WIDTH-1:0] lsu_araddr ;
+wire [           2:0] lsu_arsize ;
+wire                  lsu_arvalid;
+wire                  lsu_arready;
+wire [DATA_WIDTH-1:0] lsu_rdata  ;
+wire [           2:0] lsu_rresp  ;
+wire                  lsu_rvalid ;
+wire                  lsu_rready ;
+wire [ADDR_WIDTH-1:0] ifu_araddr ;
+wire [           2:0] ifu_arsize ;
+wire                  ifu_arvalid;
+wire                  ifu_arready;
+wire [DATA_WIDTH-1:0] ifu_rdata  ;
+wire [           2:0] ifu_rresp  ;
+wire                  ifu_rvalid ;
+wire                  ifu_rready ;
 
 wire                  ifu_rreq       ;
 wire                  ifu_rdata_ready;
@@ -269,6 +289,73 @@ ysyx_25010009_lsu_axi_bridge #(
     .cpu_ram_size(lsu_ram_size   )
 );
 
+ysyx_25010009_axi_arbiter #(
+	.ADDR_WIDTH  (ADDR_WIDTH  ), 
+	.DATA_WIDTH  (DATA_WIDTH  )
+) axi_arbiter (
+	.clk        (clk              ),
+	.rst        (rst		      ),
+    //cpu AXI-LIte
+    .lsu_awaddr (lsu_awaddr       ),
+    .lsu_awsize (lsu_awsize       ),
+    .lsu_awvalid(lsu_awvalid      ),
+    .lsu_awready(lsu_awready      ),
+
+    .lsu_wdata  (lsu_wdata        ),
+    .lsu_wstrb  (lsu_wstrb        ),
+    .lsu_wvalid (lsu_wvalid       ),
+    .lsu_wready (lsu_wready       ),
+
+    .lsu_bresp  (lsu_bresp        ),
+    .lsu_bvalid (lsu_bvalid       ),
+    .lsu_bready (lsu_bready       ),
+
+    .lsu_araddr (lsu_araddr       ),
+    .lsu_arsize (lsu_arsize       ),
+    .lsu_arvalid(lsu_arvalid      ),
+    .lsu_arready(lsu_arready      ),
+
+    .lsu_rdata  (lsu_rdata        ),
+    .lsu_rresp  (lsu_rresp        ),
+    .lsu_rvalid (lsu_rvalid       ),
+    .lsu_rready (lsu_rready       ),
+
+    .ifu_araddr (ifu_araddr       ),
+    .ifu_arsize (ifu_arsize       ),
+    .ifu_arvalid(ifu_arvalid      ),
+    .ifu_arready(ifu_arready      ),
+
+    .ifu_rdata  (ifu_rdata        ),
+    .ifu_rresp  (ifu_rresp        ),
+    .ifu_rvalid (ifu_rvalid       ),
+    .ifu_rready (ifu_rready       ),
+    
+    //master AXI-Lite
+    .awaddr     (io_master_awaddr ),
+    .awsize     (io_master_awsize ),
+    .awvalid    (io_master_awvalid),
+    .awready    (io_master_awready),
+     
+    .wdata      (io_master_wdata  ),
+    .wstrb      (io_master_wstrb  ),
+    .wvalid     (io_master_wvalid ),
+    .wready     (io_master_wready ),
+     
+    .bresp      (io_master_bresp  ), 
+    .bvalid     (io_master_bvalid ),
+    .bready     (io_master_bready ),
+     
+    .araddr     (io_master_araddr ),
+    .arsize     (io_master_arsize ),
+    .arvalid    (io_master_arvalid),    
+    .arready    (io_master_arready),
+    
+    .rdata      (io_master_rdata  ),
+    .rresp      (io_master_rresp  ),
+    .rvalid     (io_master_rvalid ),
+    .rready     (io_master_rready )
+                              
+);
 ysyx_25010009_ifu #(
 	.DATA_WIDTH(DATA_WIDTH),
 	.ADDR_WIDTH(ADDR_WIDTH),

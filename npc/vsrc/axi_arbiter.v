@@ -34,34 +34,27 @@ module ysyx_25010009_axi_arbiter #(
     output                  ifu_rvalid ,
     input                   ifu_rready ,
 //ram axi-lite output
-    output [ADDR_WIDTH-1:0] ram_awaddr ,
-    output [           2:0] ram_awsize ,
-    output                  ram_awvalid,
-    input                   ram_awready,
-    output [DATA_WIDTH-1:0] ram_wdata  ,
-    output [           3:0] ram_wstrb  ,
-    output                  ram_wvalid ,
-    input                   ram_wready ,
-    input  [           2:0] ram_bresp  ,
-    input                   ram_bvalid ,
-    output                  ram_bready ,
-    output [ADDR_WIDTH-1:0] ram_araddr ,
-    output [           2:0] ram_arsize ,
-    output                  ram_arvalid,
-    input                   ram_arready,
-    input  [DATA_WIDTH-1:0] ram_rdata  ,
-    input  [           2:0] ram_rresp  ,
-    input                   ram_rvalid ,
-    output                  ram_rready 
+    output [ADDR_WIDTH-1:0] awaddr     ,
+    output [           2:0] awsize     ,
+    output                  awvalid    ,
+    input                   awready    ,
+    output [DATA_WIDTH-1:0] wdata      ,
+    output [           3:0] wstrb      ,
+    output                  wvalid     ,
+    input                   wready     ,
+    input  [           2:0] bresp      ,
+    input                   bvalid     ,
+    output                  bready     ,
+    output [ADDR_WIDTH-1:0] araddr     ,
+    output [           2:0] arsize     ,
+    output                  arvalid    ,
+    input                   arready    ,
+    input  [DATA_WIDTH-1:0] rdata      ,
+    input  [           2:0] rresp      ,
+    input                   rvalid     ,
+    output                  rready     
 );
 
-reg lsu_aw_access;
-reg lsu_w_access;
-reg ram_b_access;
-reg lsu_ar_access;
-reg lsu_r_access;
-reg ifu_ar_access;
-reg ram_r_access;
 /*   Read State Machine   */
 localparam R_IDLE   = 2'b00;
 localparam R_WAIT_1 = 2'b01;
@@ -76,12 +69,12 @@ always @(*) begin
             else                 r_next_state = R_IDLE  ;
         end
         R_WAIT_1 : begin
-            if (ram_rvalid && ifu_rready) r_next_state = R_IDLE  ;
-            else                          r_next_state = R_WAIT_1;
+            if (rvalid && ifu_rready) r_next_state = R_IDLE  ;
+            else                      r_next_state = R_WAIT_1;
         end
         R_WAIT_2 : begin
-            if (ram_rvalid && lsu_rready) r_next_state = R_IDLE  ;
-            else                          r_next_state = R_WAIT_2;
+            if (rvalid && lsu_rready) r_next_state = R_IDLE  ;
+            else                      r_next_state = R_WAIT_2;
         end
         default  : r_next_state = R_IDLE;
     endcase
@@ -96,38 +89,38 @@ always @(posedge clk, posedge rst) begin
 end
 
 //ar
-assign ram_arvalid = ((ifu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_1)) ? ifu_arvalid :
+assign arvalid = ((ifu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_1)) ? ifu_arvalid :
                      ((lsu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_2)) ? lsu_arvalid : 0;
-assign ifu_arready = ram_arready;
-assign lsu_arready = ram_arready;
-assign ram_arsize  = ((ifu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_1)) ? ifu_arsize  :
+assign ifu_arready = arready;
+assign lsu_arready = arready;
+assign arsize  = ((ifu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_1)) ? ifu_arsize  :
                      ((lsu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_2)) ? lsu_arsize  : 0;
-assign ram_araddr  = ((ifu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_1)) ? ifu_araddr  :
+assign araddr  = ((ifu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_1)) ? ifu_araddr  :
                      ((lsu_arvalid && (r_current_state == R_IDLE)) || (r_current_state == R_WAIT_2)) ? lsu_araddr  : 0;
 //r
-assign ifu_rvalid = r_current_state == R_WAIT_1 ? ram_rvalid : 0;
-assign lsu_rvalid = r_current_state == R_WAIT_2 ? ram_rvalid : 0;
-assign ram_rready = r_current_state == R_WAIT_1 ? ifu_rready :
+assign ifu_rvalid = r_current_state == R_WAIT_1 ? rvalid : 0;
+assign lsu_rvalid = r_current_state == R_WAIT_2 ? rvalid : 0;
+assign rready = r_current_state == R_WAIT_1 ? ifu_rready :
                     r_current_state == R_WAIT_2 ? lsu_rready : 0;
-assign ifu_rdata  = r_current_state == R_WAIT_1 ? ram_rdata  : 0;
-assign lsu_rdata  = r_current_state == R_WAIT_2 ? ram_rdata  : 0;
-assign ifu_rresp  = r_current_state == R_WAIT_1 ? ram_rresp  : 0;
-assign lsu_rresp  = r_current_state == R_WAIT_2 ? ram_rresp  : 0;
+assign ifu_rdata  = r_current_state == R_WAIT_1 ? rdata  : 0;
+assign lsu_rdata  = r_current_state == R_WAIT_2 ? rdata  : 0;
+assign ifu_rresp  = r_current_state == R_WAIT_1 ? rresp  : 0;
+assign lsu_rresp  = r_current_state == R_WAIT_2 ? rresp  : 0;
 
 
 //aw
-assign ram_awvalid = lsu_awvalid;
-assign lsu_awready = ram_awready;
-assign ram_awaddr  = lsu_awaddr ;
-assign ram_awsize  = lsu_awsize ;
+assign awvalid = lsu_awvalid;
+assign lsu_awready = awready;
+assign awaddr  = lsu_awaddr ;
+assign awsize  = lsu_awsize ;
 //w
-assign ram_wvalid  = lsu_wvalid ;
-assign lsu_wready  = ram_wready ;
-assign ram_wdata   = lsu_wdata  ;
-assign ram_wstrb   = lsu_wstrb  ;
+assign wvalid  = lsu_wvalid ;
+assign lsu_wready  = wready ;
+assign wdata   = lsu_wdata  ;
+assign wstrb   = lsu_wstrb  ;
 //b
-assign lsu_bvalid  = ram_bvalid ;
-assign ram_bready  = lsu_bready ;
-assign lsu_bresp   = ram_bresp  ;
+assign lsu_bvalid  = bvalid ;
+assign bready  = lsu_bready ;
+assign lsu_bresp   = bresp  ;
 
 endmodule
