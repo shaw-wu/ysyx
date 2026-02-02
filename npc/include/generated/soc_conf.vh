@@ -3,4 +3,7 @@
 // DO NOT EDIT BY HAND
 // ************************************************************
 
+`define CONFIG_SERIAL_MMIO 32'ha00003f8
+`define CONFIG_MSIZE 32'h8000000
 `define CONFIG_USE_LFSR 1
+`define CONFIG_MBASE 32'h80000000

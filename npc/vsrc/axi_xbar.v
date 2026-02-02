@@ -1,0 +1,71 @@
+module ysyx_25010009_axi_xbar #(
+	parameter ADDR_WIDTH   = 32, 
+	parameter DATA_WIDTH   = 32
+)(
+    input                   clk                   ,
+    input                   rst                   ,
+//master axi-lite input
+    input  [ADDR_WIDTH-1:0] io_master_cpu_awaddr  ,
+    input  [           2:0] io_master_cpu_awsize  ,
+    input                   io_master_cpu_awvalid ,
+    output                  io_master_cpu_awready ,
+    input  [DATA_WIDTH-1:0] io_master_cpu_wdata   ,
+    input  [           3:0] io_master_cpu_wstrb   ,
+    input                   io_master_cpu_wvalid  ,
+    output                  io_master_cpu_wready  ,
+    output [           2:0] io_master_cpu_bresp   ,
+    output                  io_master_cpu_bvalid  ,
+    input                   io_master_cpu_bready  ,
+    input  [ADDR_WIDTH-1:0] io_master_cpu_araddr  ,
+    input  [           2:0] io_master_cpu_arsize  ,
+    input                   io_master_cpu_arvalid ,
+    output                  io_master_cpu_arready ,
+    output [DATA_WIDTH-1:0] io_master_cpu_rdata   ,
+    output [           2:0] io_master_cpu_rresp   ,
+    output                  io_master_cpu_rvalid  ,
+    input                   io_master_cpu_rready  ,
+//ram axi-lite output
+    output [ADDR_WIDTH-1:0] io_slaver_sram_awaddr ,
+    output [           2:0] io_slaver_sram_awsize ,
+    output                  io_slaver_sram_awvalid,
+    input                   io_slaver_sram_awready,
+    output [DATA_WIDTH-1:0] io_slaver_sram_wdata  ,
+    output [           3:0] io_slaver_sram_wstrb  ,
+    output                  io_slaver_sram_wvalid ,
+    input                   io_slaver_sram_wready ,
+    input  [           2:0] io_slaver_sram_bresp  ,
+    input                   io_slaver_sram_bvalid ,
+    output                  io_slaver_sram_bready ,
+    output [ADDR_WIDTH-1:0] io_slaver_sram_araddr ,
+    output [           2:0] io_slaver_sram_arsize ,
+    output                  io_slaver_sram_arvalid,
+    input                   io_slaver_sram_arready,
+    input  [DATA_WIDTH-1:0] io_slaver_sram_rdata  ,
+    input  [           2:0] io_slaver_sram_rresp  ,
+    input                   io_slaver_sram_rvalid ,
+    output                  io_slaver_sram_rready ,
+//ram axi-lite output
+    output [ADDR_WIDTH-1:0] io_slaver_uart_awaddr ,
+    output [           2:0] io_slaver_uart_awsize ,
+    output                  io_slaver_uart_awvalid,
+    input                   io_slaver_uart_awready,
+    output [DATA_WIDTH-1:0] io_slaver_uart_wdata  ,
+    output [           3:0] io_slaver_uart_wstrb  ,
+    output                  io_slaver_uart_wvalid ,
+    input                   io_slaver_uart_wready ,
+    input  [           2:0] io_slaver_uart_bresp  ,
+    input                   io_slaver_uart_bvalid ,
+    output                  io_slaver_uart_bready 
+    //output [ADDR_WIDTH-1:0] io_slaver_uart_araddr ,
+    //output [           2:0] io_slaver_uart_arsize ,
+    //output                  io_slaver_uart_arvalid,
+    //input                   io_slaver_uart_arready,
+    //input  [DATA_WIDTH-1:0] io_slaver_uart_rdata  ,
+    //input  [           2:0] io_slaver_uart_rresp  ,
+    //input                   io_slaver_uart_rvalid ,
+    //output                  io_slaver_uart_rready 
+);
+
+
+
+endmodule
