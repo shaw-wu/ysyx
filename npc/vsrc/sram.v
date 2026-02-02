@@ -15,7 +15,6 @@ module ysyx_25010009_sram#(
 	input  [XLEN-1:0] mem_wdata 
 );
 
-`ifdef VERILATOR
 `ifdef CONFIG_USE_LFSR
 reg mem_work;
 wire [7:0] cnt_max;
@@ -86,12 +85,13 @@ always @(posedge clk or posedge rst) begin
 	end
 end
 
+assign resp =  ((current_state == WAITR) || (current_state == WAITW));
+
+`ifdef VERILATOR
 /*-----------------------------------------------*/
 import "DPI-C" function int unsigned dpi_vaddr_read(int unsigned addr, int len, int ren);
 
 reg [XLEN-1:0] reg_rdata;
-
-assign resp =  ((current_state == WAITR) || (current_state == WAITW));
 
 always @(posedge clk or posedge rst) begin
 	if(rst) begin
@@ -111,6 +111,29 @@ always @(posedge clk) begin
 	if(mem_work && (current_state == WORKW)) begin
 	//if(awvalid) begin
 		dpi_vaddr_write(mem_waddr, len, mem_wdata, {31'b0, mem_work && (current_state == WORKW)});
+	end
+end
+`else
+//有问题的，没有处理好addr和data
+reg [7:0] mem [0:1024*1024];
+reg [31:0] reg_rdata;
+wire raddr_word = mem_raddr>>4;
+always @(posedge clk or posedge rst) begin
+	if(rst) begin
+		reg_rdata <= 0;
+	end else begin
+		if(mem_work && (current_state == WORKR)) begin
+	        reg_rdata <= {mem[raddr_word+3]}, mem[raddr_word+2]}, mem[raddr_word+1]}, mem[raddr_word]};
+        end
+	end
+end
+
+assign mem_rdata = reg_rdata;
+
+wire waddr_word = mem_waddr>>4;
+always @(posedge clk) begin
+	if(mem_work && (current_state == WORKW)) begin
+	    mem[waddr_word] <= mem_wdata;
 	end
 end
 `endif
