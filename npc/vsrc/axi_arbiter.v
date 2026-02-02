@@ -107,20 +107,19 @@ assign lsu_rdata  = r_current_state == R_WAIT_2 ? rdata  : 0;
 assign ifu_rresp  = r_current_state == R_WAIT_1 ? rresp  : 0;
 assign lsu_rresp  = r_current_state == R_WAIT_2 ? rresp  : 0;
 
-
 //aw
-assign awvalid = lsu_awvalid;
-assign lsu_awready = awready;
-assign awaddr  = lsu_awaddr ;
-assign awsize  = lsu_awsize ;
+assign awvalid     = lsu_awvalid;
+assign lsu_awready = awready    ;
+assign awaddr      = lsu_awaddr ;
+assign awsize      = lsu_awsize ;
 //w
-assign wvalid  = lsu_wvalid ;
-assign lsu_wready  = wready ;
-assign wdata   = lsu_wdata  ;
-assign wstrb   = lsu_wstrb  ;
+assign wvalid      = lsu_wvalid ;
+assign lsu_wready  = wready     ;
+assign wdata       = lsu_wdata  ;
+assign wstrb       = lsu_wstrb  ;
 //b
-assign lsu_bvalid  = bvalid ;
-assign bready  = lsu_bready ;
-assign lsu_bresp   = bresp  ;
+assign lsu_bvalid  = bvalid     ;
+assign bready      = lsu_bready ;
+assign lsu_bresp   = bresp      ;
 
 endmodule

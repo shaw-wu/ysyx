@@ -1,4 +1,5 @@
-module ysyx_25010009_axi_xbar #(
+`include "soc_conf.vh"
+module ysyx_2500009_axi_xbar #(
 	parameter ADDR_WIDTH   = 32, 
 	parameter DATA_WIDTH   = 32
 )(
@@ -66,6 +67,123 @@ module ysyx_25010009_axi_xbar #(
     //output                  io_slaver_uart_rready 
 );
 
+//Signal Feedthrough 
 
+reg [ADDR_WIDTH-1:0] master_cpu_awaddr;
+reg [           2:0] master_cpu_awsize;
+reg [DATA_WIDTH-1:0] master_cpu_wdata ;
+reg [           3:0] master_cpu_wstrb ;
+reg [ADDR_WIDTH-1:0] master_cpu_araddr;
+
+wire aw_sram_access = (io_master_cpu_awaddr >= `CONFIG_MBASE) && (io_master_cpu_awaddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
+wire ar_sram_access = (io_master_cpu_araddr >= `CONFIG_MBASE) && (io_master_cpu_araddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
+wire aw_uart_access = (io_master_cpu_awaddr >= `CONFIG_SERIAL_MMIO) && (io_master_cpu_awaddr < `CONFIG_SERIAL_MMIO + 8);
+
+wire w_sram_access = (master_cpu_awaddr >= `CONFIG_MBASE) && (master_cpu_awaddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
+wire r_sram_access = (master_cpu_araddr >= `CONFIG_MBASE) && (master_cpu_araddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
+wire w_uart_access = (master_cpu_awaddr >= `CONFIG_SERIAL_MMIO) && (master_cpu_awaddr < `CONFIG_SERIAL_MMIO + 8);
+
+always @(posedge clk, posedge rst) begin
+    if(rst) master_cpu_araddr <= 0;
+    else begin
+        if(io_master_cpu_arvalid && io_master_cpu_arready)
+            master_cpu_araddr <= io_master_cpu_araddr;
+    end
+end
+
+parameter AW_IDLE   = 2'b00; 
+parameter AW_WAIT_W = 2'b01; 
+parameter AW_WAIT   = 2'b11; 
+parameter AW_ERR    = 2'b10; 
+
+reg [1:0] aw_current_state, aw_next_state;
+
+always @(*) begin
+    case(aw_current_state) 
+        AW_IDLE   : begin
+            if      (io_master_cpu_awvalid && io_master_cpu_awready && io_master_cpu_wvalid && (aw_sram_access || aw_uart_access)) aw_next_state = AW_WAIT  ;
+            else if (io_master_cpu_awvalid && io_master_cpu_awready                         && (aw_sram_access || aw_uart_access)) aw_next_state = AW_WAIT_W;
+            else if (io_master_cpu_awvalid && io_master_cpu_awready                                                              ) aw_next_state = AW_ERR   ;
+            else                                                                                                                   aw_next_state = AW_IDLE  ;
+        end
+        AW_WAIT_W : begin
+            if      (io_master_cpu_wvalid && io_master_cpu_wready && (w_sram_access || w_uart_access)) aw_next_state = AW_WAIT  ;
+            else if (io_master_cpu_wvalid && io_master_cpu_wready                                    ) aw_next_state = AW_ERR   ;
+            else                                                                                       aw_next_state = AW_WAIT_W;
+        end
+        AW_WAIT   : begin
+            if (io_master_cpu_bvalid && io_master_cpu_bready) aw_next_state = AW_IDLE;
+            else                                              aw_next_state = AW_WAIT;
+        end
+        AW_ERR    : begin
+            if (io_master_cpu_bvalid && io_master_cpu_bready) aw_next_state = AW_IDLE;
+            else                                              aw_next_state = AW_ERR ;
+        end
+        default : aw_next_state = AW_IDLE;
+    endcase
+end
+
+always @(posedge clk, posedge rst) begin
+    if(rst) begin
+        aw_current_state <= AW_IDLE;
+    end else begin
+        if(io_master_cpu_awvalid && io_master_cpu_awready) begin
+            master_cpu_awaddr <= io_master_cpu_awaddr;
+            master_cpu_awsize <= io_master_cpu_awsize;
+        end
+        if(io_master_cpu_wvalid && io_master_cpu_wready) begin
+            master_cpu_wdata  <= io_master_cpu_wdata ;
+            master_cpu_wstrb  <= io_master_cpu_wstrb ;
+        end
+        aw_current_state <= aw_next_state;
+    end
+end
+
+//AW
+assign io_master_cpu_awready  = ((aw_current_state == AW_IDLE) && aw_sram_access && io_slaver_sram_awready) ||
+                                ((aw_current_state == AW_IDLE) && aw_uart_access && io_slaver_uart_awready)    ;
+
+assign io_slaver_sram_awvalid = ((aw_current_state == AW_IDLE) && aw_sram_access && io_slaver_sram_awready)    ;
+assign io_slaver_sram_awaddr  =   aw_current_state == AW_IDLE ? io_master_cpu_awaddr : master_cpu_awaddr       ;
+assign io_slaver_sram_awsize  =   aw_current_state == AW_IDLE ? io_master_cpu_awsize : master_cpu_awsize       ;
+
+assign io_slaver_uart_awvalid = ((aw_current_state == AW_IDLE) && aw_uart_access && io_slaver_uart_awready)    ;
+assign io_slaver_uart_awaddr  =   aw_current_state == AW_IDLE ? io_master_cpu_awaddr : master_cpu_awaddr       ;
+assign io_slaver_uart_awsize  =   aw_current_state == AW_IDLE ? io_master_cpu_awsize : master_cpu_awsize       ;
+
+//W
+assign io_master_cpu_wready   = ((aw_current_state == AW_IDLE  ) && aw_sram_access && io_slaver_sram_wready) ||
+                                ((aw_current_state == AW_IDLE  ) && aw_uart_access && io_slaver_uart_wready) ||  
+                                ((aw_current_state == AW_WAIT_W) &&  w_sram_access && io_slaver_sram_wready) ||  
+                                ((aw_current_state == AW_WAIT_W) &&  w_uart_access && io_slaver_uart_wready)   ;
+
+assign io_slaver_sram_wvalid  = ((aw_current_state == AW_IDLE  ) && aw_sram_access && io_slaver_sram_wvalid) ||
+                                ((aw_current_state == AW_WAIT_W) &&  w_sram_access && io_slaver_sram_wvalid)   ;
+assign io_slaver_sram_wdata   = ((aw_current_state == AW_IDLE) && io_master_cpu_wvalid) || (aw_current_state == AW_WAIT_W) ? io_master_cpu_wdata : master_cpu_wdata;
+assign io_slaver_sram_wstrb   = ((aw_current_state == AW_IDLE) && io_master_cpu_wvalid) || (aw_current_state == AW_WAIT_W) ? io_master_cpu_wstrb : master_cpu_wstrb;
+
+assign io_slaver_uart_wvalid  = ((aw_current_state == AW_IDLE  ) && aw_uart_access && io_slaver_uart_wvalid) ||  
+                                ((aw_current_state == AW_WAIT_W) &&  w_uart_access && io_slaver_uart_wvalid)   ;
+assign io_slaver_uart_wdata   = ((aw_current_state == AW_IDLE) && io_master_cpu_wvalid) || (aw_current_state == AW_WAIT_W) ? io_master_cpu_wdata : master_cpu_wdata;
+assign io_slaver_uart_wstrb   = ((aw_current_state == AW_IDLE) && io_master_cpu_wvalid) || (aw_current_state == AW_WAIT_W) ? io_master_cpu_wstrb : master_cpu_wstrb;
+
+//B
+assign io_master_cpu_bvalid = (((aw_current_state == AW_WAIT) || (aw_current_state == AW_ERR)) && w_sram_access && io_slaver_sram_bvalid) ||
+                              (((aw_current_state == AW_WAIT) || (aw_current_state == AW_ERR)) && w_uart_access && io_slaver_uart_bvalid)   ;
+assign io_master_cpu_bresp  = (aw_current_state == AW_ERR) ? 3'b011 : 3'b00;
+
+assign io_slaver_sram_bready = ((aw_current_state == AW_WAIT) || (aw_current_state == AW_ERR)) && w_sram_access && io_master_cpu_bready     ;
+
+//AR
+assign io_master_cpu_arready  = io_slaver_sram_arready;
+assign io_slaver_sram_arvalid = io_master_cpu_arvalid ;
+assign io_slaver_sram_araddr  = io_master_cpu_araddr  ;
+assign io_slaver_sram_arsize  = io_master_cpu_arsize  ;
+
+//R
+assign io_master_cpu_rvalid   = io_slaver_sram_rvalid ;
+assign io_slaver_sram_rready  = io_master_cpu_arvalid ;
+assign io_master_cpu_rdata    = io_slaver_sram_rdata  ;
+assign io_master_cpu_rresp    = r_sram_access ? 3'b000 : 3'b011;
 
 endmodule

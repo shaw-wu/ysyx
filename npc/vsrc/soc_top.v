@@ -27,6 +27,26 @@ localparam OPMUX_WIDTH  = 4 ;
 localparam PCMUX_WIDTH  = 2 ;
 localparam INST_BITS	= 6 ;
 
+wire [ADDR_WIDTH-1:0] m_cpu_awaddr ;
+wire [           2:0] m_cpu_awsize ;
+wire                  m_cpu_awvalid;
+wire                  m_cpu_awready;
+wire [DATA_WIDTH-1:0] m_cpu_wdata  ;
+wire [           3:0] m_cpu_wstrb  ;
+wire                  m_cpu_wvalid ;
+wire                  m_cpu_wready ;
+wire [           2:0] m_cpu_bresp  ;
+wire                  m_cpu_bvalid ;
+wire                  m_cpu_bready ;
+wire [ADDR_WIDTH-1:0] m_cpu_araddr ;
+wire [           2:0] m_cpu_arsize ;
+wire                  m_cpu_arvalid;
+wire                  m_cpu_arready;
+wire [DATA_WIDTH-1:0] m_cpu_rdata  ;
+wire [           2:0] m_cpu_rresp  ;
+wire                  m_cpu_rvalid ;
+wire                  m_cpu_rready ;
+
 wire [ADDR_WIDTH-1:0] s_ram_awaddr ;
 wire [           2:0] s_ram_awsize ;
 wire                  s_ram_awvalid;
@@ -100,21 +120,21 @@ ysyx_25010009_sram_axi_bridge #(
     .awsize      (s_ram_awsize ),
     .awvalid     (s_ram_awvalid),
     .awready     (s_ram_awready),
-                  s_
+                  
     .wdata       (s_ram_wdata  ),
     .wstrb       (s_ram_wstrb  ),
     .wvalid      (s_ram_wvalid ),
     .wready      (s_ram_wready ),
-                  s_
+                  
     .bresp       (s_ram_bresp  ), 
     .bvalid      (s_ram_bvalid ),
     .bready      (s_ram_bready ),
-                  s_
+                  
     .araddr      (s_ram_araddr ),
     .arsize      (s_ram_arsize ),
     .arvalid     (s_ram_arvalid),    
     .arready     (s_ram_arready),
-                  s_
+                  
     .rdata       (s_ram_rdata  ),
     .rresp       (s_ram_rresp  ),
     .rvalid      (s_ram_rvalid ),
@@ -133,7 +153,7 @@ ysyx_25010009_sram_axi_bridge #(
 ysyx_25010009_uart_axi_bridge #(
     .ADDR_WIDTH(ADDR_WIDTH),
     .DATA_WIDTH(DATA_WIDTH)
-) sram_axi_bridge (
+) uart_axi_bridge (
     .aclk        (clk           ),
 `ifdef VERILATOR
 	.areset      (buf_rst	    ),
@@ -175,6 +195,87 @@ ysyx_25010009_uart_axi_bridge #(
     .mem_wdata   (uart_wdata    )
 );
 
+ysyx_2500009_axi_xbar #(
+	.ADDR_WIDTH(ADDR_WIDTH), 
+	.DATA_WIDTH(DATA_WIDTH)
+) XBAR (
+    .clk                   (clk          ),
+`ifdef VERILATOR
+	.rst                   (buf_rst	     ),
+`else
+	.rst                   (rst		     ),
+`endif
+//master axi-lite input
+    .io_master_cpu_awaddr  (m_cpu_awaddr ),
+    .io_master_cpu_awsize  (m_cpu_awsize ),
+    .io_master_cpu_awvalid (m_cpu_awvalid),
+    .io_master_cpu_awready (m_cpu_awready),
+                                         
+    .io_master_cpu_wdata   (m_cpu_wdata  ),
+    .io_master_cpu_wstrb   (m_cpu_wstrb  ),
+    .io_master_cpu_wvalid  (m_cpu_wvalid ),
+    .io_master_cpu_wready  (m_cpu_wready ),
+                                         
+    .io_master_cpu_bresp   (m_cpu_bresp  ),
+    .io_master_cpu_bvalid  (m_cpu_bvalid ),
+    .io_master_cpu_bready  (m_cpu_bready ),
+                                         
+    .io_master_cpu_araddr  (m_cpu_araddr ),
+    .io_master_cpu_arsize  (m_cpu_arsize ),
+    .io_master_cpu_arvalid (m_cpu_arvalid),
+    .io_master_cpu_arready (m_cpu_arready),
+                                         
+    .io_master_cpu_rdata   (m_cpu_rdata  ),
+    .io_master_cpu_rresp   (m_cpu_rresp  ),
+    .io_master_cpu_rvalid  (m_cpu_rvalid ),
+    .io_master_cpu_rready  (m_cpu_rready ),
+//ram axi-lite output
+    .io_slaver_sram_awaddr (s_ram_awaddr ),
+    .io_slaver_sram_awsize (s_ram_awsize ),
+    .io_slaver_sram_awvalid(s_ram_awvalid),
+    .io_slaver_sram_awready(s_ram_awready),
+                            
+    .io_slaver_sram_wdata  (s_ram_wdata  ),
+    .io_slaver_sram_wstrb  (s_ram_wstrb  ),
+    .io_slaver_sram_wvalid (s_ram_wvalid ),
+    .io_slaver_sram_wready (s_ram_wready ),
+                            
+    .io_slaver_sram_bresp  (s_ram_bresp  ),
+    .io_slaver_sram_bvalid (s_ram_bvalid ),
+    .io_slaver_sram_bready (s_ram_bready ),
+                            
+    .io_slaver_sram_araddr (s_ram_araddr ),
+    .io_slaver_sram_arsize (s_ram_arsize ),
+    .io_slaver_sram_arvalid(s_ram_arvalid),
+    .io_slaver_sram_arready(s_ram_arready),
+                            
+    .io_slaver_sram_rdata  (s_ram_rdata  ),
+    .io_slaver_sram_rresp  (s_ram_rresp  ),
+    .io_slaver_sram_rvalid (s_ram_rvalid ),
+    .io_slaver_sram_rready (s_ram_rready ),
+//ram axi-lite output
+    .io_slaver_uart_awaddr (s_uart_awaddr ),
+    .io_slaver_uart_awsize (s_uart_awsize ),
+    .io_slaver_uart_awvalid(s_uart_awvalid),
+    .io_slaver_uart_awready(s_uart_awready),
+                            
+    .io_slaver_uart_wdata  (s_uart_wdata  ),
+    .io_slaver_uart_wstrb  (s_uart_wstrb  ),
+    .io_slaver_uart_wvalid (s_uart_wvalid ),
+    .io_slaver_uart_wready (s_uart_wready ),
+                                          
+    .io_slaver_uart_bresp  (s_uart_bresp  ),
+    .io_slaver_uart_bvalid (s_uart_bvalid ),
+    .io_slaver_uart_bready (s_uart_bready )
+    //.io_slaver_uart_araddr (),
+    //.io_slaver_uart_arsize (),
+    //.io_slaver_uart_arvalid(),
+    //.io_slaver_uart_arready(),
+    //.io_slaver_uart_rdata  (),
+    //.io_slaver_uart_rresp  (),
+    //.io_slaver_uart_rvalid (),
+    //.io_slaver_uart_rready ()
+);
 ysyx_25010009_cpu_top #(
 	.PC_INIT	 (PC_INIT	  ),
 	.ADDR_WIDTH  (ADDR_WIDTH  ), 
@@ -243,8 +344,9 @@ ysyx_25010009_sram #(
 );
 
 ysyx_25010009_uart #(
-	.XLEN(DATA_WIDTH)
-) SRAM (
+	.DATA_WIDTH(DATA_WIDTH),
+	.ADDR_WIDTH(ADDR_WIDTH)
+) UART (
 	.clk	  (clk	     ),
 `ifdef VERILATOR
 	.rst      (buf_rst	 ),

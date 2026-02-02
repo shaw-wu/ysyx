@@ -1,5 +1,6 @@
 module ysyx_25010009_uart #(
-    DATA_WIDTH = 32
+    DATA_WIDTH = 32,
+    ADDR_WIDTH = 32
 )(
     input                   clk  ,
     input                   rst  ,
@@ -8,10 +9,11 @@ module ysyx_25010009_uart #(
     /*verilator lint_off UNUSED*/
     input  [ADDR_WIDTH-1:0] waddr,
     input  [DATA_WIDTH-1:0] wdata
-)
+);
 
 reg reg_tx_req ;
 reg reg_tx_resp;
+
 always @(posedge clk, posedge rst) begin
     if(rst) begin
         reg_tx_req  <= 0;
