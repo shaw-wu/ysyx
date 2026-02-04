@@ -119,7 +119,7 @@ assign bvalid  = resp && (w_current_state == W_WAIT_B);
 //assign we =  (w_current_state == W_WAIT_B)              || ((w_current_state == W_IDLE  ) && awvalid && wvalid ) || 
 //            ((w_current_state == W_WAIT_AW) && awvalid) || ((w_current_state == W_WAIT_W) && wvalid); 
 //assign req = we || (r_current_state == R_WAIT_R) || ((r_current_state == R_IDLE) && arvalid); 
-assign req =  (w_current_state == W_WAIT_B)              || ((w_current_state == W_IDLE  ) && awvalid && wvalid ) || 
+assign req = ((w_current_state == W_IDLE  ) && awvalid && wvalid ) || 
              ((w_current_state == W_WAIT_AW) && awvalid) || ((w_current_state == W_WAIT_W) && wvalid); 
 
 //wire [31:0] rlen = arsize == 3'b00 ? 32'd1 :

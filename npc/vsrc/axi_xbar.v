@@ -75,9 +75,18 @@ reg [DATA_WIDTH-1:0] master_cpu_wdata ;
 reg [           3:0] master_cpu_wstrb ;
 reg [ADDR_WIDTH-1:0] master_cpu_araddr;
 
-wire aw_sram_access = (io_master_cpu_awaddr >= `CONFIG_MBASE) && (io_master_cpu_awaddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
-wire ar_sram_access = (io_master_cpu_araddr >= `CONFIG_MBASE) && (io_master_cpu_araddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
-wire aw_uart_access = (io_master_cpu_awaddr >= `CONFIG_SERIAL_MMIO) && (io_master_cpu_awaddr < `CONFIG_SERIAL_MMIO + 8);
+`ifdef VERILATOR
+import "DPI-C" function void use_device(int is_device);
+
+always @(posedge clk) begin
+    if(io_master_cpu_awvalid && io_master_cpu_awready) use_device({31'b0, aw_uart_access});
+    if(io_master_cpu_arvalid && io_master_cpu_arready) use_device({31'b0,           1'b0});
+end
+`endif
+
+wire aw_sram_access = io_master_cpu_awvalid && (io_master_cpu_awaddr >= `CONFIG_MBASE) && (io_master_cpu_awaddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
+wire ar_sram_access = io_master_cpu_arvalid && (io_master_cpu_araddr >= `CONFIG_MBASE) && (io_master_cpu_araddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
+wire aw_uart_access = io_master_cpu_awvalid && (io_master_cpu_awaddr >= `CONFIG_SERIAL_MMIO) && (io_master_cpu_awaddr < `CONFIG_SERIAL_MMIO + 8);
 
 wire w_sram_access = (master_cpu_awaddr >= `CONFIG_MBASE) && (master_cpu_awaddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
 wire r_sram_access = (master_cpu_araddr >= `CONFIG_MBASE) && (master_cpu_araddr < (`CONFIG_MBASE + `CONFIG_MSIZE));
@@ -157,13 +166,13 @@ assign io_master_cpu_wready   = ((aw_current_state == AW_IDLE  ) && aw_sram_acce
                                 ((aw_current_state == AW_WAIT_W) &&  w_sram_access && io_slaver_sram_wready) ||  
                                 ((aw_current_state == AW_WAIT_W) &&  w_uart_access && io_slaver_uart_wready)   ;
 
-assign io_slaver_sram_wvalid  = ((aw_current_state == AW_IDLE  ) && aw_sram_access && io_slaver_sram_wvalid) ||
-                                ((aw_current_state == AW_WAIT_W) &&  w_sram_access && io_slaver_sram_wvalid)   ;
+assign io_slaver_sram_wvalid  = ((aw_current_state == AW_IDLE  ) && aw_sram_access && io_master_cpu_wvalid) ||
+                                ((aw_current_state == AW_WAIT_W) &&  w_sram_access && io_master_cpu_wvalid)   ;
 assign io_slaver_sram_wdata   = ((aw_current_state == AW_IDLE) && io_master_cpu_wvalid) || (aw_current_state == AW_WAIT_W) ? io_master_cpu_wdata : master_cpu_wdata;
 assign io_slaver_sram_wstrb   = ((aw_current_state == AW_IDLE) && io_master_cpu_wvalid) || (aw_current_state == AW_WAIT_W) ? io_master_cpu_wstrb : master_cpu_wstrb;
 
-assign io_slaver_uart_wvalid  = ((aw_current_state == AW_IDLE  ) && aw_uart_access && io_slaver_uart_wvalid) ||  
-                                ((aw_current_state == AW_WAIT_W) &&  w_uart_access && io_slaver_uart_wvalid)   ;
+assign io_slaver_uart_wvalid  = ((aw_current_state == AW_IDLE  ) && aw_uart_access && io_master_cpu_wvalid) ||  
+                                ((aw_current_state == AW_WAIT_W) &&  w_uart_access && io_master_cpu_wvalid)   ;
 assign io_slaver_uart_wdata   = ((aw_current_state == AW_IDLE) && io_master_cpu_wvalid) || (aw_current_state == AW_WAIT_W) ? io_master_cpu_wdata : master_cpu_wdata;
 assign io_slaver_uart_wstrb   = ((aw_current_state == AW_IDLE) && io_master_cpu_wvalid) || (aw_current_state == AW_WAIT_W) ? io_master_cpu_wstrb : master_cpu_wstrb;
 
@@ -173,6 +182,7 @@ assign io_master_cpu_bvalid = (((aw_current_state == AW_WAIT) || (aw_current_sta
 assign io_master_cpu_bresp  = (aw_current_state == AW_ERR) ? 3'b011 : 3'b00;
 
 assign io_slaver_sram_bready = ((aw_current_state == AW_WAIT) || (aw_current_state == AW_ERR)) && w_sram_access && io_master_cpu_bready     ;
+assign io_slaver_uart_bready = ((aw_current_state == AW_WAIT) || (aw_current_state == AW_ERR)) && w_uart_access && io_master_cpu_bready     ;
 
 //AR
 assign io_master_cpu_arready  = io_slaver_sram_arready;
@@ -182,7 +192,7 @@ assign io_slaver_sram_arsize  = io_master_cpu_arsize  ;
 
 //R
 assign io_master_cpu_rvalid   = io_slaver_sram_rvalid ;
-assign io_slaver_sram_rready  = io_master_cpu_arvalid ;
+assign io_slaver_sram_rready  = io_master_cpu_rready  ;
 assign io_master_cpu_rdata    = io_slaver_sram_rdata  ;
 assign io_master_cpu_rresp    = r_sram_access ? 3'b000 : 3'b011;
 

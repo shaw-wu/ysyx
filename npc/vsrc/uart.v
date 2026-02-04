@@ -19,7 +19,7 @@ always @(posedge clk, posedge rst) begin
         reg_tx_req  <= 0;
         reg_tx_resp <= 0;
     end else begin
-        if(reg_tx_req) $write("%c", wdata[7:0]);
+        if(reg_tx_req) $write("uart%c", wdata[7:0]);
         reg_tx_req  <= req;
         reg_tx_resp <= reg_tx_req;
     end
