@@ -57,6 +57,16 @@ config RTC_PORT
 config RTC_MMIO
   hex "MMIO address of the timer"
   default 0xa0000048
+
+config V_RTC_PORT
+  depends on HAS_PORT_IO
+  hex "Port address of the timer"
+  default RTC_PORT 
+
+config V_RTC_MMIO
+  hex "MMIO address of the timer"
+  default RTC_MMIO 
+
 endif # HAS_TIMER
 
 menuconfig HAS_KEYBOARD

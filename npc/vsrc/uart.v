@@ -1,6 +1,6 @@
 module ysyx_25010009_uart #(
-    DATA_WIDTH = 32,
-    ADDR_WIDTH = 32
+    parameter DATA_WIDTH = 32,
+    parameter ADDR_WIDTH = 32
 )(
     input                   clk  ,
     input                   rst  ,

@@ -44,4 +44,4 @@ sim:$(BIN)
 clean_bd:
 	rm -rf $(BUILD_DIR)
 .PHONY: default all sim clean_bd
-include ~/ysyx-workbench/Makefile
+#include ~/ysyx-workbench/Makefile

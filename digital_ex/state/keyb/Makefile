@@ -1,83 +1,47 @@
-# Check for sanity to avoid later confusion
-ifneq ($(words $(CURDIR)),1)
- $(error Unsupported: GNU Make cannot build in directories containing spaces, build elsewhere: '$(CURDIR)')
-endif
+TOP_NAME = top
+NXDC_FILE = $(shell pwd)/constr/$(TOP_NAME).nxdc
+INC_PATH ?=
 
-# Set up variables
-ifeq ($(VERILATOR_ROOT),)
 VERILATOR = verilator
-else
-export VERILATOR_ROOT
-VERILATOR = $(VERILATOR_ROOT)/bin/verilator
-endif
+VERILATOR_CFLAGS += --cc --build --trace
+#-MMD --build --cc 
+									#-03 --x-assign fast --x-initial --noassert
 
+BUILD_DIR = $(shell pwd)/build
+OBJ_DIR = $(BUILD_DIR)/obj_dir
+BIN = $(BUILD_DIR)/$(TOP_NAME)
 
-######################################################################
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+$(SRC_AUTO_BIND): $(NXDC_FILE)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
-#配置选项
-TOP_MODULE = keyboard_sim
-SIM_TIME ?= 50000000
-ENABLE_WAVEFORM ?= 1
+VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
+CSRCS = $(shell find $(abspath ./csrc) -name "*.cpp")
+CSRCS += $(SRC_AUTO_BIND)
+include $(NVBOARD_HOME)/scripts/nvboard.mk
 
-#目录
-BUILD_DIR = $(CURDIR)/build
-CSRC_DIR = $(CURDIR)/csrc
-VSRC_DIR = $(CURDIR)/vsrc
+INCFLAGS = $(addprefix -I, $(INC_PATH))
+CXXFLAGS = $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\"" -DENABLE_WAVEFORM
 
-#编译与配置标志
-VERILATOR_FLAGS += -cc --exe \
-									 -Wall \
-									 --trace \
-									 --timing \
-									 --build
-CXXFLAGS += -DSIM_TIME=$(SIM_TIME)
-ifeq ($(ENABLE_WAVEFORM), 1)
-CXXFLAGS += -DENABLE_WAVEFORM
-endif
+$(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+	@rm -rf $(OBJ_DIR)
+	$(VERILATOR) $(VERILATOR_CFLAGS) \
+		--top-module $(TOP_NAME) $^ \
+		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
+		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
-#源文件
-CSRC = $(wildcard $(CSRC_DIR)/*.c) $(wildcard $(CSRC_DIR)/*.cpp)
-VSRC = $(wildcard $(VSRC_DIR)/*.v)
+all: default
 
+#run: $(BIN)
+#	@$^
+#clean:
+#	rm -rf $(BUILD_DIR)
+#.PHONY----
 
-######################################################################
-default: run
-
-run:
+sim:$(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@echo "-- VERILATE ----------------"
-	@echo "Input Verilog sources: $(VSRC)"
-	@echo "Input C/C++ sources: $(CSRC)"
-	$(VERILATOR) $(VERILATOR_FLAGS) \
-		-Mdir $(BUILD_DIR)/obj_dir \
-		-top-module $(TOP_MODULE) \
-		$(CSRC) $(VSRC) \
-		-CFLAGS "$(CXXFLAGS)"
-	@echo "-- BUILD -------------------"
-	@if [ -d $(BUILD_DIR)/obj_dir ]; then \
-		echo "Running simulation at $(BUILD_DIR)/obj_dir"; \
-		ls -l $(BUILD_DIR)/obj_dir/"V$(TOP_MODULE)"; \
-		$(BUILD_DIR)/obj_dir/"V$(TOP_MODULE)"; \
-		echo "--  RUN  -------------------"; \
-	fi
-
-wave:
-	@if [ -f $(BUILD_DIR)/dump.vcd ]; then \
-		echo "Check wave"; \
-		gtkwave $(BUILD_DIR)/dump.vcd; \
-		echo "--  RUN  -------------------"; \
-	else \
-		echo "No dump.vcd found!"; \
-	fi
-
-
-######################################################################
-# Other targets
-
-clean :
-	@if [ -d $(BUILD_DIR) ]; then \
-		echo "Cleaning build directory."; \
-		rm -rf $(BUILD_DIR); \
-	fi
-	@mkdir -p $(BUILD_DIR)
-include ~/ysyx-workbench/Makefile
+	@$^
+clean_bd:
+	rm -rf $(BUILD_DIR)
+.PHONY: default all sim clean_bd
+#include ~/ysyx-workbench/Makefile

@@ -52,7 +52,7 @@ always @(*) begin
             if     (awvalid && wvalid) w_next_state = W_WAIT_B ;
             else if(awvalid          ) w_next_state = W_WAIT_W ;
             else if(           wvalid) w_next_state = W_WAIT_AW;
-            else                                  w_next_state = W_IDLE   ;
+            else                       w_next_state = W_IDLE   ;
         end
         W_WAIT_W  : begin
             if (wready) w_next_state = W_WAIT_B;
